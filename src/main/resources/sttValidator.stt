@@ -1,0 +1,95 @@
+S{
+	g:groups >>"OK!";
+}
+
+groups{
+	g:group>>*g;
+	?" " group " " groups;
+}
+group{
+  id "{" ?" " rules ?" " "}"; 
+}
+
+
+rules{
+	rule;
+	rule " " rules;
+}
+
+
+rule{
+  parts ";";
+  parts compilation ";";
+}
+
+
+
+compilation{
+	?" " ">>" ?" " compilationElements ?" ";
+}
+compilationElements{
+	compilationElement;
+	compilationElement " " compilationElements;
+}
+compilationElement{
+	id "\(" params "\)";
+    id;
+	"*" id;
+	quotedText;
+}
+
+
+parts{
+	mayLabeledPart;
+	mayLabeledPart " " parts;
+}
+
+part{
+  quotedText;
+  id;
+}
+
+quotedText{
+  doubleQuote text doubleQuote;
+}
+
+
+mayLabeledPart{
+	?label part; 
+}
+
+label{
+	id ":" ?" ";
+}
+
+text{
+	char;
+	char text;
+}
+char{
+	"([0]-[65535])";
+}
+
+doubleQuote{
+	"([34])";
+}
+
+id{
+     alpha;
+     alpha alphanums;	
+}
+
+alpha{
+	"(a-z A-Z _-_)";
+}
+
+alphanums {
+	alphanum;
+	alphanum alphanums;
+}
+
+alphanum
+{
+	"(a-z A-Z 0-9 _-_)";
+}
+

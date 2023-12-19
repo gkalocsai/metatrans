@@ -1,0 +1,10 @@
+expression{n:number>>n; e1:expression op:operator e2:expression >> *e1 " " *e2 " " op; "\(" e:expression "\)">>"\n" *e;}
+number{i: integer >> *i  integer(i);}
+integer{pi:positiveInteger >> *pi;"-" pi:positiveInteger >> "-" *pi;}
+positiveInteger{d:digit >> d;d:digits >> *d;}
+operator{"+">>"+";"-">>"-";"*">>"*";"/">>"/";}
+digits{
+       d:digit;
+       d:digit ds:digits>>d(ds);
+      }
+digit{d:"(0-9)">>d;}
