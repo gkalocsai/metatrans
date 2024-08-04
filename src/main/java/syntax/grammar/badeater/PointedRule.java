@@ -3,7 +3,7 @@ package syntax.grammar.badeater;
 import descriptor.CharSequenceDescriptor;
 import descriptor.OneCharDesc;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class PointedRule {
 
@@ -18,7 +18,7 @@ public class PointedRule {
 		super();
 		this.rule = r;
 		this.forward=forward;
-		V first=r.getFirstV();
+		SyntaxElement first=r.getFirstV();
 		if(first.isDescriptor())  {
 			this.csd = first.getCsd();
 			this.index = first.getDescribedLength()-1;	
@@ -107,7 +107,7 @@ public class PointedRule {
 				}
 			}
 		}else{
-			V[] tnt=rule.getRightside();
+			SyntaxElement[] tnt=rule.getRightside();
 			for(int i=0;i<tnt.length;i++) {
 				if(index == i) {
 					sb.append(" ");

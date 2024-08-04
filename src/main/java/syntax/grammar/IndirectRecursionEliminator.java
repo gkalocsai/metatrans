@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 
 
@@ -34,7 +34,7 @@ public class IndirectRecursionEliminator {
 	private void pullUpRules(List<Stack<Rule>> branches, Map<String, ArrayList<Rule>> grammar, boolean strict) throws GrammarException {
 		Rule low = branches.get(0).pop();
 		Rule into= branches.get(0).peek();
-		for(V rse:into.getRightside()) {
+		for(SyntaxElement rse:into.getRightside()) {
 			String rs=rse.getReferencedGroup();
 			boolean condition = rs != null && low.isDirectRecursive() && low.containsRefOnRightSide(into.getGroupname());
 			if( condition) {
@@ -42,7 +42,7 @@ public class IndirectRecursionEliminator {
 			}
 		}
 		
-		for(V v:low.getRightside()) {
+		for(SyntaxElement v:low.getRightside()) {
 			String refGroup=v.getReferencedGroup();
 			if(refGroup!= null && !into.getGroupname().equals(refGroup)){
 				List<Stack<Rule>> lowBranches = IndirectRecursionFinder.find(grammar, low.getGroupname());		

@@ -5,7 +5,7 @@ import java.util.List;
 
 import hu.kg.util.Util;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class OptionalVConverter {
 
@@ -36,7 +36,7 @@ public class OptionalVConverter {
 		int countOfNeededOptionalElements=Util.countTrue(needed);
 		int rightSideLength=(rr.getRightside().length-rr.countOfOptionalElements())+countOfNeededOptionalElements;
 
-		V[] rv=new V[rightSideLength];
+		SyntaxElement[] rv=new SyntaxElement[rightSideLength];
 		String[] labels = new String[rightSideLength];
 		int rightSideIndex = 0;
 		for(int i=0;i<rr.getRightside().length;i++){

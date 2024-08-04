@@ -5,8 +5,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import compilation.CompilationElement;
+import descriptor.GroupName;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class RuleIntoRulePuller {
 	
@@ -16,7 +17,7 @@ public class RuleIntoRulePuller {
 		Stack<CompilationElementPair> cepStack;
 		int indexOfReplacement= getIndexOfReplacement(into,r.getGroupname());
 
-		V[] rightside = generateVs(into, r, indexOfReplacement);
+		SyntaxElement[] rightside = generateVs(into, r, indexOfReplacement);
 		setAllLabelsInR(into, r, idCreator);
 		String[] labels=generateLabels(into,r, rightside.length,indexOfReplacement);
 		String compilationElementToReplace = getCompilationElementToReplaceFromLabels(into, indexOfReplacement);
@@ -108,17 +109,17 @@ public class RuleIntoRulePuller {
 		return labels;
 	}
 
-	private static V[] generateVs(Rule into, Rule r, int indexOfReSpacingment) {
+	private static SyntaxElement[] generateVs(Rule into, Rule r, int indexOfReSpacingment) {
 
 
-		V[] rightside= new V[into.getRightSideLength()+r.getRightSideLength()-1];
+		SyntaxElement[] rightside= new SyntaxElement[into.getRightSideLength()+r.getRightSideLength()-1];
 		int rightsideIndex=0;
 
-		V[] intosRS = into.getRightside();
+		SyntaxElement[] intosRS = into.getRightside();
 		for(int i=0; i < intosRS.length ;i++){
 			if(i==indexOfReSpacingment) {
-				for(V v2:r.getRightside()) {
-					rightside[rightsideIndex++] = new V(v2.getReferencedGroup());
+				for(SyntaxElement v2:r.getRightside()) {
+					rightside[rightsideIndex++] = new GroupName(v2.getReferencedGroup());
 				}
 			}else{
 				rightside[rightsideIndex++] = intosRS[i];

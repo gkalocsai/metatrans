@@ -12,7 +12,7 @@ public class Rule {
 	String groupname;
 	String[] labels;
 
-	V[] rightside;
+	SyntaxElement[] rightside;
 	CompilationElement[] compilation;
 	
 	private String[] rightSideAsString;
@@ -21,7 +21,7 @@ public class Rule {
 	
 
 
-	public Rule(String groupname, V[] rightside, String[] labels, CompilationElement[] compilation) {
+	public Rule(String groupname, SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation) {
 
 		this.groupname = groupname;
 		this.rightside = rightside;
@@ -72,7 +72,7 @@ public class Rule {
 
 	public Rule copy(){
 		String[] labelsCopy = copyLabels();
-		V[] rsCopy = copyRightside();
+		SyntaxElement[] rsCopy = copyRightside();
 		CompilationElement[] ceArrayCopy = copyCompilation();
 		return new Rule(this.groupname,rsCopy,labelsCopy,ceArrayCopy); 
 	}
@@ -85,8 +85,8 @@ public class Rule {
 		return ceArrayCopy;
 	}
 
-	public V[] copyRightside() {
-		V[] rsCopy= new V[this.rightside.length];
+	public SyntaxElement[] copyRightside() {
+		SyntaxElement[] rsCopy= new SyntaxElement[this.rightside.length];
 		for(int i = 0;i<rsCopy.length;i++){
 			rsCopy[i] = rightside[i].copy();
 		}
@@ -145,7 +145,7 @@ public class Rule {
 
 
 
-	public V getFirstV(){
+	public SyntaxElement getFirstV(){
 		return rightside[0];
 	}
 
@@ -158,7 +158,7 @@ public class Rule {
 		}
 
 
-		for(V v:rightside){
+		for(SyntaxElement v:rightside){
 			String refG=v.getReferencedGroup();
 			if(refG != null) result.add(refG);
 		}
@@ -178,11 +178,11 @@ public class Rule {
 		return groupname;
 	}
 
-	public V[] getRightside() {
+	public SyntaxElement[] getRightside() {
 		return rightside;
 	}
 
-	public void setRightside(V[] rightside) {
+	public void setRightside(SyntaxElement[] rightside) {
 		this.rightside = rightside;
 	}
 
@@ -221,7 +221,7 @@ public class Rule {
 	public String[] extractRefGroups() {
 		
 		String[] result=new String[rightside.length];
-		V[] rs=rightside;
+		SyntaxElement[] rs=rightside;
 		for(int i=0;i<rs.length;i++){
 			result[i] =rs[i].getReferencedGroup();
 		}
@@ -229,8 +229,8 @@ public class Rule {
 	}
 
 	public boolean containsRefOnRightSide(String groupRef) {
-		V[] rs=rightside;
-		for (V r : rs) {
+		SyntaxElement[] rs=rightside;
+		for (SyntaxElement r : rs) {
 			if(groupRef.equals(r.getReferencedGroup())) return true;
 		}
 		return false;
@@ -305,7 +305,7 @@ public class Rule {
 		if(rightSideAsString == null){
 			rightSideAsString = new String[rightside.length];
 			int i=0;
-			for(V v:rightside) {
+			for(SyntaxElement v:rightside) {
 				rightSideAsString[i++] = v.getReferencedGroup();
 			}
 		}
@@ -325,7 +325,7 @@ public class Rule {
 
 	
 	
-	public void reset(V[] rightside, String[] labels, CompilationElement[] compilation){
+	public void reset(SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation){
 		if(rightside.length != labels.length) throw new RuntimeException("Different arrayLengths");
 		this.rightside = rightside;
 		this.labels = labels;

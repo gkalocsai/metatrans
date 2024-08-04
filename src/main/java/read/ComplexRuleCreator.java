@@ -6,9 +6,10 @@ import java.util.List;
 
 import compilation.CompilationElement;
 import descriptor.CharSequenceDescriptor;
+import descriptor.GroupName;
 import hu.kg.util.CharSeqUtil;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class ComplexRuleCreator {
 
@@ -30,7 +31,7 @@ public class ComplexRuleCreator {
 		List<String> syntaxPartStrings=splitSyntax(syntax);
 		
 		boolean[] optional= new boolean[syntaxPartStrings.size()];
-		V[] rightside=new V[syntaxPartStrings.size()];
+		SyntaxElement[] rightside=new SyntaxElement[syntaxPartStrings.size()];
 		String[] label=new String[syntaxPartStrings.size()];
 		
 		int currentIndex=0;
@@ -50,7 +51,7 @@ public class ComplexRuleCreator {
 
 
 	
-	private static V getV(String part) {
+	private static SyntaxElement getV(String part) {
 		if(isOptional(part) || part.startsWith(".")) part = part.substring(1).trim();
 		
 		int colonIndex=CharSeqUtil.getNonQuotedIndex(part, ":", 0);
@@ -59,10 +60,10 @@ public class ComplexRuleCreator {
 		}
 		char first=part.charAt(0);
 		if( first != '\'' && first !='\"') {
-			return new V(part);
+			return new GroupName(part);
 		}else{
 			CharSequenceDescriptor csd=new CharSequenceDescriptor(part.substring(1, part.length()-1));
-			return new V(csd);
+			return csd;
 		}
 	}
 

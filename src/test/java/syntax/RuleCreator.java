@@ -5,6 +5,7 @@ import java.util.List;
 
 import compilation.CompilationElement;
 import descriptor.CharSequenceDescriptor;
+import descriptor.GroupName;
 
 public class RuleCreator {
 	
@@ -29,7 +30,7 @@ public class RuleCreator {
 
 		List <String> rightSideElementsInList= createrightSideElementsInList (rightSideAndCompilation[0]);
 
-		V[] rightside = createRightsideVs(rightSideElementsInList);
+		SyntaxElement[] rightside = createRightsideVs(rightSideElementsInList);
 		String[] labels = createLabels(rightSideElementsInList);
 		CompilationElement[] compilation;
 		if(rightSideAndCompilation.length>1){		
@@ -75,8 +76,8 @@ public class RuleCreator {
 		return result;
 	}
 
-	private static V[] createRightsideVs(List<String> rightSideElementsInList) {
-		V[] vs = new V[rightSideElementsInList.size()];
+	private static SyntaxElement[] createRightsideVs(List<String> rightSideElementsInList) {
+		SyntaxElement[] vs = new SyntaxElement[rightSideElementsInList.size()];
 		int i =0;
 		for(String rse:rightSideElementsInList){
 			String vString;
@@ -86,11 +87,11 @@ public class RuleCreator {
 			}else{				
 				vString = rse;				
 			}
-			V v;
+			SyntaxElement v;
 			if(vString.indexOf('\'') ==0 ){				
-				v=new V(new CharSequenceDescriptor(vString.substring(1)));
+				v=new CharSequenceDescriptor(vString.substring(1));
 			}else{
-				v= new V(vString);
+				v= new GroupName(vString);
 			}
 			vs[i] =v;
 			i++;

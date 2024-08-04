@@ -11,7 +11,7 @@ import java.util.Stack;
 import descriptor.CharSequenceDescriptor;
 import descriptor.OneCharDesc;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 import syntax.grammar.Grammarhost;
 
 public class BadTerminatorFinder {
@@ -199,8 +199,8 @@ public class BadTerminatorFinder {
 			checked.add(r);
 
 
-			V[] rs2=r.getRightside();
-			V last=rs2[rs2.length-1];
+			SyntaxElement[] rs2=r.getRightside();
+			SyntaxElement last=rs2[rs2.length-1];
 
 			if(last.isDescriptor()) {
 				OneCharDesc[] x = last.getCsd().getOcdArray();
@@ -235,18 +235,18 @@ public class BadTerminatorFinder {
 	}
 
 	private static Boolean isBad(Rule r, Grammarhost gh) {
-		V[] rsBeg = null;
+		SyntaxElement[] rsBeg = null;
 		if(r.isRightRecursive() ){
-			rsBeg=new V[r.getRightSideLength()-1];
+			rsBeg=new SyntaxElement[r.getRightSideLength()-1];
 			for(int i=0;i<r.getRightSideLength()-1;i++) {
 				rsBeg[i] = r.getRightside()[i];
 			}
 		}
 
-		V[] rsEnd=null;
+		SyntaxElement[] rsEnd=null;
 
 		if(r.isLeftRecursive()) {
-			rsEnd=new V[r.getRightSideLength()-1];
+			rsEnd=new SyntaxElement[r.getRightSideLength()-1];
 			for(int i=1;i<r.getRightSideLength();i++) {
 				rsEnd[i-1] = r.getRightside()[i];
 			}
@@ -254,11 +254,11 @@ public class BadTerminatorFinder {
 
 		if(r.isMidRecursive())  {
 			int midIndex=r.getIndexOfRefGroup(r.getGroupname());
-			rsBeg=new V[midIndex];
+			rsBeg=new SyntaxElement[midIndex];
 			for(int i=0;i<midIndex;i++) {
 				rsBeg[i] = r.getRightside()[i];
 			}
-			rsEnd = new V[r.getRightSideLength() - midIndex -1];
+			rsEnd = new SyntaxElement[r.getRightSideLength() - midIndex -1];
 			for(int i=0;i<rsEnd.length;i++) {
 				rsEnd[i] = r.getRightside()[i+midIndex+1];
 			}			
@@ -297,12 +297,12 @@ public class BadTerminatorFinder {
 		return false;
 	}
 
-	private static Boolean canEndWith(V[] full, V[] end) {
+	private static Boolean canEndWith(SyntaxElement[] full, SyntaxElement[] end) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	private static Boolean canBeginWith(V[] full, V[] start) {
+	private static Boolean canBeginWith(SyntaxElement[] full, SyntaxElement[] start) {
 		//TODO
 		return null;
 	}

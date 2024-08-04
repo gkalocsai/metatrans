@@ -4,8 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import hu.kg.util.CharSequenceInterval;
+import syntax.SyntaxElement;
 
-public class CharSequenceDescriptor {
+public class CharSequenceDescriptor implements SyntaxElement{
 
 	private OneCharDesc[] ocd;
 
@@ -135,6 +136,35 @@ public class CharSequenceDescriptor {
 		}
 		
 		return sb.toString();
+	}
+
+
+
+	@Override
+	public boolean isDescriptor() {
+		return true;
+	}
+
+
+
+	@Override
+	public String getReferencedGroup() {
+		
+		return null;
+	}
+
+
+
+	@Override
+	public CharSequenceDescriptor getCsd() {
+		return this;
+	}
+
+
+
+	@Override
+	public SyntaxElement copy() {
+		return new CharSequenceDescriptor(dsc);
 	}
 	
 }

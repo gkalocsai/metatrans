@@ -1,7 +1,7 @@
 package read;
 
 import compilation.CompilationElement;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class ReadRuleWithOptionalVs {
 
@@ -9,13 +9,13 @@ public class ReadRuleWithOptionalVs {
 	private String groupname;
 	private boolean[] optional;
 	private String[] label;
-	private V[] rightside;
+	private SyntaxElement[] rightside;
 	private CompilationElement[] compilation;
 	
 
 	
 	
-	public ReadRuleWithOptionalVs(String groupname, boolean[] optional, String[] label, V[] rightside,
+	public ReadRuleWithOptionalVs(String groupname, boolean[] optional, String[] label, SyntaxElement[] rightside,
 			CompilationElement[] compilation) {
 		super();
 		this.groupname = groupname;
@@ -35,7 +35,7 @@ public class ReadRuleWithOptionalVs {
 		return groupname;
 	}
 
-	public V[] getRightside() {
+	public SyntaxElement[] getRightside() {
 		return rightside;
 	}
 

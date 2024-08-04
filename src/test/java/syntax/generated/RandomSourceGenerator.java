@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 import syntax.grammar.Grammarhost;
 
 public class RandomSourceGenerator {
@@ -26,7 +26,7 @@ public class RandomSourceGenerator {
 			if(i>=r.getRightSideLength()) continue;
 			c.incIndex();
 			stack.push(c);
-			V v = r.getRightside()[i];
+			SyntaxElement v = r.getRightside()[i];
 			if(v.isDescriptor()) sb.append(v.getCsd().toString());
 			else{
 				recursionAllowed = recursionAllowedLength > sb.length();

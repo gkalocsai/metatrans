@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import descriptor.CharSequenceDescriptor;
+import descriptor.GroupName;
 import syntax.Rule;
-import syntax.V;
+import syntax.SyntaxElement;
 
 public class Grammarhost {
 
@@ -42,9 +43,9 @@ public class Grammarhost {
 		if(rl == null || rl.isEmpty()) return "";
 		int ri=(int) (rl.size()*Math.random());
 		Rule r=rl.get(ri);
-		V[] right=r.getRightside();
+		SyntaxElement[] right=r.getRightside();
 		
-		for(V v:right){
+		for(SyntaxElement v:right){
 			if(v.isDescriptor()) {
 				sb.append(v.getCsd().getRandomExample());
 			}else {
@@ -287,10 +288,10 @@ public class Grammarhost {
 	private void extractAndAddDescriptorRules(Rule r) {
 		Map<String,CharSequenceDescriptor> freshGroupnames = new LinkedHashMap<>();
 
-		V[] vs=r.getRightside();
+		SyntaxElement[] vs=r.getRightside();
 
 		for(int i=0;i<vs.length;i++){
-			V v=vs[i];
+			SyntaxElement v=vs[i];
 			if (v.isDescriptor() ) {
 				CharSequenceDescriptor csd=v.getCsd();
 				String groupName=null;
@@ -303,7 +304,7 @@ public class Grammarhost {
 				grammar.put(groupName,rlist);
 
 
-				vs[i] = new V(groupName);			
+				vs[i] = new GroupName(groupName);			
 			}
 		}
 	}
@@ -322,9 +323,9 @@ public class Grammarhost {
 		return new Rule(groupName,createVArray(csd),null,null);
 	}
 
-	private V[] createVArray(CharSequenceDescriptor csd) {
-		V[] va=new V[1];
-		va[0] = new V(csd);
+	private SyntaxElement[] createVArray(CharSequenceDescriptor csd) {
+		SyntaxElement[] va=new SyntaxElement[1];
+		va[0] = csd;
 		return va;
 	}
 
