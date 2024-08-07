@@ -30,7 +30,7 @@ public class RuleInterval {
 		if (getClass() != obj.getClass())
 			return false;
 		RuleInterval other = (RuleInterval) obj;
-		return begin == other.begin && last == other.last && rule == other.rule;
+		return begin == other.begin && last == other.last && rule.getGroupname().equals(other.rule.getGroupname());
 	}
 	   
 	
