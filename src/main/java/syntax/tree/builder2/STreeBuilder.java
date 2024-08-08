@@ -65,9 +65,13 @@ public class STreeBuilder {
 
 
 		List<RuleInterval[]> rights=new ArrayList<RuleInterval[]>();
-
+       
+		
 
 		RuleInterval[] currentRight=new RuleInterval[patternRs.length - (groupIndexInPattern)];
+		
+		if(!preFillCurrentRight(currentRight,after,part.last+1));
+		
 		for(;;) {
 			findNextValid(currentRight,after,part.last+1);
 			//azért ez a sorrend, mert lehet üres is!
@@ -82,24 +86,54 @@ public class STreeBuilder {
 
 
 
-	private void findNextValid(RuleInterval[] currentRight, String[] after, int i) {
-		if(after.length == 0) return;
-		for(int firstNull=0;firstNull<currentRight.length;firstNull++) {
-			if(currentRight[firstNull] == null) {
-				int sourceIndex=i;
-				if(firstNull != 0) {
-					sourceIndex = currentRight[firstNull-1].last+1;
-					List<RuleInterval> l = forward.get(""+sourceIndex);
-					String search=after[firstNull];
-					for(RuleInterval rl:l) {
-						if(rl.rule.getGroupname().equals(search)) {
-							currentRight[firstNull] = rl;
-							return;
-						}
-					}
+	
+
+
+	private boolean stepRight(RuleInterval[] currentRight, String[] groupNames, int fromGroupNameIndex, int sourceIndex) {
+		if(fromGroupNameIndex >= groupNames.length) return true;
+		RuleInterval searchAfterThis = currentRight[fromGroupNameIndex];
+		String groupName = groupNames[fromGroupNameIndex];
+		List<RuleInterval> l = forward.get(""+sourceIndex);
+		if(l == null) return false;
+		boolean found = false;
+		if(searchAfterThis == null) found=true;
+		for(RuleInterval ri:l) {
+			if(found) {
+				if(ri.rule.getGroupname().equals(groupName)) {
+					currentRight[z] = ri;
+					return stepRight(currentRight, groupNames, fromGroupNameIndex+1, ri.last+1);
 				}
 			}
+		    if(ri == searchAfterThis) found=true;
 		}
+		for(int i=fromGroupNameIndex;i<currentRight.length;i++) {
+			currentRight[i] = null;
+		}
+		return false;
+	}
+
+
+
+	private boolean onlyNulls(RuleInterval[] currentRight) {
+		for(RuleInterval ri:currentRight) {
+			if(ri != null) return false;
+		}
+		return true;
+	}
+
+	private boolean onlyNonNulls(RuleInterval[] currentRight) {
+		for(RuleInterval ri:currentRight) {
+			if(ri == null) return false;
+		}
+		return true;
+	}
+
+    
+	
+	
+
+	private void findNextValid(RuleInterval[] currentRight, String[] after, int sourceIndex) {
+		if(fillFirstNull(currentRight, after, sourceIndex)) {return;}
 		//************************nem találtunk null-t, léptessük az utolsót************************************
 		for(int z=currentRight.length-1; z>=0;z--) {
 			RuleInterval searchAfterThis = currentRight[z];
@@ -116,6 +150,28 @@ public class STreeBuilder {
 			}
 			currentRight[z] = null;
 		}
+	}
+
+
+
+	private boolean fillFirstNull(RuleInterval[] currentRight, String[] after, int sourceIndex) {
+		if(after.length == 0) return;
+		for(int firstNull=0;firstNull<currentRight.length;firstNull++) {
+			if(currentRight[firstNull] == null) {
+				if(firstNull != 0) {
+					sourceIndex = currentRight[firstNull-1].last+1;
+					List<RuleInterval> l = forward.get(""+sourceIndex);
+					String search=after[firstNull];
+					for(RuleInterval rl:l) {
+						if(rl.rule.getGroupname().equals(search)) {
+							currentRight[firstNull] = rl;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 
