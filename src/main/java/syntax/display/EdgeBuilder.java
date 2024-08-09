@@ -78,18 +78,6 @@ public class EdgeBuilder {
 		return edgeList;
 	}
 
-	private RulePointingToSpacing[] createSortedArray(StatefulList<RulePointingToSpacing> nexts) {
-		RulePointingToSpacing[] result = new RulePointingToSpacing[nexts.size()];
-		int i=0;
-		for(RulePointingToSpacing rp:nexts) {
-			result[i++] = rp;
-		}
-		
-		Arrays.sort(result);
-		
-		return  result;
-	}
-
 	private int getNextHeight(int j, int k) {				
 		int nHeight=1;
 		

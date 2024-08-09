@@ -32,7 +32,10 @@ public class RuleInterval {
 		RuleInterval other = (RuleInterval) obj;
 		return begin == other.begin && last == other.last && rule.getGroupname().equals(other.rule.getGroupname());
 	}
-	   
+	
+	public String matchingString() {
+		return ""+begin+rule.getGroupname()+last;
+	}
 	
 	   
 }

@@ -4,6 +4,7 @@ package syntax;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -12,6 +13,8 @@ import org.junit.Test;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.SyntaxTreeBuilder;
+import syntax.tree.builder2.RuleInterval;
+import syntax.tree.builder2.STreeBuilder;
 
 public class CurrentTest {
 
@@ -24,7 +27,7 @@ bcefefa
 
 
 	 */
-	@Ignore
+	
 	@Test
 	public void gen4() throws IOException, GrammarException{
 				
@@ -53,11 +56,11 @@ bcefefa
 	
 		
 		
-		SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, source);
-		stb.showSyntaxtree();
+		STreeBuilder stb = new STreeBuilder(gh, source);
 		
-		Assert.assertTrue(stb.build());
+		Map<RuleInterval, RuleInterval[]> x = stb.build();
 		
+		System.out.println(x);
 		
 		
 	}
