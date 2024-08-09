@@ -14,8 +14,8 @@ import syntax.grammar.Grammarhost;
 public class STreeBuilder {
 
 	Map<String,List<RuleInterval>> forward = new HashMap<String, List<RuleInterval>>(); 
-	Map<String,List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
-	Map<RuleInterval, List<RuleInterval>> deduction=new HashMap<RuleInterval, List<RuleInterval>>();
+	//Map<String,List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
+	Map<RuleInterval, RuleInterval[]> deduction=new HashMap<RuleInterval, RuleInterval[]>();
 
 	private Grammarhost gh;
 	private String source;
@@ -30,15 +30,16 @@ public class STreeBuilder {
 
 
 
-	public boolean build() {
+	public Map<RuleInterval, RuleInterval[]> build() {
+		
 		addInitialRules();
+        
+         
 
 
 
 
-
-
-		return false;
+		return deduction;
 	}
 
 	private List<RuleInterval> matches(RuleInterval part,Rule pattern) {
@@ -46,42 +47,81 @@ public class STreeBuilder {
 		List<RuleInterval> result = new LinkedList<RuleInterval>();
 		String groupname=part.rule.getGroupname();
 		String[] patternRs=pattern.extractRefGroups(); 
-		for(int i=0;i<patternRs.length;i++) {
-			if(patternRs[i].equals(groupname)) {
-				result.addAll(matches(part, pattern, i));
-			}
+		
+		
+		if(patternRs[0].equals(groupname)) {
+			result.addAll(matches(part, pattern, 0));
 		}
+		
 		return result;
 	}
 
 	private List<RuleInterval> matches(RuleInterval part, Rule pattern, int groupIndexInPattern) {
 		List<RuleInterval> result = new LinkedList<RuleInterval>();
 		String[] patternRs=pattern.extractRefGroups();
-		String[] before=Arrays.copyOfRange(patternRs,0,groupIndexInPattern);
-		String[] after=Arrays.copyOfRange(patternRs, groupIndexInPattern, patternRs.length);
+		//String[] before=Arrays.copyOfRange(patternRs,0,groupIndexInPattern);
+		String[] afterGroupNames=Arrays.copyOfRange(patternRs, groupIndexInPattern+1, patternRs.length);
 
-
-		RuleInterval[]  originalMatches=setOriginalMatches(patternRs, groupIndexInPattern, part) ;
-
-
-		List<RuleInterval[]> rights=new ArrayList<RuleInterval[]>();
-       
+        int firstSourceIndex=part.last+1;
+        RuleInterval[] currentRight=new RuleInterval[patternRs.length - (groupIndexInPattern)];
 		
-
-		RuleInterval[] currentRight=new RuleInterval[patternRs.length - (groupIndexInPattern)];
+        List<RuleInterval[]> rights=getRigths(firstSourceIndex, groupIndexInPattern, currentRight, afterGroupNames);
+	    
 		
-		if(!preFillCurrentRight(currentRight,after,part.last+1));
+		for(RuleInterval[] ria:rights) {
+			RuleInterval[] n=new RuleInterval[ria.length+1];
+			n[0] = part;
+			int i=1;
+			for(RuleInterval ri: ria) {
+				n[i++] = ri;
+			}
+			
+			RuleInterval nri = new RuleInterval(pattern, part.begin, n[n.length-1].last);
+			this.deduction.put(nri, n);
+			
+			result.add(nri);
+		}
+		
+		return result;
+	}
+
+
+
+	private List<RuleInterval[]> getRigths(int  firstSourceIndex, int groupIndexInPattern, RuleInterval[] currentRight, String[] afterGroupNames) {
+		List<RuleInterval[]> rights=new LinkedList<RuleInterval[]>();
+		
+	
+		if(!stepRight(currentRight, afterGroupNames, 0, firstSourceIndex)) return null;
+		rights.add(currentRight);
+
+		int i=afterGroupNames.length-1;
+		
+		int sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
 		
 		for(;;) {
-			findNextValid(currentRight,after,part.last+1);
-			//azért ez a sorrend, mert lehet üres is!
-			if(onlyNonNulls(currentRight)) rights.add(currentRight);
-			if(onlyNulls(currentRight)) break;
-		}	
+		   while(stepRight(currentRight, afterGroupNames, i, sourceIndex)) rights.add(currentRight);
+		   i--;
+		   sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
+		   while(!stepRight(currentRight, afterGroupNames, i, sourceIndex)) {
+			   i--;
+			   if(i<0) return rights;
+		   }
+		   rights.add(currentRight);
+		   
+   		   i=afterGroupNames.length-1;
+   		   sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
+		}
 		
+	}
 
 
-		return result;
+
+	private int setSourceIndexRightside(int firstSourceIndex, RuleInterval[] currentRight, int i) {
+		int sourceIndex= firstSourceIndex;
+		if(i>0) {
+			sourceIndex= currentRight[i-1].last+1; 
+		}
+		return sourceIndex;
 	}
 
 
@@ -100,7 +140,10 @@ public class STreeBuilder {
 		for(RuleInterval ri:l) {
 			if(found) {
 				if(ri.rule.getGroupname().equals(groupName)) {
-					currentRight[z] = ri;
+					currentRight[fromGroupNameIndex] = ri;					
+					for(int i=fromGroupNameIndex+1;i<currentRight.length;i++) {
+						currentRight[i] = null;
+					}
 					return stepRight(currentRight, groupNames, fromGroupNameIndex+1, ri.last+1);
 				}
 			}
@@ -129,67 +172,6 @@ public class STreeBuilder {
 	}
 
     
-	
-	
-
-	private void findNextValid(RuleInterval[] currentRight, String[] after, int sourceIndex) {
-		if(fillFirstNull(currentRight, after, sourceIndex)) {return;}
-		//************************nem találtunk null-t, léptessük az utolsót************************************
-		for(int z=currentRight.length-1; z>=0;z--) {
-			RuleInterval searchAfterThis = currentRight[z];
-			List<RuleInterval> l = forward.get(""+z);
-			boolean found = false;
-			for(RuleInterval ri:l) {
-				if(found) {
-					if(ri.rule.getGroupname().equals(searchAfterThis.rule.getGroupname())) {
-						currentRight[z] = ri;
-						return;
-					}
-				}
-			    if(ri == searchAfterThis) found=true;
-			}
-			currentRight[z] = null;
-		}
-	}
-
-
-
-	private boolean fillFirstNull(RuleInterval[] currentRight, String[] after, int sourceIndex) {
-		if(after.length == 0) return;
-		for(int firstNull=0;firstNull<currentRight.length;firstNull++) {
-			if(currentRight[firstNull] == null) {
-				if(firstNull != 0) {
-					sourceIndex = currentRight[firstNull-1].last+1;
-					List<RuleInterval> l = forward.get(""+sourceIndex);
-					String search=after[firstNull];
-					for(RuleInterval rl:l) {
-						if(rl.rule.getGroupname().equals(search)) {
-							currentRight[firstNull] = rl;
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-
-
-	private RuleInterval[] setOriginalMatches(String[] groupNames, int groupIndexInPattern, RuleInterval part) {
-
-		RuleInterval[] currentMatches=new RuleInterval[groupNames.length];
-		currentMatches[groupIndexInPattern]=part;
-
-
-
-
-
-
-		return currentMatches;
-	}
-
-
 
 	private void addInitialRules() {
 		List<Rule> csdRuleList = this.gh.getCsdRules();
@@ -206,7 +188,7 @@ public class STreeBuilder {
 
 	private void addToMaps(RuleInterval ruleInterval) {
 		addToMap(forward, ""+ruleInterval.begin, ruleInterval);
-		addToMap(backward,""+ruleInterval.last, ruleInterval);
+		//addToMap(backward,""+ruleInterval.last, ruleInterval);
 	}
 
 
