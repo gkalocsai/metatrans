@@ -36,6 +36,10 @@ public class RuleInterval {
 	public String matchingString() {
 		return ""+begin+rule.getGroupname()+last;
 	}
+	@Override
+	public String toString() {
+		return rule.getGroupname() +": "+"["+begin+","+last+"]";
+	}
 	
 	   
 }

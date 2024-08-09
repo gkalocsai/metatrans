@@ -56,7 +56,8 @@ public class STreeBuilder {
 
 	private boolean handleNewIntervals(List<RuleInterval> nRIs) {
 		boolean wasChange=false;
-		
+		// a ruleIntervalEquality -re azért van szükség, hogy ne adjuk hozzá ugyanazt a ruleIntervalt,
+		// amit esetleg töröltünk az optimalizálás során
 		for(RuleInterval ri:nRIs) {
 			String matchString=ri.matchingString();
 			if(this.ruleIntervalEquality.contains(matchString)) {
@@ -70,13 +71,15 @@ public class STreeBuilder {
 			
 		}
 		
-
+      // Kidobunk olyan szabályokat a forward és backward mapekből,
+	  // amelyek már valószínűleg nem hasznosak a szintaxisfa felépítésében
+		
 		for(RuleInterval ri:nRIs) {
 			RuleInterval[] children=deduction.get(ri);
 			for(RuleInterval rr:children) {
-				if(rr.rule.isDirectRecursive()) {
+				//if(rr.rule.isDirectRecursive()) {
 					removeFromMaps(rr);
-				}	
+				//}	
 			}
 		}
 		return wasChange;

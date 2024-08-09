@@ -43,24 +43,26 @@ bcefefa
 		ruleList.add(RuleCreator.createRule("B->'b"));	
 		ruleList.add(RuleCreator.createRule("B->B 'e"));
 		
-	
-		
-		
-		
-		
-		
 					
 		Grammarhost gh=new Grammarhost(ruleList);
-	
-
-	
-		
-		
+			
 		STreeBuilder stb = new STreeBuilder(gh, source);
 		
 		Map<RuleInterval, RuleInterval[]> x = stb.build();
 		
-		System.out.println(x);
+		
+		StringBuilder sb=new StringBuilder();
+		for(RuleInterval k:x.keySet()) {
+			RuleInterval[] elem = x.get(k);
+			sb.append(k.toString() + " -> " );
+			for(RuleInterval ri:elem) {
+				sb.append(ri+" ");
+			}
+			sb.append("\n");
+		}
+		
+		
+		System.out.println(sb);
 		
 		
 	}
