@@ -14,11 +14,11 @@ public class Rule {
 
 	SyntaxElement[] rightside;
 	CompilationElement[] compilation;
-	
+
 	private String[] rightSideAsString;
 	private boolean directRecursive;
-	
-	
+
+
 
 
 	public Rule(String groupname, SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation) {
@@ -42,7 +42,7 @@ public class Rule {
 			this.compilation = compilation;
 		}
 
-		
+
 		setDefaultLabels();
 		if(this.rightside.length != this.labels.length){
 			throw new RuntimeException("Different arrayLengths");
@@ -59,12 +59,22 @@ public class Rule {
 
 	@Override
 	public boolean equals(Object other){
-		if(! (other instanceof Rule)) return false;
+		if(! (other instanceof Rule)) {
+			return false;
+		}
 		Rule o = (Rule) other;
-		if(!groupname.equals(o.groupname)) return false;
-		if(!Arrays.deepEquals(rightside, o.rightside)) return false;
-		if(!Arrays.deepEquals(compilation, o.compilation)) return false;
-		if(!Arrays.deepEquals(labels, o.labels)) return false;
+		if(!groupname.equals(o.groupname)) {
+			return false;
+		}
+		if(!Arrays.deepEquals(rightside, o.rightside)) {
+			return false;
+		}
+		if(!Arrays.deepEquals(compilation, o.compilation)) {
+			return false;
+		}
+		if(!Arrays.deepEquals(labels, o.labels)) {
+			return false;
+		}
 
 		return true;
 
@@ -74,7 +84,7 @@ public class Rule {
 		String[] labelsCopy = copyLabels();
 		SyntaxElement[] rsCopy = copyRightside();
 		CompilationElement[] ceArrayCopy = copyCompilation();
-		return new Rule(this.groupname,rsCopy,labelsCopy,ceArrayCopy); 
+		return new Rule(this.groupname,rsCopy,labelsCopy,ceArrayCopy);
 	}
 
 	public CompilationElement[] copyCompilation() {
@@ -106,21 +116,33 @@ public class Rule {
 	public String toString(){
 		//return toStringWoCompilation();
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.groupname+"->");
-		addRightsideString(sb);
-		if(compilation.length != 0)  sb.append(">>"+createCompilationString(compilation));
-
+		sb.append(this.toSyntax());
+		if(compilation.length != 0) {
+			sb.append(">>"+createCompilationString(compilation));
+		}
 		return sb.toString();
 	}
- 
+
+
+	public String toSyntax(){
+		//return toStringWoCompilation();
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.groupname+"->");
+		addRightsideString(sb);
+		return sb.toString();
+	}
+
+
 	private void addRightsideString(StringBuilder sb) {
 		for(int i=0;i<rightside.length;i++){
-			if(getLabels()[i]!=null && !getLabels()[i].isEmpty() 
+			if(getLabels()[i]!=null && !getLabels()[i].isEmpty()
 					&& !getLabels()[i].equals(rightside[i].getReferencedGroup())){
 				sb.append(getLabels()[i]+":");
 			}
 			sb.append(rightside[i]);
-			if(i<rightside.length-1) sb.append(" ");
+			if(i<rightside.length-1) {
+				sb.append(" ");
+			}
 		}
 	}
 
@@ -135,7 +157,7 @@ public class Rule {
 			if(!first){
 				sb.append(" ");
 			}else{
-				first = false;			
+				first = false;
 			}
 			sb.append(ce);
 		}
@@ -160,7 +182,9 @@ public class Rule {
 
 		for(SyntaxElement v:rightside){
 			String refG=v.getReferencedGroup();
-			if(refG != null) result.add(refG);
+			if(refG != null) {
+				result.add(refG);
+			}
 		}
 
 		return result;
@@ -197,11 +221,11 @@ public class Rule {
 
 
 	public void renameLabel (String original, String n) {
-		
+
 		int k= getIndexOfLabel(original);
 		labels[k] = n;
-		
-		
+
+
 		for (CompilationElement aCompilation : compilation) {
 			char outerType = aCompilation.getType();
 			if(outerType == ' ' || outerType == '*'){
@@ -210,16 +234,16 @@ public class Rule {
 			for(CompilationElement p:aCompilation.getParams()) {
 				if(p.getType() == ' ' || p.getType() =='*') {
 					p.setBase(n);
-				}	
+				}
 			}
 		}
 	}
 
-	
+
 
 
 	public String[] extractRefGroups() {
-		
+
 		String[] result=new String[rightside.length];
 		SyntaxElement[] rs=rightside;
 		for(int i=0;i<rs.length;i++){
@@ -231,7 +255,9 @@ public class Rule {
 	public boolean containsRefOnRightSide(String groupRef) {
 		SyntaxElement[] rs=rightside;
 		for (SyntaxElement r : rs) {
-			if(groupRef.equals(r.getReferencedGroup())) return true;
+			if(groupRef.equals(r.getReferencedGroup())) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -275,13 +301,13 @@ public class Rule {
 				return i;
 			}
 		}
-		return -1;
+		throw new RuntimeException("Invalid label: " + base+" "+this.toString());
 	}
 
 
 
 	public boolean isFreezer() {
-		return Character.isLowerCase(groupname.charAt(0));
+		return !Character.isLowerCase(groupname.charAt(0));
 	}
 
 
@@ -311,9 +337,11 @@ public class Rule {
 		}
 		return rightSideAsString;
 	}
-	
+
 	public String getRightSideRef(int index){
-		if(index<0 || index>=rightside.length) return null; 
+		if(index<0 || index>=rightside.length) {
+			return null;
+		}
 		return getGroupRefsAsArray()[index];
 	}
 
@@ -323,10 +351,12 @@ public class Rule {
 
 
 
-	
-	
+
+
 	public void reset(SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation){
-		if(rightside.length != labels.length) throw new RuntimeException("Different arrayLengths");
+		if(rightside.length != labels.length) {
+			throw new RuntimeException("Different arrayLengths");
+		}
 		this.rightside = rightside;
 		this.labels = labels;
 		this.compilation = compilation;
@@ -341,7 +371,7 @@ public class Rule {
 			boolean condition = (labels[i] == null || labels[i].isEmpty()) && !this.rightside[i].isDescriptor();
 			if(condition) {
 				labels[i] = rightside[i].getReferencedGroup();
-			}			
+			}
 		}
 	}
 
@@ -349,18 +379,20 @@ public class Rule {
 
 	public boolean hasLabel(String s) {
 		for(String l: labels){
-			if(l.equals(s)) return true;
+			if(l.equals(s)) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 
 
-	public boolean isDirectRecursive() {		
+	public boolean isDirectRecursive() {
 		return directRecursive;
 	}
 
-	public Collection<String> getRightSideAsStrCollection() {	
+	public Collection<String> getRightSideAsStrCollection() {
 		return Arrays.asList(getGroupRefsAsArray());
 	}
 
@@ -371,19 +403,19 @@ public class Rule {
 		return midRecCount>=1;
 	}
 
-	public boolean hasMultipleMidRecursions() {		
+	public boolean hasMultipleMidRecursions() {
 		return countMidRecursionRefs()>1;
 	}
 
 	public boolean isLeftRecursive() {
-		return groupname.equals(rightside[0].getReferencedGroup());		 
+		return groupname.equals(rightside[0].getReferencedGroup());
 	}
 
 	public boolean isRightRecursive() {
-		return groupname.equals(rightside[rightside.length-1].getReferencedGroup());		 
+		return groupname.equals(rightside[rightside.length-1].getReferencedGroup());
 	}
 
-	
+
 	private int countMidRecursionRefs() {
 		int midRecCount=0;
 		String[] sa = getGroupRefsAsArray();
@@ -410,5 +442,5 @@ public class Rule {
 		}
 		return -1;
 	}
-	
+
 }

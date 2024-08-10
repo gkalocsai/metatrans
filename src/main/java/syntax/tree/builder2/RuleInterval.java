@@ -6,11 +6,11 @@ import syntax.Rule;
 
 public class RuleInterval {
 
-	   Rule rule;
-	   int begin;
-	   int last;
+	 private   Rule rule;
+	 private   int begin;
+	 private   int last;
 	
-	   public RuleInterval(Rule rule, int begin, int last) {
+	 public RuleInterval(Rule rule, int begin, int last) {
 		this.rule = rule;
 		this.begin = begin;
 		this.last = last;
@@ -39,6 +39,18 @@ public class RuleInterval {
 	@Override
 	public String toString() {
 		return rule.getGroupname() +": "+"["+begin+","+last+"]";
+	}
+
+	public Rule getRule() {
+		return rule;
+	}
+
+	public int getBegin() {
+		return begin;
+	}
+
+	public int getLast() {
+		return last;
 	}
 	
 	   
