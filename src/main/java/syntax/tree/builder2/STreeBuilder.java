@@ -22,15 +22,21 @@ public class STreeBuilder {
 
 	private Grammarhost gh;
 	private String source;
-	private List<Rule> rules;
+
+
 	private String rootName;
+	private List<RuleInterval> matched= new LinkedList<RuleInterval>();
+	private Rule[] nonRecursiveRules;
+	private Rule[] recursiveRules;
 
 
 
 	public STreeBuilder(Grammarhost gh, String source) {
 		this.gh = gh;
 		this.source = source;
-		this.rules=gh.getRefRules();
+		this.nonRecursiveRules=gh.getNonRecursiveRefRules();
+		this.recursiveRules=gh.getRecursiveRefRules();
+
 		this.rootName=gh.getRootGroup();
 	}
 
@@ -39,60 +45,83 @@ public class STreeBuilder {
 	public Map<RuleInterval, RuleInterval[]> build() {
 		long startTime=System.currentTimeMillis();
 		addInitialRules();
-		List<RuleInterval> nRIs= new LinkedList<RuleInterval>();
-		//List<RuleInterval> nRIs2= new LinkedList<RuleInterval>();
-		boolean wasChange = true;
-		while(wasChange) {
-		wasChange = false;
-here:			for(String k:forward.keySet()) {
 
-				List<RuleInterval> rl=forward.get(k);
-				for(RuleInterval ri:rl) {
-					for(Rule r: rules) {
-						List<RuleInterval> current = matches(ri, r);
+		processForward();
 
-						if(r.isLeftRecursive() && !current.isEmpty()) {
-							for(RuleInterval elem:current) {
-								extendToRight(elem);
-							}
-							nRIs.addAll(current);
-							break here;
-						}
-						nRIs.addAll(current);
-					}
-				}
-			}
-			wasChange=handleNewIntervals(nRIs);
-			nRIs.clear();
-		}
 		System.out.println("Time elapsed: " + (System.currentTimeMillis()-startTime)+" ms");
 		return deduction;
 	}
 
-	private void extendToRight(RuleInterval elem) {
+
+
+	private void processForward() {
+		boolean wasChange = true;
+		while(wasChange) {
+			matched.clear();
+			wasChange=false;
+			for(String k:forward.keySet()) {
+				List<RuleInterval> rl=forward.get(k);
+				for(RuleInterval ri:rl) {
+					for(Rule r: nonRecursiveRules) {
+						matchInner(ri, r);
+					}
+				}
+			}
+			for(String k:forward.keySet()) {
+				List<RuleInterval> rl=forward.get(k);
+				for(RuleInterval ri:rl) {
+					for(Rule r: recursiveRules) {
+						processLeftRecursiveMatched(ri, r);
+					}
+				}
+			}
+			wasChange=handleNewIntervals();
+		}
+	}
+
+	private void matchInner(RuleInterval ri, Rule r) {
+		List<RuleInterval> current = matches(ri, r);
+		matched.addAll(current);
+
+	}
+
+
+
+	private void processLeftRecursiveMatched(RuleInterval ri, Rule r) {
+		if(!r.isLeftRecursive()) {
+			return;
+		}
+		List<RuleInterval> current = matches(ri, r);
+		for(RuleInterval elem:current) {
+			RuleInterval c = extendToRight(elem);
+			if(c!=null) {
+				matched.add(c);
+			}
+		}
+		matched.addAll(current);
+	}
+
+	private RuleInterval extendToRight(RuleInterval elem) {
 		List<RuleInterval> li = matches(elem, elem.getRule());
 
-	    RuleInterval x= null;
+		RuleInterval x= null;
 		while(!li.isEmpty()) {
 
 			//TODO nem biztos, hogy az első szabály li.get(0) ????
 			x= new RuleInterval(elem.getRule(), elem.getBegin() ,li.get(0).getLast());
 			li = matches(x, elem.getRule());
 		}
-       if(x!=null) {
-		addToMaps(x);
-	}
-
+		return x;
 
 	}
 
 
 
-	private boolean handleNewIntervals(List<RuleInterval> nRIs) {
+	private boolean handleNewIntervals() {
 		boolean wasChange=false;
 		// a ruleIntervalEquality -re azért van szükség, hogy ne adjuk hozzá ugyanazt a ruleIntervalt,
 		// amit esetleg töröltünk az optimalizálás során
-		for(RuleInterval ri:nRIs) {
+		for(RuleInterval ri:matched) {
 			String matchString=ri.matchingString();
 			if(this.ruleIntervalEquality.contains(matchString)) {
 				continue;
@@ -107,29 +136,14 @@ here:			for(String k:forward.keySet()) {
 		// Kidobunk olyan szabályokat a forward és backward mapekből,
 		// amelyek már valószínűleg nem hasznosak a szintaxisfa felépítésében
 		//
-		for(RuleInterval ri:nRIs) {
+		for(RuleInterval ri:matched) {
 			if(ri.getRule().isLeftRecursive()) {
 				for(int i= ri.getBegin()+1;i<ri.getLast();i++) {
 					forward.remove(""+i);
 				}
 			}
-			RuleInterval[] children=deduction.get(ri);
-			if(children.length <2) {
-				continue;
-			}
-			for(RuleInterval rr:children) {
-				if(children.length <2) {
-					continue;
-				}
-				if(rr.getBegin() == 0 && rr.getLast() == source.length()-1) {
-					continue;
-				}
-				if(!rr.getRule().isFreezer()) {
-					removeFromMaps(rr);
-				}
-			}
-		}
 
+		}
 		return wasChange;
 	}
 

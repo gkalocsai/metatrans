@@ -1,13 +1,18 @@
 package syntax.compilation.i2p;
 
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class Infix2PostfixConverter {
 
-	private static boolean isOperator(char c)
+	private static boolean isOperator(String token)
 	{
-		return c == '+' || c == '-' || c == '*' || c == '/' || c == '^'
-				|| c == '(' || c == ')';
+		if(token == null || token.length() != 1) {
+			return false;
+		}
+		char t = token.charAt(0);
+		return t == '+' || t == '-' || t == '*' || t == '/' || t == '^'
+				|| t == '(' || t == ')';
 	}
 
 	private static boolean isLowerPrecedence(char op1, char op2)
@@ -35,68 +40,36 @@ public class Infix2PostfixConverter {
 
 	public static String convertToPostfix(String infix)
 	{
-		Stack<Character> stack = new Stack<Character>();
+		Stack<String> opStack = new Stack<String>();
 		StringBuffer postfix = new StringBuffer(infix.length());
-		char c;
 
-		for (int i = 0; i < infix.length(); i++)
-		{
-			c = infix.charAt(i);
+		StringTokenizer parser = new StringTokenizer(infix, "+-*/()", true);
 
-			if (Character.isDigit(c)){
-				while (Character.isDigit(c)){   
-					postfix.append(c);
-					i++;
-					if(i == infix.length()) break;
-					c = infix.charAt(i);
-				}
-				postfix.append(" ");
-			}
-			if(i == infix.length()) break;
-			c = infix.charAt(i);
-			if(isOperator(c))
-			{
-				if (c == ')')
-				{
+		while(parser.hasMoreTokens()) {
+              String token =parser.nextToken();
+              if(isOperator(token)) {
+            	 char c=token.charAt(0);
+            	 while(!opStack.isEmpty() && !isLowerPrecedence(opStack.peek().charAt(0), c)) {
+            		 postfix.append(" ");
+            		 postfix.append(opStack.pop());
+            	 }
+            	 if(c==')') {
+            		 String op= opStack.pop();
+            		 while (op.charAt(0) !='(') {
+            			 postfix.append(" "+op);
+                         op = opStack.pop();
+            		 }
+            	 } else {
+					opStack.push(token);
+				 }
+              }else if(token.trim().length() == 0) {
+              }else {
+                postfix.append(" "+token);
+              }
 
-					while (!stack.isEmpty() && stack.peek() != '(')
-					{
-						postfix.append(stack.pop());
-						postfix.append(" ");
-					}
-					if (!stack.isEmpty())
-					{
-						stack.pop();
-					}
-				}
-
-				else
-				{
-					if (!stack.isEmpty() && !isLowerPrecedence(c, stack.peek()))
-					{
-						stack.push(c);
-					}
-					else
-					{
-						while (!stack.isEmpty() && isLowerPrecedence(c, stack.peek()))
-						{
-							Character pop = stack.pop();
-							if (pop != '(')
-									{
-								postfix.append(pop+" ");
-								
-									} else {
-										c = pop;
-									}
-						}
-						stack.push(c);
-					}
-
-				}
-			}
 		}
-		while (!stack.isEmpty()) {
-			postfix.append(stack.pop()+" ");
+		while(!opStack.isEmpty()) {
+			postfix.append(" "+opStack.pop());
 		}
 		return postfix.toString().trim();
 	}

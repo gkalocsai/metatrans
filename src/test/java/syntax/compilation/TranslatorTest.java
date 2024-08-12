@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import compilation.TranslationResult;
 import compilation.Translator;
+import compilation2.Transpiler;
 import read.RuleReader;
 import syntax.Rule;
 import syntax.RuleCreator;
@@ -17,96 +18,102 @@ import syntax.grammar.Grammarhost;
 
 public class TranslatorTest {
 
-	
-	
+
+
 	@Test
 	public void expAddition() throws IOException, GrammarException{
-		
-		
+
+
 		String syntaxFileContent;           // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
-		
-		
+
+
 		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
 				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
 				+ "ds{d;ds d>>d ds;}"
 				+ "d{d:\"(0-9)\">>d;}";
-		
+
 		//String sourceFileContent ="(53+45)*2+19+56+53+1";
 		String sourceFileContent ="2+1+56";
-		
-		
-		
-		
-			
+
+
+
+
+
 		RuleReader rr = new RuleReader(syntaxFileContent);
 		List<Rule> ruleList=rr.getAllRules();
 		Grammarhost gh=new Grammarhost(ruleList);
 		System.out.println(gh);
-		
+
 		Translator tr = new Translator(gh, true);
-		
+
 		TranslationResult trr = tr.translate( sourceFileContent,"exp");
-		
-    	
+
+
     	System.out.print(trr.getResult());
         Assert.assertEquals("2 1 + 56 +",trr.getResult());
 	}
-	
-	
+
+
 	@Test
 	public void exp2() throws IOException, GrammarException{
-		
-		
+
+
 		String syntaxFileContent;           // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
-		
-		
+
+
 		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
 				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
 				+ "ds{d;ds d>>d ds;}"
 				+ "d{d:\"(0-9)\">>d;}";
-		
+
 		String sourceFileContent ="(53+45)*2+19+56+53+1";
-		
-		
-		
-			
-		RuleReader rr = new RuleReader(syntaxFileContent);
-		List<Rule> ruleList=rr.getAllRules();
-		Grammarhost gh=new Grammarhost(ruleList);
-		System.out.println(gh);
-		
-		Translator tr = new Translator(gh, true);
-		
-		TranslationResult trr = tr.translate( sourceFileContent,"exp");
-		
-    	
-    	System.out.print(trr.getResult());
-        Assert.assertEquals("53 45 + 2 * 19 + 56 + 53 + 1 +",trr.getResult());
+
+
+
+//
+//		RuleReader rr = new RuleReader(syntaxFileContent);
+//		List<Rule> ruleList=rr.getAllRules();
+//		Grammarhost gh=new Grammarhost(ruleList);
+//		System.out.println(gh);
+//
+//		Translator tr = new Translator(gh, true);
+//
+//		TranslationResult trr = tr.translate( sourceFileContent,"exp");
+//
+//
+//    	System.out.print(trr.getResult());
+//        Assert.assertEquals("53 45 + 2 * 19 + 56 + 53 + 1 +",trr.getResult());
+
+
+        Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
+	    String x2 = trp.transpile();
+
+	    System.out.println(x2);
 	}
-	
+
 
 	@Test
 	public void exp() throws IOException, GrammarException{
-		
-		
-		
+
+
+
 		String syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
 				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
 				+ "ds{d;d ds:ds>>d(ds);}"
 				+ "d{d:\"(0-9)\">>d;}";
 		String sourceFileContent ="(5+2)+(5+5)";
-	
-		
+
+
 		RuleReader rr = new RuleReader(syntaxFileContent);
 		List<Rule> ruleList=rr.getAllRules();
 		Grammarhost gh=new Grammarhost(ruleList);
 		System.out.println(gh);
-		
+
 		Translator tr = new Translator(gh,true);
-		
+
 		TranslationResult trr = tr.translate( sourceFileContent,null);
-		
-    	
+
+
     	System.out.print(trr.getResult());
         Assert.assertEquals("5 2 + 5 5 + +",trr.getResult());
 	}
@@ -114,36 +121,36 @@ public class TranslatorTest {
 
 	@Test
 	public void exp3() throws IOException, GrammarException{
-		
-		
+
+
 		String syntaxFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
-		
-		
+
+
 		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
 				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
 				+ "ds{d;d ds:ds>>d(ds);}"
 				+ "d{d:\"(0-9)\">>d;}";
-		
-		
+
+
 		String sourceFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.src").trim();
-		
+
 		//sourceFileContent="9*(5)*2";
 		sourceFileContent="9*5*2";
-		
+
 		RuleReader rr = new RuleReader(syntaxFileContent);
 		List<Rule> ruleList=rr.getAllRules();
 		Grammarhost gh=new Grammarhost(ruleList);
 		System.out.println(gh);
-		
+
 		Translator tr = new Translator(gh);
-		
+
 		TranslationResult trr = tr.translate( sourceFileContent,null);
-		
-    	
+
+
     	System.out.print(trr.getResult());
         Assert.assertEquals("9 5 * 2 *",trr.getResult());
 	}
-	
+
 	@Test
 	public void simpleTranslate() throws GrammarException{
 
@@ -156,10 +163,10 @@ public class TranslatorTest {
 		String source = "aabc";
 		Translator tr=new Translator(rl,null);
 		TranslationResult x=tr.translate(source,null);
-		Assert.assertEquals("2311", x.getResult()); 
+		Assert.assertEquals("2311", x.getResult());
 
 	}
-	
+
 	@Test
 	public void simpleTrans() throws GrammarException {
 
@@ -170,7 +177,7 @@ public class TranslatorTest {
 		rl.add(r1);
 		rl.add(RuleCreator.createRule("B->'b"));
 		rl.add(RuleCreator.createRule("B->C B"));
-		
+
 
 		rl.add(RuleCreator.createRule("G->B"));
 		rl.add(RuleCreator.createRule("D->'bb"));
@@ -211,10 +218,10 @@ public class TranslatorTest {
 		Translator tr=new Translator(grammarhost);
 		TranslationResult x = tr.translate(source, null);
 		System.out.println(x.getResult());
-		Assert.assertEquals("x54 78", x.getResult());		
+		Assert.assertEquals("x54 78", x.getResult());
 	}
 
-	
+
 	@Test
 	public void midRecTestGoodSource() throws GrammarException{
 
@@ -248,7 +255,7 @@ public class TranslatorTest {
 
 	}
 
-	
+
 	@Test
 	public void rightRecTestGoodSource() throws GrammarException{
 
@@ -271,7 +278,7 @@ public class TranslatorTest {
 		Translator tr=new Translator(grammarhost,true);
 		TranslationResult x = tr.translate(source, null);
 		System.out.println(x.getResult());
-		Assert.assertEquals("54 78 h", x.getResult());	
+		Assert.assertEquals("54 78 h", x.getResult());
 	}
 
 	private Rule createRule(String string) {
