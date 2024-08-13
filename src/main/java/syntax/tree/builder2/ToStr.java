@@ -12,13 +12,11 @@ public class ToStr {
 	public static List<char[]> toCharArrayList(Map<String, List<RuleInterval>> forward, String source) {
 		List<char[]> result=new LinkedList<char[]>();
 		List<RuleInterval> collected=new LinkedList<RuleInterval>();
-		int max = -1;
+		int max = source.length();
 		for(String k:forward.keySet()) {
 			for(RuleInterval ri:forward.get(k)) {
 				collected.addLast(ri);
-				if(ri.getLast() > max) {
-					max = ri.getLast();
-				}
+
 			}
 		}
 		char[] sourceLine = new char[(RULE_STRING_SIZE+5)*max+2];

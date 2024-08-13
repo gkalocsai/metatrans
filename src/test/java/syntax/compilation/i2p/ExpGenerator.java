@@ -16,14 +16,16 @@ public class ExpGenerator {
 		return Integer.toString((result));
 	}
 	String generate(){
-		if (exp.length()>12) return exp;
-		if (Math.random()<0.75){
+		if (exp.length()>12) {
+			return exp;
+		}
+		if (Math.random()<0.65){
 			int extend=(int) (Math.random()*5);
 			ExpGenerator expGen = new ExpGenerator();
 			switch (extend){
 			  case 0:{
 				  exp = "("+expGen.generate()+")";
-				  break;  
+				  break;
 			  }
 			  case 1:{
 				  exp = expGen.generate()+"+"+exp;
