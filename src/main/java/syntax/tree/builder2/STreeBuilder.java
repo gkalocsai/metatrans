@@ -3,6 +3,7 @@ package syntax.tree.builder2;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import syntax.grammar.Grammarhost;
 
 public class STreeBuilder {
 
-	Map<String,List<RuleInterval>> forward = new HashMap<String, List<RuleInterval>>();
+	Map<String,List<RuleInterval>> forward = new LinkedHashMap<String, List<RuleInterval>>();
 	//Map<String,List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
 	Map<RuleInterval, RuleInterval[]> deduction=new HashMap<RuleInterval, RuleInterval[]>();
 
@@ -48,6 +49,7 @@ public class STreeBuilder {
 
 		processForward();
 
+		System.out.println(this.toString());
 		System.out.println("Time elapsed: " + (System.currentTimeMillis()-startTime)+" ms");
 		return deduction;
 	}
@@ -62,27 +64,44 @@ public class STreeBuilder {
 			for(String k:forward.keySet()) {
 				List<RuleInterval> rl=forward.get(k);
 				for(RuleInterval ri:rl) {
-					for(Rule r: nonRecursiveRules) {
-						matchInner(ri, r);
+					for(Rule r: gh.getRefRules()) {
+						List<RuleInterval> current = matches(ri, r);
+						matched.addAll(current);
 					}
 				}
 			}
-			for(String k:forward.keySet()) {
-				List<RuleInterval> rl=forward.get(k);
-				for(RuleInterval ri:rl) {
-					for(Rule r: recursiveRules) {
-						processLeftRecursiveMatched(ri, r);
-					}
-				}
-			}
+			//			for(String k:forward.keySet()) {
+			//				List<RuleInterval> rl=forward.get(k);
+			//				for(RuleInterval ri:rl) {
+			//					for(Rule r: recursiveRules) {
+			//						processLeftRecursiveMatched(ri, r);
+			//					}
+			//				}
+			//			}
 			wasChange=handleNewIntervals();
+			if(isReady(gh.getRootGroup(), source.length())) {
+				return;
+			}
 		}
 	}
 
-	private void matchInner(RuleInterval ri, Rule r) {
-		List<RuleInterval> current = matches(ri, r);
-		matched.addAll(current);
 
+
+
+	private boolean isReady(String rootGroup, int length) {
+		List<RuleInterval> list = forward.get("0");
+		if(list == null) {
+			return false;
+		}
+
+
+
+		for(RuleInterval ri:list ) {
+			if(ri.getLast() >= length-1 && ri.getRule().getGroupname().equals(rootGroup)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
@@ -136,14 +155,13 @@ public class STreeBuilder {
 		// Kidobunk olyan szabályokat a forward és backward mapekből,
 		// amelyek már valószínűleg nem hasznosak a szintaxisfa felépítésében
 		//
-		for(RuleInterval ri:matched) {
+		/*for(RuleInterval ri:matched) {
 			if(ri.getRule().isLeftRecursive()) {
 				for(int i= ri.getBegin()+1;i<ri.getLast();i++) {
 					forward.remove(""+i);
 				}
 			}
-
-		}
+		}*/
 		return wasChange;
 	}
 
@@ -212,8 +230,6 @@ public class STreeBuilder {
 		return result;
 	}
 
-
-
 	private List<RuleInterval[]> getRigths(int  firstSourceIndex, int groupIndexInPattern, RuleInterval[] currentRight, String[] afterGroupNames) {
 		List<RuleInterval[]> rights=new LinkedList<RuleInterval[]>();
 
@@ -264,10 +280,6 @@ public class STreeBuilder {
 	}
 
 
-
-
-
-
 	private boolean stepRight(RuleInterval[] currentRight, String[] groupNames, int fromGroupNameIndex, int sourceIndex) {
 
 		if(fromGroupNameIndex >= groupNames.length) {
@@ -304,11 +316,6 @@ public class STreeBuilder {
 		return false;
 	}
 
-
-
-
-
-
 	private void addInitialRules() {
 		List<Rule> csdRuleList = this.gh.getCsdRules();
 		for(int i = 0;i < source.length(); i++){
@@ -323,6 +330,7 @@ public class STreeBuilder {
 
 
 	private boolean addToMaps(RuleInterval ruleInterval) {
+
 		return addToMap(forward, ""+ruleInterval.getBegin(), ruleInterval);
 		//addToMap(backward,""+ruleInterval.last, ruleInterval);
 	}
@@ -342,8 +350,6 @@ public class STreeBuilder {
 		return true;
 	}
 
-
-
 	public RuleInterval getRoot() {
 		List<RuleInterval> candidates = forward.get("0");
 		if(candidates == null) {
@@ -357,6 +363,24 @@ public class STreeBuilder {
 		return null;
 
 	}
+	@Override
+	public String toString() {
+		List<char[]> x = ToStr.toCharArrayList(forward,source);
+		StringBuilder sb=new StringBuilder();
+		for(char[] ca: x) {
+			for(char c:ca) {
+				if(c==0) {
+					sb.append(" ");
+				}else {
+					sb.append(c);
+				}
+			}
+
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
 
 
 }
