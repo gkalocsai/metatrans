@@ -20,14 +20,14 @@ public class Infix2PostfixTest {
 	public void exp2() throws IOException, GrammarException{
         int count =0;
 
-		String syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+		String syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
 				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
 				+ "ds{d >> d;ds d>> ds d;}"
 				+ "d{d:\"(0-9)\">>d;}";
 		for(int i=0; i<100 ;i++){
 			String sourceFileContent =new ExpGenerator().generate();
 
-			//String sourceFileContent = "(22)";
+			//String sourceFileContent = "((22))";
 			String expected=Infix2PostfixConverter.convertToPostfix(sourceFileContent);
 
 

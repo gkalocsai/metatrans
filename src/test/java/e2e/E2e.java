@@ -1,17 +1,9 @@
 package e2e;
 
-import java.util.List;
-
 import org.junit.Test;
 
-import compilation.TranslationResult;
-import compilation.Translator;
 import compilation2.Transpiler;
-import read.RuleReader;
-import syntax.Rule;
 import syntax.grammar.GrammarException;
-import syntax.grammar.Grammarhost;
-import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class E2e {
 
@@ -112,25 +104,25 @@ public class E2e {
 	    		+ "külső kapocs, mintahogy az életben sorsok "
 	    		+ "másra következő részek közt néha alig van \n"
 ;
-//	    String sourceFileContent=StringLoadUtil.loadResource("45K.txt");
+	//    sourceFileContent=StringLoadUtil.loadResource("45K.txt");
 
-//	    sourceFileContent = sourceFileContent.substring(0, 240);
+	//    sourceFileContent = sourceFileContent.substring(0, 100);
 	    long startTime=System.currentTimeMillis();
-		RuleReader rr = new RuleReader(syntaxFileContent);
-		List<Rule> ruleList=rr.getAllRules();
-		Grammarhost grammarhost = new Grammarhost(ruleList);
-
-	    SyntaxTreeBuilder sb=new SyntaxTreeBuilder(grammarhost , sourceFileContent);
-	    //sb.showSyntaxtree();
-	    System.out.println(sb.build());
-
-
-
-	    Translator tr=new Translator(grammarhost);
-	    TranslationResult x = tr.translate(sourceFileContent, grammarhost.getRootGroup());
-
-	    System.out.println(x.getResult());
-	    System.out.println("Total Time elapsed: " + (System.currentTimeMillis()-startTime)+" ms");
+//		RuleReader rr = new RuleReader(syntaxFileContent);
+//		List<Rule> ruleList=rr.getAllRules();
+//		Grammarhost grammarhost = new Grammarhost(ruleList);
+//
+//	    SyntaxTreeBuilder sb=new SyntaxTreeBuilder(grammarhost , sourceFileContent);
+//	    //sb.showSyntaxtree();
+//	    System.out.println(sb.build());
+//
+//
+//
+//	    Translator tr=new Translator(grammarhost);
+//	    TranslationResult x = tr.translate(sourceFileContent, grammarhost.getRootGroup());
+//
+//	    System.out.println(x.getResult());
+//	    System.out.println("Total Time elapsed: " + (System.currentTimeMillis()-startTime)+" ms");
 
 	    Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
 	    String x2 = trp.transpile();
