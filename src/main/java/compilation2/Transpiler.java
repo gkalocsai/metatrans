@@ -17,32 +17,42 @@ public class Transpiler {
 	private Grammarhost grammarhost;
     private StringBuilder sb=new StringBuilder();
 	private Map<RuleInterval, RuleInterval[]> deduction;
-	
-	
-	
+
 	public Transpiler(String source, String syntaxFileContent) throws GrammarException  {
-		
+
 		RuleReader rr = new RuleReader(syntaxFileContent);
 		List<Rule> ruleList=rr.getAllRules();
 		this.grammarhost = new Grammarhost(ruleList);
 		this.source=source;
-		
+
 	}
-	
+
+
+	public Transpiler(String source, Grammarhost gh) throws GrammarException  {
+		this.grammarhost = gh;
+		this.source=source;
+
+	}
+
+
 	public String transpile() {
+
+		if(!sb.isEmpty()) {
+			return sb.toString();
+		}
 		STreeBuilder stb=new STreeBuilder(grammarhost, source);
 		deduction = stb.build();
 		RuleInterval root=stb.getRoot();
-		if(root == null) return null;
-		
-		
+		if(root == null) {
+			return null;
+		}
+
+
 		doTranspile(root);
-		
 		return sb.toString();
-		
 	}
 
-	
+
 	private void doTranspile(RuleInterval e) {
 		Rule r=e.getRule();
 		RuleInterval[] ra = deduction.get(e);
@@ -60,5 +70,5 @@ public class Transpiler {
 			}
 		}
 	}
-	
+
 }

@@ -7,8 +7,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import compilation.TranslationResult;
-import compilation.Translator;
 import compilation2.Transpiler;
 import read.RuleReader;
 import syntax.Rule;
@@ -27,12 +25,29 @@ public class TranslatorTest {
 		String syntaxFileContent;           // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
 
 
-		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
-				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
+		syntaxFileContent=""
+				+ "exp{"
+				+ "n:ds>>n;"
+				+ "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;"
+				+ "}"
+				+ "exp2{"
+				+ "n:ds>>n;"
+				+ "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;"
+				+ "}"
+
+
+//				+ "top{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
 				+ "ds{d;ds d>>d ds;}"
 				+ "d{d:\"(0-9)\">>d;}";
 
 		//String sourceFileContent ="(53+45)*2+19+56+53+1";
+
+
+		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
+				+ "ds{d >> d;ds d>> ds d;}"
+				+ "d{d:\"(0-9)\">>d;}";
+
 		String sourceFileContent ="2+1+56";
 
 
@@ -44,13 +59,12 @@ public class TranslatorTest {
 		Grammarhost gh=new Grammarhost(ruleList);
 		System.out.println(gh);
 
-		Translator tr = new Translator(gh, true);
-
-		TranslationResult trr = tr.translate( sourceFileContent,"exp");
+		Transpiler trp = new Transpiler(sourceFileContent,gh);
 
 
-    	System.out.print(trr.getResult());
-        Assert.assertEquals("2 1 + 56 +",trr.getResult());
+
+    	//System.out.print(trp.transpile());
+        Assert.assertEquals("2 1 56 + +",trp.transpile());
 	}
 
 
@@ -101,6 +115,7 @@ public class TranslatorTest {
 				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
 				+ "ds{d;d ds:ds>>d(ds);}"
 				+ "d{d:\"(0-9)\">>d;}";
+
 		String sourceFileContent ="(5+2)+(5+5)";
 
 
@@ -109,13 +124,11 @@ public class TranslatorTest {
 		Grammarhost gh=new Grammarhost(ruleList);
 		System.out.println(gh);
 
-		Translator tr = new Translator(gh,true);
-
-		TranslationResult trr = tr.translate( sourceFileContent,null);
 
 
-    	System.out.print(trr.getResult());
-        Assert.assertEquals("5 2 + 5 5 + +",trr.getResult());
+        Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
+
+        Assert.assertEquals("5 2 + 5 5 + +",trp.transpile());
 	}
 
 
@@ -134,21 +147,12 @@ public class TranslatorTest {
 
 		String sourceFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.src").trim();
 
-		//sourceFileContent="9*(5)*2";
-		sourceFileContent="9*5*2";
-
-		RuleReader rr = new RuleReader(syntaxFileContent);
-		List<Rule> ruleList=rr.getAllRules();
-		Grammarhost gh=new Grammarhost(ruleList);
-		System.out.println(gh);
-
-		Translator tr = new Translator(gh);
-
-		TranslationResult trr = tr.translate( sourceFileContent,null);
+		sourceFileContent="9*(5)*2";
+		//sourceFileContent="9*5*2";
 
 
-    	System.out.print(trr.getResult());
-        Assert.assertEquals("9 5 * 2 *",trr.getResult());
+		Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
+		 Assert.assertEquals("9 5 * 2 *",trp.transpile());
 	}
 
 	@Test
@@ -161,9 +165,9 @@ public class TranslatorTest {
 		rl.add(RuleCreator.createRule("B->'b>>\"2\""));
 		rl.add(RuleCreator.createRule("C->'c>>\"3\""));
 		String source = "aabc";
-		Translator tr=new Translator(rl,null);
-		TranslationResult x=tr.translate(source,null);
-		Assert.assertEquals("2311", x.getResult());
+		Transpiler trp=new Transpiler(source, new Grammarhost(rl));
+
+		Assert.assertEquals("2311", trp.transpile());
 
 	}
 
@@ -186,9 +190,9 @@ public class TranslatorTest {
 		String source ="abbabb";
 		Grammarhost grammarhost = new Grammarhost(rl);
 
-		Translator tr=new Translator(grammarhost);
-		TranslationResult x = tr.translate(source, null);
-		Assert.assertEquals("hello", x.getResult());
+		Transpiler trp=new Transpiler(source, grammarhost);
+
+		Assert.assertEquals("hello", trp.transpile());
 	}
 
 
@@ -197,7 +201,7 @@ public class TranslatorTest {
 
 		List<Rule> rl=new LinkedList<>();
 
-		Rule r1=RuleCreator.createRule("M->M O E>>M \"\\s\" O E");
+		Rule r1=RuleCreator.createRule("M->M O E>>M \"X\" O E");
 		rl.add(r1);
 		rl.add(RuleCreator.createRule("M->'x>>\"x\""));
 
@@ -214,11 +218,9 @@ public class TranslatorTest {
 		String source ="x5478";
 
 		Grammarhost grammarhost = new Grammarhost(rl);
+		Transpiler trp=new Transpiler(source, grammarhost);
 
-		Translator tr=new Translator(grammarhost);
-		TranslationResult x = tr.translate(source, null);
-		System.out.println(x.getResult());
-		Assert.assertEquals("x54 78", x.getResult());
+		Assert.assertEquals("x54X78", trp.transpile());
 	}
 
 
@@ -227,7 +229,7 @@ public class TranslatorTest {
 
 		List<Rule> rl=new LinkedList<>();
 
-		Rule r1=RuleCreator.createRule("M->e1:E o1:O M o2:O e2:E>>e1 \"\\s\" o1 \"b\" *M \"a\" o2 e2");
+		Rule r1=RuleCreator.createRule("M->e1:E o1:O M o2:O e2:E>>e1 \"X\" o1 \"b\" *M \"a\" o2 e2");
 		rl.add(r1);
 		rl.add(RuleCreator.createRule("M->'x>>\"x\""));
 
@@ -247,10 +249,8 @@ public class TranslatorTest {
 
 		System.out.println(grammarhost);
 
-		Translator tr=new Translator(grammarhost,true);
-		TranslationResult x = tr.translate(source, null);
-
-		Assert.assertEquals("4 1b2 3bxa54a78", x.getResult());
+		Transpiler trp=new Transpiler(source, grammarhost);
+		Assert.assertEquals("4X1b2X3bxa54a78", trp.transpile());
 
 
 	}
@@ -261,7 +261,7 @@ public class TranslatorTest {
 
 		List<Rule> rl=new LinkedList<>();
 
-		Rule r1=RuleCreator.createRule("M->O E M>>O E \"\\s\" *M");
+		Rule r1=RuleCreator.createRule("M->O E M>>O E \"X\" *M");
 		rl.add(r1);
 		rl.add(RuleCreator.createRule("M->'x>>\"h\""));
 
@@ -275,10 +275,9 @@ public class TranslatorTest {
 
 		Grammarhost grammarhost = new Grammarhost(rl);
 
-		Translator tr=new Translator(grammarhost,true);
-		TranslationResult x = tr.translate(source, null);
-		System.out.println(x.getResult());
-		Assert.assertEquals("54 78 h", x.getResult());
+		Transpiler trp=new Transpiler(source, grammarhost);
+
+		Assert.assertEquals("54X78Xh", trp.transpile());
 	}
 
 	private Rule createRule(String string) {

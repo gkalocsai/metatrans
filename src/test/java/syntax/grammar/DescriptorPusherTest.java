@@ -1,4 +1,4 @@
-package syntax.restructure;
+package syntax.grammar;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
