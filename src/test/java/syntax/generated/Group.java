@@ -2,9 +2,9 @@ package syntax.generated;
 
 import java.util.UUID;
 
-import hu.kg.util.RandomUtil;
 import syntax.Rule;
 import syntax.RuleCreator;
+import util.RandomUtil;
 
 public class Group {
 

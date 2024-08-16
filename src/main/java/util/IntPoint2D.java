@@ -1,4 +1,4 @@
-package hu.kg.util;
+package util;
 
 public class IntPoint2D {
 

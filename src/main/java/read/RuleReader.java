@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import hu.kg.util.CharSeqUtil;
 import syntax.Rule;
+import util.CharSeqUtil;
 
 public class RuleReader {
 

@@ -2,7 +2,7 @@ package syntax;
 
 import org.junit.Test;
 
-import compilation2.Transpiler;
+import compilation.Transpiler;
 import syntax.grammar.GrammarException;
 
 public class DigitsTest {

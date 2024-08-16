@@ -2,10 +2,10 @@ package slow;
 
 import org.junit.Test;
 
-import compilation2.Transpiler;
-import hu.kg.util.StringLoadUtil;
+import compilation.Transpiler;
 import read.RuleReader;
 import syntax.grammar.GrammarException;
+import util.StringLoadUtil;
 
 public class Slow {
 

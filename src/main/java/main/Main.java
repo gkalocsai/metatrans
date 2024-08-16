@@ -2,9 +2,9 @@ package main;
 
 import java.io.IOException;
 
-import compilation2.Transpiler;
-import hu.kg.util.StringLoadUtil;
+import compilation.Transpiler;
 import syntax.grammar.GrammarException;
+import util.StringLoadUtil;
 
 public class Main {
 

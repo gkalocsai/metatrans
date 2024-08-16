@@ -1,15 +1,14 @@
-package compilation2;
+package compilation;
 
 import java.util.List;
 import java.util.Map;
 
-import compilation.CompilationElement;
 import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder2.RuleInterval;
-import syntax.tree.builder2.STreeBuilder;
+import syntax.tree.builder.RuleInterval;
+import syntax.tree.builder.STreeBuilder;
 
 public class Transpiler {
 

@@ -3,9 +3,9 @@ package read;
 import java.util.LinkedList;
 import java.util.List;
 
-import hu.kg.util.Util;
 import syntax.Rule;
 import syntax.SyntaxElement;
+import util.Util;
 
 public class OptionalVConverter {
 

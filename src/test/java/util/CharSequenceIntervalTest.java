@@ -5,7 +5,7 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import hu.kg.util.CharSequenceInterval;
+import util.CharSequenceInterval;
 
 
 

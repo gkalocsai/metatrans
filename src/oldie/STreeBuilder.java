@@ -16,6 +16,7 @@ import syntax.grammar.Grammarhost;
 public class STreeBuilder {
 
 	Map<String,List<RuleInterval>> forward = new LinkedHashMap<String, List<RuleInterval>>();
+	Map<String,List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
 	Map<RuleInterval, RuleInterval[]> deduction=new HashMap<RuleInterval, RuleInterval[]>();
 
 	private Set<String> ruleIntervalEquality=new HashSet<String>();
@@ -25,12 +26,17 @@ public class STreeBuilder {
 
 
 	private String rootName;
-	private List<Deduction> matched= new LinkedList<Deduction>();
+	private List<RuleInterval> matched= new LinkedList<RuleInterval>();
+	private Rule[] nonRecursiveRules;
+	private Rule[] recursiveRules;
+
 
 
 	public STreeBuilder(Grammarhost gh, String source) {
 		this.gh = gh;
 		this.source = source;
+		this.nonRecursiveRules=gh.getNonRecursiveRefRules();
+		this.recursiveRules=gh.getRecursiveRefRules();
 
 		this.rootName=gh.getRootGroup();
 	}
@@ -40,7 +46,11 @@ public class STreeBuilder {
 	public Map<RuleInterval, RuleInterval[]> build() {
 		long startTime=System.currentTimeMillis();
 		addInitialRules();
+		//System.out.println(this.toString());
+
 		processForward();
+
+		//System.out.println("Time elapsed: " + (System.currentTimeMillis()-startTime)+" ms");
 		return deduction;
 	}
 
@@ -55,78 +65,25 @@ public class STreeBuilder {
 				List<RuleInterval> rl=forward.get(k);
 				for(RuleInterval ri:rl) {
 					for(Rule r: gh.getRefRules()) {
-						List<Deduction> current = matchFromRuleBegin(ri, r);
-						for(Deduction d: current) {
-							deduction.put(d.getFrom(), d.getTo());
-							if(!processLeftRecursiveMatched(d)) {
-								matched.add(d);
-							}
-						}
+						List<RuleInterval> current = matches(ri, r);
+						matched.addAll(current);
 					}
 				}
 			}
+			//			for(String k:forward.keySet()) {
+			//				List<RuleInterval> rl=forward.get(k);
+			//				for(RuleInterval ri:rl) {
+			//					for(Rule r: recursiveRules) {
+			//						processLeftRecursiveMatched(ri, r);
+			//					}
+			//				}
+			//			}
 			wasChange=handleNewIntervals();
-
+			//System.out.println(this);
 			if(isReady(gh.getRootGroup(), source.length())) {
 				return;
 			}
 		}
-	}
-
-	private boolean processLeftRecursiveMatched(Deduction d) {
-		Rule r= d.getFrom().getRule();
-		if(!r.isLeftRecursive()) {
-			return false;
-		}
-		List<Deduction> current = matchFromRuleBegin(d.getFrom(), r);
-//		addToMaps(current);
-		if(current.isEmpty()) {
-			matched.add(d);
-			return true;
-		}
-
-		while(!current.isEmpty()) {
-			current = matchFromRuleBegin(d.getFrom(), r);
-			//addToMaps(current);
-			if(current.isEmpty()) {
-				matched.add(d);
-				break;
-			}
-			d=current.get(0);
-			deduction.put(d.getFrom(), d.getTo());
-		}
-        return true;
-	}
-
-	private void addToMaps(List<Deduction> current) {
-		for(Deduction d: current) {
-            RuleInterval ri = d.getFrom();
-            addToMaps(ri);
-		}
-
-	}
-
-
-
-	private RuleInterval extendToRight(RuleInterval elem) {
-		List<Deduction> li = matchFromRuleBegin(elem, elem.getRule());
-		for(Deduction d:li) {
-			matched.add(d);
-		}
-
-		RuleInterval x= null;
-		while(!li.isEmpty()) {
-
-			//TODO nem biztos, hogy az első szabály li.get(0) ????
-			x = new RuleInterval(elem.getRule(), elem.getBegin() ,li.get(0).getFrom().getLast());
-			li = matchFromRuleBegin(x, elem.getRule());
-			for(Deduction d:li) {
-				matched.add(d);
-			}
-
-		}
-		return x;
-
 	}
 
 
@@ -137,6 +94,9 @@ public class STreeBuilder {
 		if(list == null) {
 			return false;
 		}
+
+
+
 		for(RuleInterval ri:list ) {
 			if(ri.getLast() >= length-1 && ri.getRule().getGroupname().equals(rootGroup)) {
 				return true;
@@ -146,12 +106,42 @@ public class STreeBuilder {
 	}
 
 
+
+	private void processLeftRecursiveMatched(RuleInterval ri, Rule r) {
+		if(!r.isLeftRecursive()) {
+			return;
+		}
+		List<RuleInterval> current = matches(ri, r);
+		for(RuleInterval elem:current) {
+			RuleInterval c = extendToRight(elem);
+			if(c!=null) {
+				matched.add(c);
+			}
+		}
+		matched.addAll(current);
+	}
+
+	private RuleInterval extendToRight(RuleInterval elem) {
+		List<RuleInterval> li = matches(elem, elem.getRule());
+
+		RuleInterval x= null;
+		while(!li.isEmpty()) {
+
+			//TODO nem biztos, hogy az első szabály li.get(0) ????
+			x= new RuleInterval(elem.getRule(), elem.getBegin() ,li.get(0).getLast());
+			li = matches(x, elem.getRule());
+		}
+		return x;
+
+	}
+
+
+
 	private boolean handleNewIntervals() {
 		boolean wasChange=false;
 		// a ruleIntervalEquality -re azért van szükség, hogy ne adjuk hozzá ugyanazt a ruleIntervalt,
 		// amit esetleg töröltünk az optimalizálás során
-		for(Deduction d:matched) {
-			RuleInterval ri = d.getFrom();
+		for(RuleInterval ri:matched) {
 			String matchString=ri.matchingString();
 			if(this.ruleIntervalEquality.contains(matchString)) {
 				continue;
@@ -162,12 +152,38 @@ public class STreeBuilder {
 				addToMaps(ri);
 			}
 		}
+
+		// Kidobunk olyan szabályokat a forward és backward mapekből,
+		// amelyek már valószínűleg nem hasznosak a szintaxisfa felépítésében
+		//
+		/*for(RuleInterval ri:matched) {
+			if(ri.getRule().isLeftRecursive()) {
+				for(int i= ri.getBegin()+1;i<ri.getLast();i++) {
+					forward.remove(""+i);
+				}
+			}
+		}*/
 		return wasChange;
 	}
 
-	private List<Deduction> matchFromRuleBegin(RuleInterval part,Rule pattern) {
+	private void removeFromMaps(RuleInterval rr) {
+		List<RuleInterval> x = forward.get(""+rr.getBegin());
+		if(x!=null) {
+			x.remove(rr);
+			if(x.isEmpty()) {
+				forward.remove(""+rr.getBegin());
+			}
+		}
 
-		List<Deduction> result = new LinkedList<Deduction>();
+
+		//x=backward.get(""+rr.last)
+		//x.remove(rr);
+	}
+
+
+	private List<RuleInterval> matches(RuleInterval part,Rule pattern) {
+
+		List<RuleInterval> result = new LinkedList<RuleInterval>();
 		String groupname=part.getRule().getGroupname();
 		String[] patternRs=pattern.extractRefGroups();
 
@@ -175,15 +191,17 @@ public class STreeBuilder {
 		//ez alapján döntünk az illesztésről
 
 		if(patternRs[0].equals(groupname)) {
-			result.addAll(matchAfterGroupIndex(part, pattern, 0));
+			result.addAll(matchesFromLeft(part, pattern, 0));
 		}
 		return result;
 	}
 
-	private List<Deduction> matchAfterGroupIndex(RuleInterval part, Rule pattern, int groupIndexInPattern) {
-		List<Deduction> result = new LinkedList<Deduction>();
+	private List<RuleInterval> matchesFromLeft(RuleInterval part, Rule pattern, int groupIndexInPattern) {
+		List<RuleInterval> result = new LinkedList<RuleInterval>();
 		String[] patternRs=pattern.extractRefGroups();
 
+		//lehet, hogy nem lesz before
+		//String[] before=Arrays.copyOfRange(patternRs,0,groupIndexInPattern);
 		String[] afterGroupNames=rangeCopyTillEndExclusive(patternRs, groupIndexInPattern);
 
 		int firstSourceIndex=part.getLast()+1;
@@ -194,73 +212,72 @@ public class STreeBuilder {
 		if(rights == null) {
 			return result;
 		}
-		fillResultWithDeductions(part, pattern, result, rights);
+		for(RuleInterval[] ria:rights) {
+			RuleInterval[] n=new RuleInterval[ria.length+1];
+			n[0] = part;
+			int i=1;
+			for(RuleInterval ri: ria) {
+				n[i++] = ri;
+			}
+
+			RuleInterval nri = new RuleInterval(pattern, part.getBegin(), n[n.length-1].getLast());
+
+			//megtartjuk a levezetésben mert amúgy kidobjuk az újak alatt szereplö rekurzív szabályokat
+			this.deduction.put(nri, n);
+
+			result.add(nri);
+		}
 
 		return result;
 	}
 
 
 
-	private void fillResultWithDeductions(RuleInterval part, Rule pattern, List<Deduction> result, List<RuleInterval[]> rights) {
-		for(RuleInterval[] ria:rights) {
-			RuleInterval[] n = createDeductionValue(part, ria);
-			RuleInterval nri = new RuleInterval(pattern, part.getBegin(), n[n.length-1].getLast());
-			result.add(new Deduction(nri, n));
-
-		}
+	private String[] rangeCopyTillEndExclusive(String[] patternRs, int index) {
+		return Arrays.copyOfRange(patternRs, index+1, patternRs.length);
 	}
-
-
-
-	private RuleInterval[] createDeductionValue(RuleInterval part, RuleInterval[] ria) {
-		RuleInterval[] n=new RuleInterval[ria.length+1];
-		n[0] = part;
-		int i=1;
-		for(RuleInterval ri: ria) {
-			n[i++] = ri;
-		}
-		return n;
-	}
-
-
 
 	private List<RuleInterval[]> getRigths(int  firstSourceIndex, int groupIndexInPattern, RuleInterval[] currentRight, String[] afterGroupNames) {
 		List<RuleInterval[]> rights=new LinkedList<RuleInterval[]>();
+
 
 		if(!stepRight(currentRight, afterGroupNames, 0, firstSourceIndex)) {
 			return null;
 		}
 		rights.add(copy(currentRight));
 
-		int groupNameIndex=afterGroupNames.length-1;
+		int i=afterGroupNames.length-1;
 
-		if(groupNameIndex == -1) {
+		if(i == -1) {
 			return rights;
 		}
 
-		int sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, groupNameIndex);
+		int sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
 
 		for(;;) {
-			while(stepRight(currentRight, afterGroupNames, groupNameIndex, sourceIndex)) {
+			while(stepRight(currentRight, afterGroupNames, i, sourceIndex)) {
 				rights.add(copy(currentRight));
 			}
 
-			groupNameIndex--;
-			if(groupNameIndex<0) {
+			i--;
+			if(i<0) {
 				return rights;
 			}
-			sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, groupNameIndex);
-			while(!stepRight(currentRight, afterGroupNames, groupNameIndex, sourceIndex)) {
-				groupNameIndex--;
-				if(groupNameIndex<0) {
+			sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
+			while(!stepRight(currentRight, afterGroupNames, i, sourceIndex)) {
+				i--;
+				if(i<0) {
 					return rights;
 				}
 			}
 			rights.add(copy(currentRight));
-			groupNameIndex=afterGroupNames.length-1;
-			sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, groupNameIndex);
+			i=afterGroupNames.length-1;
+			sourceIndex = setSourceIndexRightside(firstSourceIndex, currentRight, i);
 		}
+
 	}
+
+
 
 	private RuleInterval[] copy(RuleInterval[] current) {
 		return Arrays.copyOf(current, current.length);
@@ -268,10 +285,10 @@ public class STreeBuilder {
 
 
 
-	private int setSourceIndexRightside(int firstSourceIndex, RuleInterval[] currentRight, int groupNameIndex) {
+	private int setSourceIndexRightside(int firstSourceIndex, RuleInterval[] currentRight, int i) {
 		int sourceIndex= firstSourceIndex;
-		if(groupNameIndex>0) {
-			sourceIndex= currentRight[groupNameIndex-1].getLast()+1;
+		if(i>0) {
+			sourceIndex= currentRight[i-1].getLast()+1;
 		}
 		return sourceIndex;
 	}
@@ -331,7 +348,9 @@ public class STreeBuilder {
 
 
 	private void addToMaps(RuleInterval ruleInterval) {
+
 		addToMap(forward, ""+ruleInterval.getBegin(), ruleInterval);
+		addToMap(backward,""+ruleInterval.getLast(), ruleInterval);
 	}
 
 
@@ -362,11 +381,6 @@ public class STreeBuilder {
 		return null;
 
 	}
-
-	private String[] rangeCopyTillEndExclusive(String[] patternRs, int index) {
-		return Arrays.copyOfRange(patternRs, index+1, patternRs.length);
-	}
-
 	@Override
 	public String toString() {
 		List<char[]> x = ToStr.toCharArrayList(forward,source);
@@ -384,4 +398,7 @@ public class STreeBuilder {
 		}
 		return sb.toString();
 	}
+
+
+
 }

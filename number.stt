@@ -1,0 +1,316 @@
+number
+{
+	n:number_with_digits   >> *n;
+	n:numbers_with_letters >> *n ;
+	
+}
+
+number_with_digits
+{
+    p:positive_number_with_digits  >> *p;
+	"-" p:positive_number_with_digits >> "-" *p;
+}
+
+positive_number_with_digits{
+   	ds:digits >> *ds;
+	ds:digits "." f:digits >> *ds "." *f;
+}
+
+
+digit
+{
+   d: "(0-9)" >> d;    
+}
+digits
+{
+   d:digit >> *d;
+   ds:digits d:digit >> *ds *d;
+   
+}
+
+two_digit_number{
+   d1:digit d2:digit >> d1 d2;
+}
+
+four_digit_number{
+   t1:two_digit_number t2:two_digit_number >> t1 t2; 
+}
+
+
+numbers_with_letters{
+    a:alpha_under_quadrillion >>*a;
+	a:alpha_under_trillion >> *a;
+	a:alpha_under_billion >> *a;
+	a:alpha_under_million >> *a;
+	"thousand"  >> "1000";
+	"one thousand"  >> "1000";
+    a:alpha_under_thousand  >> *a;
+   
+	
+}
+
+alpha_under_million {
+ 
+    a1:alpha_under_hundred " " hundred >> *a1 "00";
+	
+    a1:alpha_under_hundred " " hundred " " a2:alpha_under_hundred >> *a1 *a2;
+	a1:alpha_under_hundred " " hundred " and " a2:alpha_under_hundred >> *a1 *a2;
+	
+ 
+	"thousand"  >> "1000";    
+	a1:alpha_under_hundred " ten " thousand >> *a1 "0000";
+	a1:alpha_under_thousand " " thousand >> *a1 "000";
+	
+	a1:alpha_under_thousand " " thousand " " a2:alpha_under_ten >> *a1 "00" *a2;
+	a1:alpha_under_thousand " " thousand " and " a2:alpha_under_ten >> *a1 "00" *a2;
+	
+	a1:alpha_under_thousand " " thousand " " a2:alpha_under_hundred >> *a1 "0" *a2;
+	a1:alpha_under_thousand " " thousand " and " a2:alpha_under_hundred >> *a1 "0" *a2;
+	
+	
+	a1:alpha_under_thousand " " thousand " " a2:alpha_under_thousand >> *a1 *a2;
+    a1:alpha_under_thousand " " thousand " and " a2:alpha_under_thousand >> *a1 *a2;
+    
+	
+	a1:alpha_under_hundred " ten " thousand " " a2:alpha_under_thousand >> *a1 "0" *a2;
+	a1:alpha_under_hundred " ten " thousand " and " a2:alpha_under_thousand >> *a1 "0" *a2;
+
+	
+}
+
+alpha_under_billion {
+	"million"  >> "1000000";
+	a1:alpha_under_thousand " " million >> *a1 "000000";
+ 
+    a1:alpha_under_thousand " " million " " a2:alpha_under_ten >> *a1 "00000" *a2;
+	a1:alpha_under_thousand " " million " and " a2:alpha_under_ten >> *a1 "00000" *a2;
+ 
+    a1:alpha_under_thousand " " million " " a2:alpha_under_hundred >> *a1 "0000" *a2;
+	a1:alpha_under_thousand " " million " and " a2:alpha_under_hundred >> *a1 "0000" *a2;
+ 
+
+    a1:alpha_under_thousand " " million " " a2:alpha_under_thousand >> *a1 "000" *a2;
+	a1:alpha_under_thousand " " million " and " a2:alpha_under_thousand >> *a1 "000" *a2;
+ 
+    a1:alpha_under_thousand " " million " " a2:alpha_under_million >> *a1 *a2;
+	a1:alpha_under_thousand " " million " and " a2:alpha_under_million >> *a1 *a2;
+
+
+}
+
+alpha_under_trillion {
+	"billion"  >> "1000000000";
+	a1:alpha_under_thousand " " billion >> *a1 "000000000";
+
+    a1:alpha_under_thousand " " billion " " a2:alpha_under_ten >> *a1 "00000000" *a2;
+	a1:alpha_under_thousand " " billion " and " a2:alpha_under_ten >> *a1 "00000000" *a2;
+ 
+    a1:alpha_under_thousand " " billion " " a2:alpha_under_hundred >> *a1 "0000000" *a2;
+	a1:alpha_under_thousand " " billion " and " a2:alpha_under_hundred >> *a1 "0000000" *a2;
+ 
+
+    a1:alpha_under_thousand " " billion " " a2:alpha_under_thousand >> *a1 "000000" *a2;
+	a1:alpha_under_thousand " " billion " and " a2:alpha_under_thousand >> *a1 "000000" *a2;
+ 
+    a1:alpha_under_thousand " " billion " " a2:alpha_under_million >> *a1 "000" *a2;
+	a1:alpha_under_thousand " " billion " and " a2:alpha_under_million >> *a1 "000" *a2;
+
+    a1:alpha_under_thousand " " billion " " a2:alpha_under_billion >> *a1 *a2;
+	a1:alpha_under_thousand " " billion " and " a2:alpha_under_billion >> *a1 *a2;
+
+
+}
+
+alpha_under_quadrillion {
+	"trillion"  >> "1000000000000";
+    a1:alpha_under_thousand " " trillion >> *a1 "000000000000";
+	a1:alpha_under_thousand " " trillion " " a2:alpha_under_trillion >> *a1 *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_trillion >> *a1 *a2;
+	
+	a1:alpha_under_thousand " " trillion " " a2:alpha_under_ten >> *a1 "00000000000" *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_ten >> *a1 "00000000000" *a2;
+ 
+    a1:alpha_under_thousand " " trillion " " a2:alpha_under_hundred >> *a1 "0000000000" *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_hundred >> *a1 "0000000000" *a2;
+ 
+
+    a1:alpha_under_thousand " " trillion " " a2:alpha_under_thousand >> *a1 "000000000" *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_thousand >> *a1 "000000000" *a2;
+ 
+    a1:alpha_under_thousand " " trillion " " a2:alpha_under_million >> *a1 "000000" *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_million >> *a1 "000000" *a2;
+
+    a1:alpha_under_thousand " " trillion " " a2:alpha_under_billion >> *a1 "000" *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_billion >> *a1 "000" *a2;
+	
+	a1:alpha_under_thousand " " trillion " " a2:alpha_under_trillion >> *a1 *a2;
+	a1:alpha_under_thousand " " trillion " and " a2:alpha_under_trillion >> *a1 *a2;
+	
+	
+	
+}
+
+alpha_under_thousand {
+    "hundred"  >> "100";
+	"one hundred"  >> "100";
+  
+    a:alpha_under_ten >> *a;
+	a:alpha_under_hundred >> *a;
+    
+	
+	n:alpha_under_ten " " hundred >> *n "00";
+	
+	n:alpha_under_ten " " hundred " and " a:alpha_under_ten >> *n "0" *a;
+	
+	n:alpha_under_ten " " hundred " and " a:alpha_under_hundred >> *n *a;
+	
+	n:alpha_under_ten " " hundred " " a:alpha_under_ten >> *n "0" *a;
+	n:alpha_under_ten " " hundred " " a:alpha_under_hundred >> *n *a;
+	
+}
+
+alpha_under_ten {
+   "one" >> "1";
+   "two" >>"2";
+   "three" >> "3";
+   "four" >>"4";
+   "five"  >> "5";
+   "six" >> "6";
+   "seven" >> "7";
+   "eight"  >> "8";
+   "nine"  >> "9";
+}
+
+
+alpha_under_hundred{
+    a:alpha_under_ten >> *a;
+	
+	"ten" >> "10";
+    "eleven" >> "11";
+    "twelve" >> "12";
+    "thirteen" >> "13";
+    "fourteen" >> "14";
+    "fifteen" >> "15";
+    "sixteen" >> "16";
+    "seventeen" >> "17";
+    "eighteen" >> "18";
+    "nineteen" >> "19";
+    "twenty" >> "20";
+    "thirty" >> "30";
+	"forty" >> "40";
+    "fifty" >> "50";
+	"sixty" >> "60";
+    "seventy" >> "70";
+	"eighty" >> "80";
+    "ninety" >> "90";
+	
+	"twenty-" a:alpha_under_ten >> "2" *a;
+    "thirty-" a:alpha_under_ten >> "3" *a;
+	"forty-" a:alpha_under_ten >> "4" *a;
+    "fifty-" a:alpha_under_ten >> "5" *a;
+	"sixty-" a:alpha_under_ten >> "6" *a;
+    "seventy-" a:alpha_under_ten >> "7" *a;
+	"eighty-" a:alpha_under_ten >> "8" *a;
+    "ninety-" a:alpha_under_ten >> "9" *a;	
+	
+	"twenty " a:alpha_under_ten >> "2" *a;
+    "thirty " a:alpha_under_ten >> "3" *a;
+	"forty " a:alpha_under_ten >> "4" *a;
+    "fifty " a:alpha_under_ten >> "5" *a;
+	"sixty " a:alpha_under_ten >> "6" *a;
+    "seventy " a:alpha_under_ten >> "7" *a;
+	"eighty " a:alpha_under_ten >> "8" *a;
+    "ninety " a:alpha_under_ten >> "9" *a;	
+}
+
+
+thousand{
+	thousand_no_comma;
+	thousand_no_comma ",";
+}
+
+thousand_no_comma{
+    "thousand";
+	"thousands";
+}
+
+hundred{
+	hundred_no_comma;
+	hundred_no_comma ",";
+}
+
+hundred_no_comma{
+    "hundred";
+	"hundreds";
+}
+
+million{
+	million_no_comma;
+	million_no_comma ",";
+}
+
+million_no_comma{
+    "million";
+	"millions";
+}
+
+billion{
+	billion_no_comma;
+	billion_no_comma ",";
+}
+
+billion_no_comma{
+    "billion";
+	"billions";
+}
+
+trillion{
+	trillion_no_comma;
+	trillion_no_comma ",";
+}
+
+trillion_no_comma{
+    "trillion";
+	"trillions";
+}
+
+/* These are used by  time.stt */
+
+number0_59 {
+   a:"(0-5)" b:"(0-9)" >> '"' a b '"';
+}
+
+number1_12{
+   
+   a:alpha_under_ten >> *a;
+   "ten" >> '"10"';
+   "eleven" >> '"11"';
+   "twelve">> '"12"';
+ 
+   d: "(1-9)" >> '"' d '"';     
+   
+   "10" >> '"10"';
+   "11" >> '"11"';
+   "12">> '"12"';   
+}
+
+number1_24{   
+   n:number1_12 >> *n;
+   "thirteen"  >> '"13"';
+   "fourteen" >> '"14"'; 
+   "fifteen" >> '"15"';
+   "sixteen" >> '"16"';
+   "seventeen" >> '"17"';
+   "eighteen" >> '"18"';
+   "nineteen" >> '"19"';
+   "twenty" >> '"20"';
+   "twenty-one" >> '"21"';
+   "twenty-two" >> '"22"';
+   "twenty-three" >> '"23"';
+   "twenty-four" >> '"24"';
+   "1" d:"(3-9)"  >> '"1' d '"';
+   "2" d:"(0-4)"  >> '"2' d '"';
+   
+}
+
+

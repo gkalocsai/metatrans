@@ -3,7 +3,7 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import hu.kg.util.Util;
+import util.Util;
 
 public class UtilTest {
 

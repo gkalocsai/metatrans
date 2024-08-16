@@ -3,8 +3,8 @@ package descriptor;
 import java.util.LinkedList;
 import java.util.List;
 
-import hu.kg.util.CharSequenceInterval;
 import syntax.SyntaxElement;
+import util.CharSequenceInterval;
 
 public class CharSequenceDescriptor implements SyntaxElement{
 

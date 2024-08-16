@@ -7,9 +7,9 @@ import java.util.List;
 import compilation.CompilationElement;
 import descriptor.CharSequenceDescriptor;
 import descriptor.GroupName;
-import hu.kg.util.CharSeqUtil;
 import syntax.Rule;
 import syntax.SyntaxElement;
+import util.CharSeqUtil;
 
 public class ComplexRuleCreator {
 

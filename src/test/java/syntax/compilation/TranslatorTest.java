@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import compilation2.Transpiler;
+import compilation.Transpiler;
 import read.RuleReader;
 import syntax.Rule;
 import syntax.RuleCreator;
