@@ -162,7 +162,7 @@ public class STreeBuilder {
 				ruleIntervalEquality.add(matchString);
 				addToMaps(ri);
 				if(printOut) {
-					System.out.println(ri+"  ---"+source.substring(ri.getBegin(), ri.getLast()+1)+"---" );
+					System.out.println(ri+"  "+source.substring(ri.getBegin(), ri.getLast()+1) );
 				}
 			}
 		}
