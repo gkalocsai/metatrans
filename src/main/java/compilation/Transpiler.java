@@ -26,6 +26,10 @@ public class Transpiler {
 
 	}
 
+	public Transpiler(String source, Grammarhost gh, String root) throws GrammarException  {
+            this(source,gh);
+            this.grammarhost.setRootGroup(root);
+	}
 
 	public Transpiler(String source, Grammarhost gh) throws GrammarException  {
 		this.grammarhost = gh;

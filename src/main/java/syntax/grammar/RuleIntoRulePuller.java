@@ -10,30 +10,30 @@ import syntax.Rule;
 import syntax.SyntaxElement;
 
 public class RuleIntoRulePuller {
-	
-	
 
-	public static Rule pullInto(Rule into, Rule r, IdCreator idCreator) {
+
+
+	public static Rule pullInto(Rule into, Rule r) {
 		Stack<CompilationElementPair> cepStack;
 		int indexOfReplacement= getIndexOfReplacement(into,r.getGroupname());
 
 		SyntaxElement[] rightside = generateVs(into, r, indexOfReplacement);
-		setAllLabelsInR(into, r, idCreator);
+		setAllLabelsInR(into, r);
 		String[] labels=generateLabels(into,r, rightside.length,indexOfReplacement);
 		String compilationElementToReplace = getCompilationElementToReplaceFromLabels(into, indexOfReplacement);
-		int compLength = determineCompilationLength(into.getCompilation(), r, compilationElementToReplace);		
-		CompilationElement[] compilation = new CompilationElement[compLength];		
+		int compLength = determineCompilationLength(into.getCompilation(), r, compilationElementToReplace);
+		CompilationElement[] compilation = new CompilationElement[compLength];
 		cepStack = new Stack<>();
 		fillCompilation(compilation, into.getCompilation(), compilationElementToReplace, r, cepStack);
 		while(!cepStack.isEmpty()) {
 			CompilationElementPair current = cepStack.pop();
-			compLength = determineCompilationLength(current.source, r, compilationElementToReplace);		
-			compilation = new CompilationElement[compLength];		
+			compLength = determineCompilationLength(current.source, r, compilationElementToReplace);
+			compilation = new CompilationElement[compLength];
 			fillCompilation(compilation, current.source, compilationElementToReplace, r,cepStack);
 			current.dest.setParams(compilation);
 		}
 
-		into.reset(rightside, labels, compilation);		
+		into.reset(rightside, labels, compilation);
 		return into;
 	}
 
@@ -103,9 +103,10 @@ public class RuleIntoRulePuller {
 				for(String s:r.getLabels()){
 					labels[labelsIndex++] = s;
 				}
+			} else {
+				labels[labelsIndex++] = labelsOfInto[intoIndex];
 			}
-			else labels[labelsIndex++] = labelsOfInto[intoIndex];
-		}		
+		}
 		return labels;
 	}
 
@@ -128,11 +129,11 @@ public class RuleIntoRulePuller {
 		return rightside;
 	}
 
-	private static void setAllLabelsInR(Rule into, Rule r, IdCreator idc) {
+	private static void setAllLabelsInR(Rule into, Rule r) {
 		Set<String> currentLabels= getLabels(into,r);
 		for(String s:r.getLabels()){
 			if(into.hasLabel(s) || s.isEmpty()){
-				String label2 = idc.generateYetUnusedId(currentLabels, "_");
+				String label2 = IdCreator.InSTANCE.generateYetUnusedId("_");
 				currentLabels.add(label2);
 				r.renameLabel(s, label2);
 			}
@@ -145,10 +146,14 @@ public class RuleIntoRulePuller {
 		Set<String> origLabels=new HashSet<>();
 
 		for(String l:into.getLabels()) {
-			if(!l.isEmpty()) origLabels.add(l);
+			if(!l.isEmpty()) {
+				origLabels.add(l);
+			}
 		}
 		for(String l:r.getLabels()) {
-			if(!l.isEmpty()) origLabels.add(l);
+			if(!l.isEmpty()) {
+				origLabels.add(l);
+			}
 		}
 		return origLabels;
 	}

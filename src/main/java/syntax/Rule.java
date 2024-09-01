@@ -429,18 +429,4 @@ public class Rule {
 
 
 
-	public  int getMatchIndexAfter(int matchIndex, String groupname) {
-		if(matchIndex < 0){
-			return getIndexOfRefGroup(groupname);
-		}else{
-			String[]  refs=getGroupRefsAsArray();
-			for(int i = matchIndex+1 ;i < refs.length; i++) {
-				if(refs[i].equals(groupname)) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
 }

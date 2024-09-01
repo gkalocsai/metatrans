@@ -10,8 +10,8 @@ import syntax.Rule;
 import syntax.RuleCreator;
 
 public class IndirectRecursionEliminatorTest {
-	
-	
+
+
 	@Ignore
 	@Test
 	public void pullUp() throws GrammarException{
@@ -23,7 +23,7 @@ public class IndirectRecursionEliminatorTest {
 		rl.add(RuleCreator.createRule("A->F G"));
 		rl.add(RuleCreator.createRule("B->H"));
 		rl.add(RuleCreator.createRule("B->I J"));
-		rl.add(RuleCreator.createRule("H->N O")); 
+		rl.add(RuleCreator.createRule("H->N O"));
 		rl.add(RuleCreator.createRule("H->X Y"));
 		rl.add(RuleCreator.createRule("X->P Q"));
 		rl.add(RuleCreator.createRule("P->B Z"));
@@ -47,33 +47,33 @@ public class IndirectRecursionEliminatorTest {
 		Grammarhost gh = new Grammarhost(rl);
 
 
-		new IndirectRecursionEliminator(gh.getIdCreator()).eliminate(gh.getGrammar(), gh.getRootGroup(),true);
+		new IndirectRecursionEliminator().eliminate(gh.getGrammar(), gh.getRootGroup(),true);
 		System.out.println( gh.getGrammarString());
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void oneRuleTwoDirectRecursion() throws GrammarException{
 		List<Rule> rl=new LinkedList<>();
 		rl.add(RuleCreator.createRule("E->e1:E op:OP e2:EXP >>e2"));
 		rl.add(RuleCreator.createRule("EXP->E"));
 		rl.add(RuleCreator.createRule("E->'5"));
-		
-		
+
+
 		rl.add(RuleCreator.createRule("OP->'-"));
-		
+
 		Grammarhost gh = new Grammarhost(rl);
 
 		System.out.println(gh.getGrammarString());
-		
-		
-		new IndirectRecursionEliminator(gh.idCreator).eliminate(gh.getGrammar(), gh.getRootGroup(),false);
+
+
+		new IndirectRecursionEliminator().eliminate(gh.getGrammar(), gh.getRootGroup(),false);
 		System.out.println( gh.getGrammar().values());
-		
-		
+
+
 	}
-	
-	
-	
+
+
+
 }

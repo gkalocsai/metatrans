@@ -23,39 +23,10 @@ public class Grammarhost {
 	private Rule[] nonRecursiveRefRules;
 
 	private boolean strict=true;
-
 	private String rootGroup;
-
 	private Map<Rule, Integer> matchOrder;
-
 	private Map<String, LinkedList<Rule>> applicableStorage;
-    
-	Set<String> allIds;
 
-	IdCreator idCreator = new IdCreator(this);
-	
-	public String getRandomExample() {
-		return getRandomExample(new StringBuilder(), rootGroup);
-	}
-
-	public String getRandomExample(StringBuilder sb,String group) {
-		ArrayList<Rule> rl=grammar.get(group);
-		if(rl == null || rl.isEmpty()) return "";
-		int ri=(int) (rl.size()*Math.random());
-		Rule r=rl.get(ri);
-		SyntaxElement[] right=r.getRightside();
-		
-		for(SyntaxElement v:right){
-			if(v.isDescriptor()) {
-				sb.append(v.getCsd().getRandomExample());
-			}else {
-				sb.append(getRandomExample(new StringBuilder(), v.getReferencedGroup()));
-			}
-		}
-		return sb.toString();
-	}
-	
-	
 	public List<Rule>  getApplicableRuleList(String ref){
 		if(applicableStorage == null){
 			applicableStorage = new HashMap<>();
@@ -69,11 +40,13 @@ public class Grammarhost {
 					String s=r.getRightSideRef(r.getRightSideLength()-1);
 					addToApplicableStorage(r, s);
 				}
-			}	
+			}
 		}
 
 		List<Rule> result = applicableStorage.get(ref);
-		if(result == null) result=new LinkedList<>();
+		if(result == null) {
+			result=new LinkedList<>();
+		}
 		return result;
 	}
 
@@ -81,7 +54,7 @@ public class Grammarhost {
 	private void addToApplicableStorage(Rule r, String s) {
 		if(applicableStorage.get(s) == null) {
 			applicableStorage.put(s, new LinkedList<Rule>());
-		}	
+		}
 		applicableStorage.get(s).addFirst(r);
 	}
 
@@ -93,7 +66,7 @@ public class Grammarhost {
 	}
 
 
-	public Grammarhost(List<Rule> rl) throws GrammarException{		
+	public Grammarhost(List<Rule> rl) throws GrammarException{
 		init(rl, null);
 	}
 
@@ -104,31 +77,36 @@ public class Grammarhost {
 
 
 	private void init(List<Rule> rules, String rootGroup) throws GrammarException {
-		allIds=null;
+		Set<String>allIds=null;
 		if(rules == null || rules.isEmpty()) {
 			throw new GrammarException("ERROR: No grammar rules!");
 		}
-		if(rootGroup != null) this.rootGroup = rootGroup;
-		else{
-			this.rootGroup=rules.get(0).getGroupname();	
+		if(rootGroup != null) {
+			this.rootGroup = rootGroup;
+		} else{
+			this.rootGroup=rules.get(0).getGroupname();
 		}
 
-		this.grammar = createRuleMap(rules,rootGroup);		
+		this.grammar = createRuleMap(rules,rootGroup);
 		pushDescriptors(rules);
 		removeOneLongRecursiveRules();
-		if(strict) eliminateIndirectRecursion();
-	
+		if(strict) {
+			eliminateIndirectRecursion();
+		}
+
 		removeNonReachableRules();
-		if(strict) validateReferencesInAllRules();
-		if(strict) checkForInvalidRecursions();
-		
+		if(strict) {
+			validateReferencesInAllRules();
+		}
+		if(strict) {
+			checkForInvalidRecursions();
+		}
+
 		groupRulesByRecursion();
 		createMatchOrderMap();
 		allIds=getAllIdentifiers();
+		IdCreator.InSTANCE.addExistingIds(allIds);
 	}
-
-	
-	
 
 
 	private void createMatchOrderMap() {
@@ -140,7 +118,7 @@ public class Grammarhost {
 				order--;
 			}
 		}
-		
+
 	}
 
 
@@ -149,7 +127,7 @@ public class Grammarhost {
 
 		Set<String> finisherGroupnames = findFinisherGroupnames();
 		if(finisherGroupnames.size() != grammar.keySet().size()) {
-			throw new GrammarException("Infinite recursion");			
+			throw new GrammarException("Infinite recursion");
 		}
 	}
 
@@ -157,17 +135,17 @@ public class Grammarhost {
 	private Set<String> findFinisherGroupnames() {
 		Set<String> finisherGroupnames=new HashSet<>();
 		for(Rule csd:getCsdRules()) {
-			finisherGroupnames.add(csd.getGroupname());			
+			finisherGroupnames.add(csd.getGroupname());
 		}
 		int oldSize=0;
 
 		while(oldSize != finisherGroupnames.size()){
 			oldSize = finisherGroupnames.size();
-			for(Rule r:getRefRules()) {				
+			for(Rule r:getRefRules()) {
 				if(finisherGroupnames.containsAll(r.getRightSideAsStrCollection())) {
-					finisherGroupnames.add(r.getGroupname());		
+					finisherGroupnames.add(r.getGroupname());
 				}
-			}										
+			}
 
 		}
 		return finisherGroupnames;
@@ -178,7 +156,7 @@ public class Grammarhost {
 
 	private void groupRulesByRecursion() {
 		List<Rule> all = getRefRules();
-		ArrayList<Rule> recRefRules = new ArrayList<>();		
+		ArrayList<Rule> recRefRules = new ArrayList<>();
 		ArrayList<Rule> nonRecRefRules = new ArrayList<>();
 
 		for(Rule r:all){
@@ -186,8 +164,8 @@ public class Grammarhost {
 				recRefRules.add(r);
 			}else{
 				nonRecRefRules.add(r);
-			}				
-		}		
+			}
+		}
 		this.recursiveRefRules = new Rule[recRefRules.size()];
 
 		for(int i=0;i<recursiveRefRules.length;i++){
@@ -222,11 +200,11 @@ public class Grammarhost {
 	private void checkForInvalidRecursions() throws GrammarException {
 		for(Rule r:getRefRules()){
 			if(r.isMidRecursive() && (r.isLeftRecursive() || r.isRightRecursive())){
-				throw new GrammarException("Middle recursion must be single recursion. Rule: "+ r.toString());		
+				throw new GrammarException("Middle recursion must be single recursion. Rule: "+ r.toString());
 			}else if(r.hasMultipleMidRecursions()){
-				throw new GrammarException("Multiple middle recursion found. Rule: "+ r.toString());				
+				throw new GrammarException("Multiple middle recursion found. Rule: "+ r.toString());
 			}
-		}		
+		}
 	}
 
 
@@ -238,17 +216,19 @@ public class Grammarhost {
 
 		while(oldSize != reachableGroupnames.size()){
 			oldSize = reachableGroupnames.size();
-			HashSet<String> wave = new HashSet<>();	
+			HashSet<String> wave = new HashSet<>();
 			for(String key:grammar.keySet()){
-				if(reachableGroupnames.contains(key)){ 
+				if(reachableGroupnames.contains(key)){
 					for(Rule r:grammar.get(key)) {
 						for(String ref:r.getRightSideAsStrCollection()){
-							if(ref!=null) wave.add(ref);
+							if(ref!=null) {
+								wave.add(ref);
+							}
 						}
 					}
 				}
 			}
-			reachableGroupnames.addAll(wave);		
+			reachableGroupnames.addAll(wave);
 
 		}
 		Set<String> toDelete=new HashSet<>();
@@ -257,7 +237,7 @@ public class Grammarhost {
 			if(!reachableGroupnames.contains(groupName)){
 				toDelete.add(groupName);
 			}
-		} 
+		}
 		for(String key:toDelete){
 			grammar.remove(key);
 		}
@@ -265,7 +245,7 @@ public class Grammarhost {
 
 
 	void eliminateIndirectRecursion() throws GrammarException{
-		new IndirectRecursionEliminator(getIdCreator()).eliminate(grammar, getRootGroup(), true);
+		new IndirectRecursionEliminator().eliminate(grammar, getRootGroup(), true);
 
 	}
 
@@ -298,22 +278,22 @@ public class Grammarhost {
 
 				groupName=generateUnusedGroupName(freshGroupnames);
 
-				freshGroupnames.put(groupName,csd);				
+				freshGroupnames.put(groupName,csd);
 				ArrayList<Rule> rlist=new ArrayList<>();
 				rlist.add(createCsdRule(groupName,csd));
 				grammar.put(groupName,rlist);
 
 
-				vs[i] = new GroupName(groupName);			
+				vs[i] = new GroupName(groupName);
 			}
 		}
 	}
 
 	private String generateUnusedGroupName(Map<String, CharSequenceDescriptor> freshGroupnames) {
-        allIds = getAllIdentifiers();
-		String candidate = getIdCreator().generateYetUnusedId(allIds,"_");
+       // allIds = getAllIdentifiers();
+		String candidate = IdCreator.InSTANCE.generateYetUnusedId("_");
 		while(freshGroupnames.keySet().contains(candidate)) {
-			candidate=getIdCreator().generateYetUnusedId(allIds,"_");
+			candidate=IdCreator.InSTANCE.generateYetUnusedId("_");
 		}
 		return candidate;
 	}
@@ -358,11 +338,10 @@ public class Grammarhost {
 	}
 
 	public Set<String> getAllIdentifiers() {
-		if(allIds != null) return allIds;
 		Set<String> allIdentifiers=new HashSet<>();
 		for(ArrayList<Rule> group: grammar.values()){
 			for(Rule r:group){
-				allIdentifiers.addAll(r.getUsedIdentifiers());	
+				allIdentifiers.addAll(r.getUsedIdentifiers());
 			}
 		}
 		return allIdentifiers;
@@ -424,10 +403,8 @@ public class Grammarhost {
 
 	public int getStrength(Rule rule){
 		return matchOrder.get(rule);
-		
+
 	}
 
-	public IdCreator getIdCreator() {
-		return idCreator;
-	}
+
 }
