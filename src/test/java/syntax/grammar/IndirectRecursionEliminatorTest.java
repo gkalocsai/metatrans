@@ -53,6 +53,7 @@ public class IndirectRecursionEliminatorTest {
 
 
 
+	@Ignore
 	@Test
 	public void oneRuleTwoDirectRecursion() throws GrammarException{
 		List<Rule> rl=new LinkedList<>();

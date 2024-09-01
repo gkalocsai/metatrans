@@ -20,9 +20,12 @@ public class IndirectRecursionEliminator {
 
 	public  void eliminate(Map<String, ArrayList<Rule>> grammar, String rootGroupname,boolean strict) throws GrammarException{
 		List<Stack<Rule>> branches = IndirectRecursionFinder.find(grammar, rootGroupname);
-		while(branches != null){
-			pullUpRules(branches,grammar,strict);
-			branches = IndirectRecursionFinder.find(grammar, rootGroupname);
+		if(branches!=null) {
+			throw new RuntimeException("Indirect recursion found!");
+			/*while(branches != null){
+				pullUpRules(branches,grammar,strict);
+				branches = IndirectRecursionFinder.find(grammar, rootGroupname);
+			}*/
 		}
 	}
 

@@ -14,7 +14,13 @@ public class BooleanResult {
 	public String getMessage() {
 		return message;
 	}
-	
+
+	public void setResult(boolean result) {
+		this.result = result;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
 	@Override
 	public String toString(){
 	    StringBuilder sb= new StringBuilder();
@@ -24,5 +30,5 @@ public class BooleanResult {
 	    sb.append(message);
 	    return sb.toString();
 	}
-	
+
 }

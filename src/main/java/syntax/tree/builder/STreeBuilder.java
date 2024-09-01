@@ -23,6 +23,7 @@ public class STreeBuilder {
 	private Grammarhost gh;
 	private String source;
 
+	private boolean printOut;
 
 	private String rootName;
 	private List<Deduction> matched= new LinkedList<Deduction>();
@@ -160,6 +161,9 @@ public class STreeBuilder {
 				wasChange = true;
 				ruleIntervalEquality.add(matchString);
 				addToMaps(ri);
+				if(printOut) {
+					System.out.println(ri+"  ---"+source.substring(ri.getBegin(), ri.getLast()+1)+"---" );
+				}
 			}
 		}
 		return wasChange;
@@ -383,5 +387,17 @@ public class STreeBuilder {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+
+
+	public boolean isPrintOut() {
+		return printOut;
+	}
+
+
+
+	public void setPrintOut(boolean printOut) {
+		this.printOut = printOut;
 	}
 }

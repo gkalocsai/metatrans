@@ -2,10 +2,10 @@ package descriptor;
 
 public class DescriptorValidator {
 
-    
+
 	public static BooleanResult check (String dsc){
-		
-		
+
+
 		if (dsc==null) {
 			return new BooleanResult(false, "Descriptor string cannot be null");
 		}
@@ -14,61 +14,61 @@ public class DescriptorValidator {
 		}
 
 		if (isLastCharIsASingleBackslash(dsc)) {
-			return new BooleanResult(false, "LastCharIsASingleBackslash");
+			return new BooleanResult(false, "LastCharIsASingleBackslash: "+dsc);
 		}
 
 		dsc = convertValidBackslashesToA(dsc);
 		if(dsc == null) {
-			return new BooleanResult(false, "Invalid escape sequence");
+			return new BooleanResult(false, "Invalid escape sequence: " +dsc);
 		}
 
 
 		if(isLastCharInvalid(dsc, "([")) {
-			return new BooleanResult(false, "Last char is invalid");
+			return new BooleanResult(false, "Last char is invalid: "+dsc);
 		}
 
 
 		if (sgAfterBracket(dsc,' ')) {
-			return new BooleanResult(false, "oneSpaceAfterBracket");
+			return new BooleanResult(false, "oneSpaceAfterBracket: "+dsc);
 		}
 
 		if (spaceBeforeClosingBracket(dsc)) {
-			return new BooleanResult(false, "oneSpaceBeforeClosingBracket");
+			return new BooleanResult(false, "oneSpaceBeforeClosingBracket: "+dsc);
 		}
 
 		if (!areBracketsOK(dsc)) {
-			return new BooleanResult(false, "A bracket is missing");
+			return new BooleanResult(false, "A bracket is missing: "+dsc);
 		}
 
 		if (!areSqrBracketsInBrackets(dsc)) {
-			return new BooleanResult(false, "Square bracket without parenthesis");
+			return new BooleanResult(false, "Square bracket without parenthesis: "+dsc);
 		}
 
 		if (!areSqrBracketsOK(dsc)) {
-			return new BooleanResult(false, "A square bracket is missing");
+			return new BooleanResult(false, "A square bracket is missing: "+dsc);
 		}
 
 		if (!areOnlyDigitsInSqrBrackets(dsc)) {
-			return new BooleanResult(false, "Only digits are allowed between square brackets");
+			return new BooleanResult(false, "Only digits are allowed between square brackets: "+dsc);
 		}
 
 		if(dsc.indexOf("[]")>=0){
-			return new BooleanResult(false, "There is nothing between square brackets");
+			return new BooleanResult(false, "There is nothing between square brackets: "+dsc);
 		}
 
 		if(dsc.indexOf("()")>=0){
-			return new BooleanResult(false, "There is nothing between brackets");
+			return new BooleanResult(false, "There is nothing between () "+dsc);
 		}
 
 		if (sgAfterBracket(dsc,'-')) {
-			return new BooleanResult(false, "oneMinusAfterBracket");
+			return new BooleanResult(false, "oneMinusAfterBracket: "+dsc);
 		}
 
 		if(!allIntervalDescriptionsOK(dsc)){
-			return new BooleanResult(false, "Bad syntax around the minus character");
+			return new BooleanResult(false, "Bad syntax around the minus character: "+dsc);
 		}
 		if(missingSpaceInParens(dsc)){
-			return new BooleanResult(false, "Missing space inside the parentheses");
+			return new BooleanResult(false, "Missing space inside the parentheses: "+dsc);
 		}
 		return new BooleanResult(true, "Everything is OK!");
 
@@ -76,21 +76,23 @@ public class DescriptorValidator {
 
 
 	public static boolean missingSpaceInParens(String dsc){
-		boolean inside = false; 
+		boolean inside = false;
 		for (int i=0; i<dsc.length(); i++) {
 			char c=dsc.charAt(i);
 			if (c == '(') {
 				inside = true;
 				continue;
 			}
-			
+
 			if (c == ')') {
 				inside = false;
 				continue;
 			}
 			//if (c =='-') continue;
 			if(inside){
-				if(c == '[' ) i = dsc.indexOf("]",i);
+				if(c == '[' ) {
+					i = dsc.indexOf("]",i);
+				}
 				char next = dsc.charAt(i+1);
 				if(next != '-' && next!=' ' && next!=')'){
 					return true;
@@ -104,16 +106,20 @@ public class DescriptorValidator {
 
 
 	static boolean allIntervalDescriptionsOK(String dsc){
-		boolean inside = false; 
+		boolean inside = false;
 		for (int i=0; i<dsc.length(); i++) {
 			char c=dsc.charAt(i);
 			if (c == '(') {
-				if(inside) return false;
+				if(inside) {
+					return false;
+				}
 				inside = true;
 				continue;
 			}
 			if (c == ')') {
-				if(!inside) return false;
+				if(!inside) {
+					return false;
+				}
 				inside = false;
 				continue;
 			}
@@ -131,27 +137,43 @@ public class DescriptorValidator {
 
 		char before=dsc.charAt(i-1);
 		char after=dsc.charAt(i+1);
-		if(isPartOf("( )", before))  return false;
-		if(isPartOf("( )", after))  return false;
+		if(isPartOf("( )", before)) {
+			return false;
+		}
+		if(isPartOf("( )", after)) {
+			return false;
+		}
 
 		int beforePreviousCharIndex=getBeforePreviousCharIndexToLeft(dsc,i-1);
-		if(beforePreviousCharIndex < 0 ) return false;
+		if(beforePreviousCharIndex < 0 ) {
+			return false;
+		}
 		char p = dsc.charAt(beforePreviousCharIndex);
-		if(p !=' ' && p!= '(') return false;
+		if(p !=' ' && p!= '(') {
+			return false;
+		}
 
 		int afterNextCharIndex=getAfterNextCharIndexToRight(dsc,i+1);
-		if(afterNextCharIndex >=dsc.length() ) return false;
+		if(afterNextCharIndex >=dsc.length() ) {
+			return false;
+		}
 		char n= dsc.charAt(afterNextCharIndex);
-		if(n !=' ' && n!= ')') return false;
+		if(n !=' ' && n!= ')') {
+			return false;
+		}
 
 		return true;
 	}
 
 
 	public static int getAfterNextCharIndexToRight(String dsc, int i){
-		if(dsc.charAt(i) !='[') return i+1;
+		if(dsc.charAt(i) !='[') {
+			return i+1;
+		}
 		for(;i<dsc.length();i++){
-			if(dsc.charAt(i) == ']') return i+1;
+			if(dsc.charAt(i) == ']') {
+				return i+1;
+			}
 		}
 
 		throw new RuntimeException("Validation failed");
@@ -159,10 +181,14 @@ public class DescriptorValidator {
 
 
 	static int getBeforePreviousCharIndexToLeft(String dsc, int i){
-		if(dsc.charAt(i) !=']') return i-1;
+		if(dsc.charAt(i) !=']') {
+			return i-1;
+		}
 
 		for(;i>=0;i--){
-			if(dsc.charAt(i) == '[') return i-1;
+			if(dsc.charAt(i) == '[') {
+				return i-1;
+			}
 		}
 
 		throw new RuntimeException("Validation failed");
@@ -172,7 +198,7 @@ public class DescriptorValidator {
 		char c;
 		for(int i=0;i<dsc.length();i++){
 			c=dsc.charAt(i);
-			if(c == '\\'){ 
+			if(c == '\\'){
 				char next = dsc.charAt(i+1); //bec, we checked before: last char cannot be '\'
 				if(!isSpec(next)){
 					return null;
@@ -215,8 +241,10 @@ public class DescriptorValidator {
 		char lastChar =  dsc.charAt(lastCharIndex);
 		if (lastChar == '\\' && dsc.length() == 1) {
 			return true;
-		}		
-		if(dsc.length() == 1) return false;
+		}
+		if(dsc.length() == 1) {
+			return false;
+		}
 		int almostLastCharIndex = dsc.length()-2;
 		char almostLastChar = dsc.charAt(almostLastCharIndex);
 		if (lastChar == '\\' && almostLastChar != '\\') {
@@ -224,7 +252,7 @@ public class DescriptorValidator {
 		} else {
 			return false;
 		}
-	}	
+	}
 
 
 	static boolean sgAfterBracket (String dsc, char sg) {
@@ -256,7 +284,7 @@ public class DescriptorValidator {
 		}
 		return nextMustBeOpeningBracket;
 	}
-	
+
 
 	static boolean areSqrBracketsInBrackets (String dsc) {
 		char c;
@@ -310,7 +338,7 @@ public class DescriptorValidator {
 				inside = false;
 				continue;
 			}
-			if (inside && !Character.isDigit(c)) {				
+			if (inside && !Character.isDigit(c)) {
 				return false;
 			}
 		}
