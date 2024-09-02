@@ -15,7 +15,7 @@ public class ToStr {
 		int max = source.length();
 		for(String k:forward.keySet()) {
 			for(RuleInterval ri:forward.get(k)) {
-				collected.addLast(ri);
+				collected.add(ri);
 
 			}
 		}

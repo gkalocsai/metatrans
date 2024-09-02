@@ -53,7 +53,7 @@ public class Transpiler {
 
 	public String transpile() {
 
-		if(!sb.isEmpty()) {
+		if(sb.length() !=0) {
 			return sb.toString();
 		}
 		STreeBuilder stb=new STreeBuilder(grammarhost, source);
