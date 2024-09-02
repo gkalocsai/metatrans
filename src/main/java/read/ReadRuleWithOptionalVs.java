@@ -5,60 +5,55 @@ import syntax.SyntaxElement;
 
 public class ReadRuleWithOptionalVs {
 
+    private String groupname;
+    private boolean[] optional;
+    private String[] label;
+    private SyntaxElement[] rightside;
+    private CompilationElement[] compilation;
 
-	private String groupname;
-	private boolean[] optional;
-	private String[] label;
-	private SyntaxElement[] rightside;
-	private CompilationElement[] compilation;
-	
+    public ReadRuleWithOptionalVs(String groupname, boolean[] optional, String[] label, SyntaxElement[] rightside,
+            CompilationElement[] compilation) {
+        super();
+        this.groupname = groupname;
+        this.optional = optional;
+        this.label = label;
+        this.rightside = rightside;
+        this.compilation = compilation;
+    }
 
-	
-	
-	public ReadRuleWithOptionalVs(String groupname, boolean[] optional, String[] label, SyntaxElement[] rightside,
-			CompilationElement[] compilation) {
-		super();
-		this.groupname = groupname;
-		this.optional = optional;
-		this.label = label;
-		this.rightside = rightside;
-		this.compilation = compilation;
-	}
+    private static final int MAX_ALLOWED_OPTIONAL_ELEMENTS = 3;
 
-	private static final int MAX_ALLOWED_OPTIONAL_ELEMENTS = 3;
+    public boolean[] getOptional() {
+        return optional;
+    }
 
-	public boolean[] getOptional() {
-		return optional;
-	}
+    public String getGroupname() {
+        return groupname;
+    }
 
-	public String getGroupname() {
-		return groupname;
-	}
+    public SyntaxElement[] getRightside() {
+        return rightside;
+    }
 
-	public SyntaxElement[] getRightside() {
-		return rightside;
-	}
+    public String[] getLabel() {
+        return label;
+    }
 
-	public String[] getLabel() {
-		return label;
-	}
+    public CompilationElement[] getCompilation() {
+        return compilation;
+    }
 
-	public CompilationElement[] getCompilation() {
-		return compilation;
-	}
+    public boolean hasTooMuchOptionalElements() {
+        return countOfOptionalElements() > MAX_ALLOWED_OPTIONAL_ELEMENTS;
+    }
 
-	public boolean hasTooMuchOptionalElements() {
-		return countOfOptionalElements() > MAX_ALLOWED_OPTIONAL_ELEMENTS;
-	}
-	
-	public int countOfOptionalElements () {
-		int numberOfOptionalElements=0;
-		for (boolean temp:optional){
-			if (temp) numberOfOptionalElements++;
-		}		
-		return numberOfOptionalElements;
-	}
-	
-	
+    public int countOfOptionalElements() {
+        int numberOfOptionalElements = 0;
+        for (boolean temp : optional) {
+            if (temp)
+                numberOfOptionalElements++;
+        }
+        return numberOfOptionalElements;
+    }
 
 }

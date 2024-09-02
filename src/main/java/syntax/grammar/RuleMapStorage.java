@@ -12,65 +12,59 @@ import syntax.Rule;
 
 public class RuleMapStorage {
 
-	private LinkedHashMap<String, ArrayList<Rule>> theMap;
+    private LinkedHashMap<String, ArrayList<Rule>> theMap;
 
-	private Map<String, ArrayList<Rule>> storage=new HashMap<>();
+    private Map<String, ArrayList<Rule>> storage = new HashMap<>();
 
-	private Stack<String> groupNameStack= new Stack<>();
+    private Stack<String> groupNameStack = new Stack<>();
 
-	private String rootGroup;
+    private String rootGroup;
 
-	public RuleMapStorage(){}
+    public RuleMapStorage() {
+    }
 
-	public RuleMapStorage(Collection<Rule> rl) {
+    public RuleMapStorage(Collection<Rule> rl) {
 
-		for(Rule r:rl){
-			if(rootGroup == null) rootGroup =  r.getGroupname();
-			addRuleToStorage(r);
-		}
-		
-	}
+        for (Rule r : rl) {
+            if (rootGroup == null)
+                rootGroup = r.getGroupname();
+            addRuleToStorage(r);
+        }
 
+    }
 
-	public RuleMapStorage(List<Rule> rl, String rootGroup) {
-		this(rl);
-		this.rootGroup = rootGroup;
+    public RuleMapStorage(List<Rule> rl, String rootGroup) {
+        this(rl);
+        this.rootGroup = rootGroup;
 
-	}
+    }
 
+    public void addRuleToStorage(Rule r) {
+        String groupname = r.getGroupname();
 
-	public void addRuleToStorage(Rule r) {
-		String groupname = r.getGroupname();
-		
-		if(!groupNameStack.contains(groupname)) {
-			groupNameStack.push(groupname);
-		}
+        if (!groupNameStack.contains(groupname)) {
+            groupNameStack.push(groupname);
+        }
 
-		ArrayList<Rule> group = storage.get(groupname);
-		if(group == null){
-			storage.put(groupname, new ArrayList<Rule>());
+        ArrayList<Rule> group = storage.get(groupname);
+        if (group == null) {
+            storage.put(groupname, new ArrayList<Rule>());
 
-		} 
-		group = storage.get(groupname);
-		group.add(r);
-	}
+        }
+        group = storage.get(groupname);
+        group.add(r);
+    }
 
+    public LinkedHashMap<String, ArrayList<Rule>> getGrammar() {
+        if (theMap == null) {
+            theMap = new LinkedHashMap<>();
+            while (!groupNameStack.isEmpty()) {
+                String nextGroup = groupNameStack.pop();
+                theMap.put(nextGroup, storage.get(nextGroup));
+            }
+        }
 
-	public LinkedHashMap<String, ArrayList<Rule>> getGrammar() {
-		if(theMap == null) {
-			theMap = new LinkedHashMap<>();
-			while(! groupNameStack.isEmpty()) {
-				String nextGroup=groupNameStack.pop();
-				theMap.put(nextGroup, storage.get(nextGroup));
-			}
-		}
-		
-		return theMap;
-	}
-
-
-   
-
-
+        return theMap;
+    }
 
 }

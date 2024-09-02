@@ -4,26 +4,20 @@ import descriptor.CharSequenceDescriptor;
 
 public interface SyntaxElement {
 
-	
-	
-	
-	public boolean isDescriptor();
-	
-	public String getReferencedGroup();
-	
-	public int getDescribedLength();
-	
-	@Override
-	public boolean equals(Object other);		
-	
-		
-	@Override
-	public String toString();
+    public boolean isDescriptor();
 
+    public String getReferencedGroup();
 
-	public CharSequenceDescriptor getCsd();
-	
+    public int getDescribedLength();
 
-	public SyntaxElement copy();
-	
+    @Override
+    public boolean equals(Object other);
+
+    @Override
+    public String toString();
+
+    public CharSequenceDescriptor getCsd();
+
+    public SyntaxElement copy();
+
 }
