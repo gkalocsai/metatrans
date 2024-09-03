@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.RuleInterval;
 import syntax.tree.builder.STreeBuilder;
+import syntax.tree.tools.RuleInterval;
 
 public class CurrentTest {
 

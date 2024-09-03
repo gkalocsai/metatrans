@@ -1,4 +1,4 @@
-package syntax.tree.builder;
+package syntax.tree.tools;
 
 import java.util.Objects;
 

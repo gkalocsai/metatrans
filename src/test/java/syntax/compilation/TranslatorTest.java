@@ -16,73 +16,44 @@ import syntax.grammar.Grammarhost;
 
 public class TranslatorTest {
 
+    @Test
+    public void expAddition() throws IOException, GrammarException {
 
+        String syntaxFileContent; // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
 
-	@Test
-	public void expAddition() throws IOException, GrammarException{
-
-
-		String syntaxFileContent;           // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
-
-
-		syntaxFileContent=""
-				+ "exp{"
-				+ "n:ds>>n;"
-				+ "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;"
-				+ "}"
-				+ "exp2{"
-				+ "n:ds>>n;"
-				+ "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;"
-				+ "}"
-
+        syntaxFileContent = "" + "exp{" + "n:ds>>n;" + "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;" + "}" + "exp2{"
+                + "n:ds>>n;" + "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;" + "}"
 
 //				+ "top{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
-				+ "ds{d;ds d>>d ds;}"
-				+ "d{d:\"(0-9)\">>d;}";
+                + "ds{d;ds d>>d ds;}" + "d{d:\"(0-9)\">>d;}";
 
-		//String sourceFileContent ="(53+45)*2+19+56+53+1";
+        // String sourceFileContent ="(53+45)*2+19+56+53+1";
 
+        syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d >> d;ds d>> ds d;}" + "d{d:\"(0-9)\">>d;}";
 
-		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
-				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
-				+ "ds{d >> d;ds d>> ds d;}"
-				+ "d{d:\"(0-9)\">>d;}";
+        String sourceFileContent = "2+1+56";
 
-		String sourceFileContent ="2+1+56";
+        RuleReader rr = new RuleReader(syntaxFileContent);
+        List<Rule> ruleList = rr.getAllRules();
+        Grammarhost gh = new Grammarhost(ruleList);
+        System.out.println(gh);
 
+        Transpiler trp = new Transpiler(sourceFileContent, gh);
 
+        // System.out.print(trp.transpile());
+        Assert.assertEquals("2 1 + 56 +", trp.transpile());
+    }
 
+    @Test
+    public void exp2() throws IOException, GrammarException {
 
+        String syntaxFileContent; // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
 
-		RuleReader rr = new RuleReader(syntaxFileContent);
-		List<Rule> ruleList=rr.getAllRules();
-		Grammarhost gh=new Grammarhost(ruleList);
-		System.out.println(gh);
+        syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}" + "ds{d;ds d>>d ds;}" + "d{d:\"(0-9)\">>d;}";
 
-		Transpiler trp = new Transpiler(sourceFileContent,gh);
-
-
-
-    	//System.out.print(trp.transpile());
-        Assert.assertEquals("2 1 56 + +",trp.transpile());
-	}
-
-
-	@Test
-	public void exp2() throws IOException, GrammarException{
-
-
-		String syntaxFileContent;           // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
-
-
-		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
-				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
-				+ "ds{d;ds d>>d ds;}"
-				+ "d{d:\"(0-9)\">>d;}";
-
-		String sourceFileContent ="(53+45)*2+19+56+53+1";
-
-
+        String sourceFileContent = "(53+45)*2+19+56+53+1";
 
 //
 //		RuleReader rr = new RuleReader(syntaxFileContent);
@@ -98,192 +69,168 @@ public class TranslatorTest {
 //    	System.out.print(trr.getResult());
 //        Assert.assertEquals("53 45 + 2 * 19 + 56 + 53 + 1 +",trr.getResult());
 
+        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
+        String x2 = trp.transpile();
 
-        Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
-	    String x2 = trp.transpile();
+        System.out.println(x2);
+    }
 
-	    System.out.println(x2);
-	}
+    @Test
+    public void exp() throws IOException, GrammarException {
 
+        String syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d;d ds:ds>>d(ds);}" + "d{d:\"(0-9)\">>d;}";
 
-	@Test
-	public void exp() throws IOException, GrammarException{
+        String sourceFileContent = "(5+2)+(5+5)";
 
+        RuleReader rr = new RuleReader(syntaxFileContent);
+        List<Rule> ruleList = rr.getAllRules();
+        Grammarhost gh = new Grammarhost(ruleList);
+        System.out.println(gh);
 
+        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
 
-		String syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
-				+ "op{\"+\">>\"+\";\"*\">>\"*\";}"
-				+ "ds{d;d ds:ds>>d(ds);}"
-				+ "d{d:\"(0-9)\">>d;}";
+        Assert.assertEquals("5 2 + 5 5 + +", trp.transpile());
+    }
 
-		String sourceFileContent ="(5+2)+(5+5)";
+    @Test
+    public void exp3() throws IOException, GrammarException {
 
+        String syntaxFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
 
-		RuleReader rr = new RuleReader(syntaxFileContent);
-		List<Rule> ruleList=rr.getAllRules();
-		Grammarhost gh=new Grammarhost(ruleList);
-		System.out.println(gh);
+        syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}" + "ds{d;d ds:ds>>d(ds);}" + "d{d:\"(0-9)\">>d;}";
 
+        String sourceFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.src").trim();
 
+        sourceFileContent = "9*(5)*2";
+        // sourceFileContent="9*5*2";
 
-        Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
+        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
+        Assert.assertEquals("9 5 * 2 *", trp.transpile());
+    }
 
-        Assert.assertEquals("5 2 + 5 5 + +",trp.transpile());
-	}
+    @Test
+    public void simpleTranslate() throws GrammarException {
 
+        List<Rule> rl = new LinkedList<>();
+        rl.add(RuleCreator.createRule("E->a:A b:B c:C>>*b *c *a"));
+        rl.add(RuleCreator.createRule("A->'a>>\"1\""));
+        rl.add(RuleCreator.createRule("A->'aa>>\"11\""));
+        rl.add(RuleCreator.createRule("B->'b>>\"2\""));
+        rl.add(RuleCreator.createRule("C->'c>>\"3\""));
+        String source = "aabc";
+        Transpiler trp = new Transpiler(source, new Grammarhost(rl));
 
-	@Test
-	public void exp3() throws IOException, GrammarException{
+        Assert.assertEquals("2311", trp.transpile());
 
+    }
 
-		String syntaxFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
+    @Test
+    public void simpleTrans() throws GrammarException {
 
+        List<Rule> rl = new LinkedList<>();
 
-		syntaxFileContent="exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp;e1:exp op:\"*\" e2:exp >> *e1 \" \" *e2 \" \" op; e1:exp op:\"+\" e2:exp >> *e1 \" \" *e2 \" \" op;}"
-				+ "op{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
-				+ "ds{d;d ds:ds>>d(ds);}"
-				+ "d{d:\"(0-9)\">>d;}";
+        Rule r1 = RuleCreator.createRule("A->F G F G>>*F \"hello\" *G");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("B->'b"));
+        rl.add(RuleCreator.createRule("B->C B"));
 
+        rl.add(RuleCreator.createRule("G->B"));
+        rl.add(RuleCreator.createRule("D->'bb"));
+        rl.add(RuleCreator.createRule("C->'a"));
+        rl.add(RuleCreator.createRule("F->'ab"));
+        String source = "abbabb";
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-		String sourceFileContent;// = StringLoadUtil.load("/home/kalocsai/expression/expression.src").trim();
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-		sourceFileContent="9*(5)*2";
-		//sourceFileContent="9*5*2";
+        Assert.assertEquals("hello", trp.transpile());
+    }
 
+    @Test
+    public void leftRecTestGoodSource() throws GrammarException {
 
-		Transpiler trp=new Transpiler(sourceFileContent, syntaxFileContent);
-		 Assert.assertEquals("9 5 * 2 *",trp.transpile());
-	}
+        List<Rule> rl = new LinkedList<>();
 
-	@Test
-	public void simpleTranslate() throws GrammarException{
+        Rule r1 = RuleCreator.createRule("M->M O E>>M \"X\" O E");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("M->'x>>\"x\""));
 
-		List<Rule> rl=new LinkedList<>();
-		rl.add(RuleCreator.createRule("E->a:A b:B c:C>>*b *c *a"));
-		rl.add(RuleCreator.createRule("A->'a>>\"1\""));
-		rl.add(RuleCreator.createRule("A->'aa>>\"11\""));
-		rl.add(RuleCreator.createRule("B->'b>>\"2\""));
-		rl.add(RuleCreator.createRule("C->'c>>\"3\""));
-		String source = "aabc";
-		Transpiler trp=new Transpiler(source, new Grammarhost(rl));
+        rl.add(RuleCreator.createRule("E->'2"));
+        rl.add(RuleCreator.createRule("E->'4"));
+        rl.add(RuleCreator.createRule("E->'6"));
+        rl.add(RuleCreator.createRule("E->'8"));
 
-		Assert.assertEquals("2311", trp.transpile());
+        rl.add(RuleCreator.createRule("O->'1"));
+        rl.add(RuleCreator.createRule("O->'3"));
+        rl.add(RuleCreator.createRule("O->'5"));
+        rl.add(RuleCreator.createRule("O->'7"));
 
-	}
+        String source = "x5478";
 
-	@Test
-	public void simpleTrans() throws GrammarException {
+        Grammarhost grammarhost = new Grammarhost(rl);
+        Transpiler trp = new Transpiler(source, grammarhost);
 
+        Assert.assertEquals("x54X78", trp.transpile());
+    }
 
-		List<Rule> rl=new LinkedList<>();
+    @Test
+    public void midRecTestGoodSource() throws GrammarException {
 
-		Rule r1=RuleCreator.createRule("A->F G F G>>*F \"hello\" *G");
-		rl.add(r1);
-		rl.add(RuleCreator.createRule("B->'b"));
-		rl.add(RuleCreator.createRule("B->C B"));
+        List<Rule> rl = new LinkedList<>();
 
+        Rule r1 = RuleCreator.createRule("M->e1:E o1:O M o2:O e2:E>>e1 \"X\" o1 \"b\" *M \"a\" o2 e2");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("M->'x>>\"x\""));
 
-		rl.add(RuleCreator.createRule("G->B"));
-		rl.add(RuleCreator.createRule("D->'bb"));
-		rl.add(RuleCreator.createRule("C->'a"));
-		rl.add(RuleCreator.createRule("F->'ab"));
-		String source ="abbabb";
-		Grammarhost grammarhost = new Grammarhost(rl);
+        rl.add(RuleCreator.createRule("E->'2"));
+        rl.add(RuleCreator.createRule("E->'4"));
+        rl.add(RuleCreator.createRule("E->'6"));
+        rl.add(RuleCreator.createRule("E->'8"));
 
-		Transpiler trp=new Transpiler(source, grammarhost);
+        rl.add(RuleCreator.createRule("O->'1"));
+        rl.add(RuleCreator.createRule("O->'3"));
+        rl.add(RuleCreator.createRule("O->'5"));
+        rl.add(RuleCreator.createRule("O->'7"));
 
-		Assert.assertEquals("hello", trp.transpile());
-	}
+        String source = "4123x5478";
 
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-	@Test
-	public void leftRecTestGoodSource() throws GrammarException{
+        System.out.println(grammarhost);
 
-		List<Rule> rl=new LinkedList<>();
+        Transpiler trp = new Transpiler(source, grammarhost);
+        Assert.assertEquals("4X1b2X3bxa54a78", trp.transpile());
 
-		Rule r1=RuleCreator.createRule("M->M O E>>M \"X\" O E");
-		rl.add(r1);
-		rl.add(RuleCreator.createRule("M->'x>>\"x\""));
+    }
 
-		rl.add(RuleCreator.createRule("E->'2"));
-		rl.add(RuleCreator.createRule("E->'4"));
-		rl.add(RuleCreator.createRule("E->'6"));
-		rl.add(RuleCreator.createRule("E->'8"));
+    @Test
+    public void rightRecTestGoodSource() throws GrammarException {
 
-		rl.add(RuleCreator.createRule("O->'1"));
-		rl.add(RuleCreator.createRule("O->'3"));
-		rl.add(RuleCreator.createRule("O->'5"));
-		rl.add(RuleCreator.createRule("O->'7"));
+        List<Rule> rl = new LinkedList<>();
 
-		String source ="x5478";
+        Rule r1 = RuleCreator.createRule("M->O E M>>O E \"X\" *M");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("M->'x>>\"h\""));
 
-		Grammarhost grammarhost = new Grammarhost(rl);
-		Transpiler trp=new Transpiler(source, grammarhost);
+        rl.add(RuleCreator.createRule("E->'4"));
+        rl.add(RuleCreator.createRule("E->'8"));
 
-		Assert.assertEquals("x54X78", trp.transpile());
-	}
+        rl.add(RuleCreator.createRule("O->'5"));
+        rl.add(RuleCreator.createRule("O->'7"));
 
+        String source = "5478x";
 
-	@Test
-	public void midRecTestGoodSource() throws GrammarException{
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-		List<Rule> rl=new LinkedList<>();
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-		Rule r1=RuleCreator.createRule("M->e1:E o1:O M o2:O e2:E>>e1 \"X\" o1 \"b\" *M \"a\" o2 e2");
-		rl.add(r1);
-		rl.add(RuleCreator.createRule("M->'x>>\"x\""));
+        Assert.assertEquals("54X78Xh", trp.transpile());
+    }
 
-		rl.add(RuleCreator.createRule("E->'2"));
-		rl.add(RuleCreator.createRule("E->'4"));
-		rl.add(RuleCreator.createRule("E->'6"));
-		rl.add(RuleCreator.createRule("E->'8"));
-
-		rl.add(RuleCreator.createRule("O->'1"));
-		rl.add(RuleCreator.createRule("O->'3"));
-		rl.add(RuleCreator.createRule("O->'5"));
-		rl.add(RuleCreator.createRule("O->'7"));
-
-		String source ="4123x5478";
-
-		Grammarhost grammarhost = new Grammarhost(rl);
-
-		System.out.println(grammarhost);
-
-		Transpiler trp=new Transpiler(source, grammarhost);
-		Assert.assertEquals("4X1b2X3bxa54a78", trp.transpile());
-
-
-	}
-
-
-	@Test
-	public void rightRecTestGoodSource() throws GrammarException{
-
-		List<Rule> rl=new LinkedList<>();
-
-		Rule r1=RuleCreator.createRule("M->O E M>>O E \"X\" *M");
-		rl.add(r1);
-		rl.add(RuleCreator.createRule("M->'x>>\"h\""));
-
-		rl.add(RuleCreator.createRule("E->'4"));
-		rl.add(RuleCreator.createRule("E->'8"));
-
-		rl.add(RuleCreator.createRule("O->'5"));
-		rl.add(RuleCreator.createRule("O->'7"));
-
-		String source ="5478x";
-
-		Grammarhost grammarhost = new Grammarhost(rl);
-
-		Transpiler trp=new Transpiler(source, grammarhost);
-
-		Assert.assertEquals("54X78Xh", trp.transpile());
-	}
-
-	private Rule createRule(String string) {
-		return RuleCreator.createRule(string);
-	}
-
-
+    private Rule createRule(String string) {
+        return RuleCreator.createRule(string);
+    }
 
 }

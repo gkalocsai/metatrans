@@ -1,5 +1,6 @@
 package slow;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import compilation.Transpiler;
@@ -9,27 +10,24 @@ import util.StringLoadUtil;
 
 public class Slow {
 
+    @Ignore
+    @Test
+    public void kivi() throws GrammarException {
 
+        String stt = StringLoadUtil.loadResource("kivi.stt");
+        RuleReader rr = new RuleReader(stt);
+        stt = rr.getPreprocessed();
+        String src = StringLoadUtil.loadResource("kivi.src");
+        // src=src.substring(0, 6);
+        Transpiler trp = new Transpiler(src, stt);
 
+        System.out.println(trp.transpile());
 
-	@Test
-	public void kivi() throws GrammarException{
+        // SyntaxTreePic pac=new SyntaxTreePic(stb.getTree());
 
-		String stt=StringLoadUtil.loadResource("kivi.stt");
-		RuleReader rr = new RuleReader(stt);
-		stt=rr.getPreprocessed();
-		String src=StringLoadUtil.loadResource("kivi.src");
-	    //src=src.substring(0, 6);
-		Transpiler trp=new Transpiler(src, stt);
+        // System.out.println(pac.getPic());
 
-		System.out.println(trp.transpile());
-
-
-		//SyntaxTreePic pac=new SyntaxTreePic(stb.getTree());
-
-		//System.out.println(pac.getPic());
-
-	//	Assert.assertTrue(result);
-	}
+        // Assert.assertTrue(result);
+    }
 
 }

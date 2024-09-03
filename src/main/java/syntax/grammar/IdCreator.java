@@ -21,9 +21,8 @@ public enum IdCreator {
         Set<String> checker = new HashSet<>();
         for (int i = 0; i < nameCount; i++) {
             String candidate = generateYetUnusedId(prefixOfGenerated);
-            while (checker.contains(candidate)) {
+            while (checker.contains(candidate))
                 candidate = generateYetUnusedId(prefixOfGenerated);
-            }
             newNames.add(candidate);
             checker.add(candidate);
         }
@@ -33,9 +32,8 @@ public enum IdCreator {
     public String generateYetUnusedId(String prefixOfGenerated) {
 
         String id = generateRandomId();
-        while (theIds.contains(id)) {
+        while (theIds.contains(id))
             id = generateRandomId();
-        }
         for (int i = 1; i <= id.length(); i++) {
             String s = id.substring(0, i);
             if (!theIds.contains(prefixOfGenerated + s)) {
@@ -49,7 +47,7 @@ public enum IdCreator {
 
     private static String generateRandomId() {
 
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().toLowerCase();
 
     }
 

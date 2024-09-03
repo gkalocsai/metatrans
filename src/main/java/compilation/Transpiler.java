@@ -7,8 +7,8 @@ import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.RuleInterval;
 import syntax.tree.builder.STreeBuilder;
+import syntax.tree.tools.RuleInterval;
 
 public class Transpiler {
 
