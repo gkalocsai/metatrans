@@ -2,7 +2,6 @@ package syntax.tree.builder;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +17,8 @@ import syntax.tree.tools.ToStr;
 
 public class STreeBuilder {
 
-    private final Map<String, List<RuleInterval>> forward = new LinkedHashMap<String, List<RuleInterval>>();
-    private final Map<String, List<RuleInterval>> backward = new LinkedHashMap<String, List<RuleInterval>>();
+    private final Map<String, List<RuleInterval>> forward = new HashMap<String, List<RuleInterval>>();
+    private final Map<String, List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
 
     private final Map<RuleInterval, RuleInterval[]> deduction = new HashMap<RuleInterval, RuleInterval[]>();
 
