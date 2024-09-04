@@ -132,10 +132,25 @@ public class STreeBuilder {
             if (this.ruleIntervalEquality.contains(matchString)) continue;
             else {
                 ruleIntervalEquality.add(matchString);
+                removeFromMaps(d);
                 addToMaps(ri);
                 if (printOut) System.out.println(ri + "  " + source.substring(ri.getBegin(), ri.getLast() + 1));
             }
         }
+    }
+
+    private void removeFromMaps(Deduction d) {
+        RuleInterval fr = d.getFrom();
+        Rule m = fr.getRule();
+        if (!Character.isUpperCase(m.getGroupname().charAt(0))) return;
+        if (m.getRightSideLength() < 2) return;
+        toCheck.push(fr);
+        for (RuleInterval ri : d.getTo()) {
+            forward.remove("" + ri.getBegin());
+            backward.remove("" + ri.getLast());
+
+        }
+
     }
 
     private void addInitialRules() {

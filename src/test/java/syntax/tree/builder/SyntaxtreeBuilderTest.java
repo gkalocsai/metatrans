@@ -14,68 +14,62 @@ import syntax.grammar.Grammarhost;
 
 public class SyntaxtreeBuilderTest {
 
+    @Test
+    public void fgfg() throws GrammarException {
 
-	@Test
-	public void fgfg() throws GrammarException {
+        List<Rule> rl = new LinkedList<>();
 
+        Rule r1 = createRule("a->f g f g");
+        rl.add(r1);
+        rl.add(createRule("b->'b"));
+        rl.add(createRule("b->c b"));
 
-		List<Rule> rl=new LinkedList<>();
+        rl.add(createRule("g->b"));
+        rl.add(createRule("d->'bb"));
+        rl.add(createRule("c->'a"));
+        rl.add(createRule("f->'ab"));
+        String source = "abbabb";
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-		Rule r1=createRule("A->F G F G");
-		rl.add(r1);
-		rl.add(createRule("B->'b"));
-		rl.add(createRule("B->C B"));
+        System.out.println(grammarhost);
 
-		rl.add(createRule("G->B"));
-		rl.add(createRule("D->'bb"));
-		rl.add(createRule("C->'a"));
-		rl.add(createRule("F->'ab"));
-		String source ="abbabb";
-		Grammarhost grammarhost = new Grammarhost(rl);
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-		System.out.println(grammarhost);
+        Assert.assertTrue(trp.transpile() != null);
+    }
 
-		Transpiler trp=new Transpiler(source, grammarhost);
+    @Test
+    public void midRecTestBadSource() throws GrammarException {
 
-		Assert.assertTrue(trp.transpile()!=null);
-	}
+        List<Rule> rl = new LinkedList<>();
 
+        Rule r1 = createRule("M->E O M O E");
+        rl.add(r1);
+        rl.add(createRule("M->'x"));
 
-	@Test
-	public void midRecTestBadSource() throws GrammarException{
+        rl.add(createRule("E->'2"));
+        rl.add(createRule("E->'4"));
+        rl.add(createRule("E->'6"));
+        rl.add(createRule("E->'8"));
 
-		List<Rule> rl=new LinkedList<>();
+        rl.add(createRule("O->'1"));
+        rl.add(createRule("O->'3"));
+        rl.add(createRule("O->'5"));
+        rl.add(createRule("O->'7"));
 
-		Rule r1=createRule("M->E O M O E");
-		rl.add(r1);
-		rl.add(createRule("M->'x"));
+        String source = "123x547";
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-		rl.add(createRule("E->'2"));
-		rl.add(createRule("E->'4"));
-		rl.add(createRule("E->'6"));
-		rl.add(createRule("E->'8"));
+        System.out.println(grammarhost);
 
-		rl.add(createRule("O->'1"));
-		rl.add(createRule("O->'3"));
-		rl.add(createRule("O->'5"));
-		rl.add(createRule("O->'7"));
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-		String source ="123x547";
-		Grammarhost grammarhost = new Grammarhost(rl);
+        Assert.assertTrue(trp.transpile() == null);
 
-		System.out.println(grammarhost);
+    }
 
-
-		Transpiler trp=new Transpiler(source, grammarhost);
-
-
-		Assert.assertTrue(trp.transpile() == null);
-
-	}
-
-
-	private Rule createRule(String string) {
-		return RuleCreator.createRule(string);
-	}
+    private Rule createRule(String string) {
+        return RuleCreator.createRule(string);
+    }
 
 }

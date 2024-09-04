@@ -132,15 +132,15 @@ public class TranslatorTest {
 
         List<Rule> rl = new LinkedList<>();
 
-        Rule r1 = RuleCreator.createRule("A->F G F G>>*F \"hello\" *G");
+        Rule r1 = RuleCreator.createRule("a->f g f g>>*f \"hello\" *g");
         rl.add(r1);
-        rl.add(RuleCreator.createRule("B->'b"));
-        rl.add(RuleCreator.createRule("B->C B"));
+        rl.add(RuleCreator.createRule("b->'b"));
+        rl.add(RuleCreator.createRule("b->c b"));
 
-        rl.add(RuleCreator.createRule("G->B"));
-        rl.add(RuleCreator.createRule("D->'bb"));
-        rl.add(RuleCreator.createRule("C->'a"));
-        rl.add(RuleCreator.createRule("F->'ab"));
+        rl.add(RuleCreator.createRule("g->b"));
+        rl.add(RuleCreator.createRule("d->'bb"));
+        rl.add(RuleCreator.createRule("c->'a"));
+        rl.add(RuleCreator.createRule("f->'ab"));
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
 
