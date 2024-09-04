@@ -33,7 +33,7 @@ public class Infix2PostfixTest {
 
             Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
             String x2 = trp.transpile();
-            // System.out.println(x2);
+            Assert.assertNotNull(x2);
             if (!expected.equals(x2)) {
                 System.out.println(expected + " != " + x2);
                 System.out.println("Source: " + sourceFileContent);
