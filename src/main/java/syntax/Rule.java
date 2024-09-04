@@ -2,6 +2,7 @@ package syntax;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -160,9 +161,7 @@ public class Rule {
         List<String> result = new LinkedList<>();
         result.add(groupname);
 
-        for (String l : labels) {
-            result.add(l);
-        }
+        Collections.addAll(result, labels);
 
         for (SyntaxElement v : rightside) {
             String refG = v.getReferencedGroup();
@@ -258,7 +257,8 @@ public class Rule {
             if (groupRef.equals(rightside[c].getReferencedGroup())) {
                 String[] result = new String[(rightside.length - c) - 1];
                 for (int i = 0; i < result.length; i++) {
-                    result[i] = rightside[++c].getReferencedGroup();
+                    c++;
+                    result[i] = rightside[c].getReferencedGroup();
                 }
                 return result;
             }
@@ -299,12 +299,22 @@ public class Rule {
         return -1;
     }
 
+    public int getIndexOfRefGroup(String midGroup, int after) {
+        for (int i = after + 1; i < rightside.length; i++) {
+            if (midGroup.equals(rightside[i].getReferencedGroup())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public String[] getGroupRefsAsArray() {
         if (rightSideAsString == null) {
             rightSideAsString = new String[rightside.length];
             int i = 0;
             for (SyntaxElement v : rightside) {
-                rightSideAsString[i++] = v.getReferencedGroup();
+                rightSideAsString[i] = v.getReferencedGroup();
+                i++;
             }
         }
         return rightSideAsString;

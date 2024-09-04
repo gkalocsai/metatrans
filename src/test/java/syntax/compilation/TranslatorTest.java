@@ -13,6 +13,7 @@ import syntax.Rule;
 import syntax.RuleCreator;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
+import syntax.tree.builder.STreeBuilder;
 
 public class TranslatorTest {
 
@@ -107,7 +108,7 @@ public class TranslatorTest {
         // sourceFileContent="9*5*2";
 
         Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
-        Assert.assertEquals("9 5 * 2 *", trp.transpile());
+        Assert.assertEquals("9 5 2 * *", trp.transpile());
     }
 
     @Test
@@ -142,6 +143,9 @@ public class TranslatorTest {
         rl.add(RuleCreator.createRule("F->'ab"));
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
+
+        STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        stb.build();
 
         Transpiler trp = new Transpiler(source, grammarhost);
 

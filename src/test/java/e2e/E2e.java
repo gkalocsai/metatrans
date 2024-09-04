@@ -89,19 +89,16 @@ public class E2e {
 
         String sourceFileContent = "NEMvu" + " vagyok zebra." + "eseményeket vizionálja egybe, melyek sza- \n"
                 + "vakba, másokba átvivő szintézisbe szabadítják \n"
-//	    		+ "az életnek ezt a végzetes szuggeszcióját. Itt \n"
-//	    		+ "nincs szükség egy mesterkélt egység stilizálá- \n"
-//	    		+ "sára, főhősre s a harmadik oldalon már holt- \n"
-//	    		+ "bizonyosra vett befejezésre. Az élet részei az \n"
-//	    		+ "élet természetes elömlésével következnek egy- \n"
-//	    		+ "más után, a kezdet már mintegy folytatása és \n"
-//	    		+ "nincs külső, hókusz-pókusz befejezés, az egy- \n"
-//	    		+ "külső kapocs, mintahogy az életben sorsok "
-//	    		+ "másra következő részek közt néha alig van \n"
-        ;
-        // sourceFileContent=StringLoadUtil.loadResource("45K.txt");
+                + "az életnek ezt a végzetes szuggeszcióját. Itt \n"
+                + "nincs szükség egy mesterkélt egység stilizálá- \n"
+                + "sára, főhősre s a harmadik oldalon már holt- \n"
+                + "bizonyosra vett befejezésre. Az élet részei az \n"
+                + "élet természetes elömlésével következnek egy- \n" + "más után, a kezdet már mintegy folytatása és \n"
+                + "nincs külső, hókusz-pókusz befejezés, az egy- \n" + "külső kapocs, mintahogy az életben sorsok "
+                + "másra következő részek közt néha alig van \n";
+        // sourceFileContent = StringLoadUtil.loadResource("45K.txt");
 
-        // sourceFileContent = sourceFileContent.substring(0, 100);
+        // sourceFileContent = sourceFileContent.substring(0, 2100);
         long startTime = System.currentTimeMillis();
 //		RuleReader rr = new RuleReader(syntaxFileContent);
 //		List<Rule> ruleList=rr.getAllRules();

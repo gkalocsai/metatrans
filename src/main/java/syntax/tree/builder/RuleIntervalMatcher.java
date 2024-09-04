@@ -28,7 +28,7 @@ public class RuleIntervalMatcher {
         currentRight = new RuleInterval[afterGroupNames.length];
     }
 
-    List<RuleInterval[]> getRigths(int firstSourceIndex) {
+    public List<RuleInterval[]> getRigths(int firstSourceIndex) {
 
         List<RuleInterval[]> rights = new LinkedList<RuleInterval[]>();
 
@@ -57,7 +57,7 @@ public class RuleIntervalMatcher {
         }
     }
 
-    List<RuleInterval[]> getLefts(int lastSourceIndex) {
+    public List<RuleInterval[]> getLefts(int lastSourceIndex) {
 
         List<RuleInterval[]> lefts = new LinkedList<RuleInterval[]>();
 
@@ -159,9 +159,11 @@ public class RuleIntervalMatcher {
 
     private int setSourceIndexLeftside(int lastSourceIndex, int groupNameIndex) {
         int sourceIndex = lastSourceIndex; // part.getBegin()-1;
-        if (groupNameIndex < currentLeft.length - 1) {
-            sourceIndex = currentLeft[groupNameIndex - 1].getBegin() - 1;
+
+        if (groupNameIndex >= 0 && groupNameIndex < currentLeft.length - 1) {
+            sourceIndex = currentLeft[groupNameIndex + 1].getBegin() - 1;
         }
+
         return sourceIndex;
     }
 
