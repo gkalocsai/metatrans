@@ -9,10 +9,10 @@ import util.Util;
 
 public class OptionalVConverter {
 
-    public static List<Rule> createRules(ReadRuleWithOptionalVs rr) {
+    public static List<Rule> createRules(ReadRuleWithOptionalVs rr, boolean repeater) {
         List<Rule> list = new LinkedList<>();
         if (rr.countOfOptionalElements() == 0) {
-            Rule r = new Rule(rr.getGroupname(), rr.getRightside(), rr.getLabel(), rr.getCompilation());
+            Rule r = new Rule(rr.getGroupname(), rr.getRightside(), rr.getLabel(), rr.getCompilation(), repeater);
             list.add(r);
         } else {
             int digits = rr.countOfOptionalElements();
@@ -48,6 +48,6 @@ public class OptionalVConverter {
             rightSideIndex++;
 
         }
-        return new Rule(rr.getGroupname(), rv, labels, rr.getCompilation());
+        return new Rule(rr.getGroupname(), rv, labels, rr.getCompilation(), false);
     }
 }

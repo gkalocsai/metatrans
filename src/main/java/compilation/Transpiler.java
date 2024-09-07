@@ -72,16 +72,20 @@ public class Transpiler {
         Rule r = e.getRule();
         RuleInterval[] ra = deduction.get(e);
         CompilationElement[] compArray = r.getCompilation();
-        for (CompilationElement ce : compArray) {
-            char type = ce.getType();
-            if (type == '\"') {
-                sb.append(ce.getBase());
-            } else if (type == ' ') {
-                int x = r.getIndexOfLabel(ce.getBase());
-                sb.append(source.substring(ra[x].getBegin(), ra[x].getLast() + 1));
-            } else if (type == '*') {
-                int x = r.getIndexOfLabel(ce.getBase());
-                doTranspile(ra[x]);
+
+        for (int i = 0; i < ra.length; i += r.getRightSideLength()) {
+
+            for (CompilationElement ce : compArray) {
+                char type = ce.getType();
+                if (type == '\"') {
+                    sb.append(ce.getBase());
+                } else if (type == ' ') {
+                    int x = r.getIndexOfLabel(ce.getBase());
+                    sb.append(source.substring(ra[x + i].getBegin(), ra[x + i].getLast() + 1));
+                } else if (type == '*') {
+                    int x = r.getIndexOfLabel(ce.getBase());
+                    doTranspile(ra[x + i]);
+                }
             }
         }
     }

@@ -22,16 +22,13 @@ public class TranslatorTest {
 
         String syntaxFileContent; // = StringLoadUtil.load("/home/kalocsai/expression/expression.stt");
 
-        syntaxFileContent = "" + "exp{" + "n:ds>>n;" + "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;" + "}" + "exp2{"
-                + "n:ds>>n;" + "exp op:\"+\" exp2 >> *exp \" \" *exp2 \" \" op;" + "}"
-
-//				+ "top{\"-\">>\"-\";\"*\">>\"*\";\"+\">>\"+\";}"
-                + "ds{d;ds d>>d ds;}" + "d{d:\"(0-9)\">>d;}";
-
         // String sourceFileContent ="(53+45)*2+19+56+53+1";
 
         syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
                 + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d >> d;ds d>> ds d;}" + "d{d:\"(0-9)\">>d;}";
+
+        syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{...d >> d;}" + "d{d:\"(0-9)\">>d;}";
 
         String sourceFileContent = "2+1+56";
 
@@ -80,7 +77,7 @@ public class TranslatorTest {
     public void exp() throws IOException, GrammarException {
 
         String syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
-                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d;d ds:ds>>d(ds);}" + "d{d:\"(0-9)\">>d;}";
+                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{...d>>d;}" + "d{d:\"(0-9)\">>d;}";
 
         String sourceFileContent = "(5+2)+(5+5)";
 

@@ -24,6 +24,7 @@ public class Grammarhost {
     private String rootGroup;
     private Map<Rule, Integer> matchOrder;
     private Map<String, LinkedList<Rule>> applicableStorage;
+    private Set<String> repeaterCatchers = new HashSet<String>();
 
     public List<Rule> getApplicableRuleList(String ref) {
         if (applicableStorage == null) {
@@ -99,6 +100,13 @@ public class Grammarhost {
         groupRulesByRecursion();
         createMatchOrderMap();
         allIds = getAllIdentifiers();
+
+        for (Rule r : getRefRules()) {
+            if (r.isRepeater()) {
+                repeaterCatchers.add(r.getGroupRefsAsArray()[0]);
+            }
+        }
+
         IdCreator.InSTANCE.addExistingIds(allIds);
     }
 
@@ -275,7 +283,7 @@ public class Grammarhost {
     }
 
     private Rule createCsdRule(String groupName, CharSequenceDescriptor csd) {
-        return new Rule(groupName, createVArray(csd), null, null);
+        return new Rule(groupName, createVArray(csd), null, null, false);
     }
 
     private SyntaxElement[] createVArray(CharSequenceDescriptor csd) {
@@ -289,6 +297,7 @@ public class Grammarhost {
         List<Rule> refRuleList = new ArrayList<>();
         for (Rule r : rList) {
             if (!r.getFirstV().isDescriptor() && !"0".equals(r.getGroupname())) {
+
                 refRuleList.add(r);
             }
         }
@@ -341,9 +350,7 @@ public class Grammarhost {
     public List<Rule> createListFromAllRules() {
         List<Rule> all = new ArrayList<>();
         for (ArrayList<Rule> rl : grammar.values()) {
-            for (Rule r : rl) {
-                all.add(r);
-            }
+            all.addAll(rl);
         }
         return all;
     }
@@ -371,6 +378,11 @@ public class Grammarhost {
     public int getStrength(Rule rule) {
         return matchOrder.get(rule);
 
+    }
+
+    public Set<String> getRepeaterCathcers() {
+
+        return this.repeaterCatchers;
     }
 
 }

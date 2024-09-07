@@ -25,6 +25,12 @@ public class ComplexRuleCreator {
             syntax = otherParts.substring(0, afterRightSide).trim();
             compilation = otherParts.substring(afterRightSide + 2).trim();
         }
+        boolean repeater = false;
+        if (syntax.startsWith("...")) {
+            repeater = true;
+            syntax = syntax.substring(3);
+        }
+
         CompilationElement[] ces = createCompilation(compilation);
 
         List<String> syntaxPartStrings = splitSyntax(syntax);
@@ -42,12 +48,11 @@ public class ComplexRuleCreator {
         }
 
         ReadRuleWithOptionalVs rr = new ReadRuleWithOptionalVs(groupname, optional, label, rightside, ces);
-        return OptionalVConverter.createRules(rr);
+        return OptionalVConverter.createRules(rr, repeater);
     }
 
     private static SyntaxElement getV(String part) {
-        if (isOptional(part) || part.startsWith("."))
-            part = part.substring(1).trim();
+        if (isOptional(part) || part.startsWith(".")) part = part.substring(1).trim();
 
         int colonIndex = CharSeqUtil.getNonQuotedIndex(part, ":", 0);
         if (colonIndex >= 0) {
@@ -64,12 +69,9 @@ public class ComplexRuleCreator {
 
     private static String getLabel(String part) {
         int colonIndex = CharSeqUtil.getNonQuotedIndex(part, ":", 0);
-        if (colonIndex < 0)
-            return "";
-        if (isOptional(part))
-            return part.substring(1, colonIndex).trim();
-        else
-            return part.substring(0, colonIndex).trim();
+        if (colonIndex < 0) return "";
+        if (isOptional(part)) return part.substring(1, colonIndex).trim();
+        else return part.substring(0, colonIndex).trim();
     }
 
     private static boolean isOptional(String part) {
@@ -95,12 +97,10 @@ public class ComplexRuleCreator {
 
         for (int i = from; i < syntax.length(); i++) {
             ch = syntax.charAt(i);
-            if (ch == '\"' || ch == '\'')
-                return CharSeqUtil.getClosingIndexInEscaped(syntax, i);
+            if (ch == '\"' || ch == '\'') return CharSeqUtil.getClosingIndexInEscaped(syntax, i);
             if (ch == ' ') {
                 char prev = syntax.charAt(i - 1);
-                if (prev != '?' && prev != ':')
-                    return i - 1;
+                if (prev != '?' && prev != ':') return i - 1;
             }
         }
         return syntax.length() - 1;

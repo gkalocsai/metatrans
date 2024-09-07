@@ -1,6 +1,6 @@
 package syntax.grammar;
 
-public class GrammarException extends Exception {
+public class GrammarException extends RuntimeException {
 
     public GrammarException(String msg) {
         super(msg);

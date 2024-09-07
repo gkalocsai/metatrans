@@ -19,10 +19,14 @@ public class Rule {
     private String[] rightSideAsString;
     private boolean directRecursive;
 
-    public Rule(String groupname, SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation) {
+    private boolean repeater;
+
+    public Rule(String groupname, SyntaxElement[] rightside, String[] labels, CompilationElement[] compilation,
+            boolean repeater) {
 
         this.groupname = groupname;
         this.rightside = rightside;
+        this.repeater = repeater;
 
         if (labels == null) {
             this.labels = new String[rightside.length];
@@ -76,7 +80,7 @@ public class Rule {
         String[] labelsCopy = copyLabels();
         SyntaxElement[] rsCopy = copyRightside();
         CompilationElement[] ceArrayCopy = copyCompilation();
-        return new Rule(this.groupname, rsCopy, labelsCopy, ceArrayCopy);
+        return new Rule(this.groupname, rsCopy, labelsCopy, ceArrayCopy, repeater);
     }
 
     public CompilationElement[] copyCompilation() {
@@ -394,6 +398,10 @@ public class Rule {
             }
         }
         return midRecCount;
+    }
+
+    public boolean isRepeater() {
+        return repeater;
     }
 
 }
