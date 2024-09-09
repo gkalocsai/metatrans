@@ -26,7 +26,7 @@ public class STreeBuilder {
     private Set<String> ruleIntervalEquality = new HashSet<String>();
 
     Stack<RuleInterval> toCheck = new Stack<RuleInterval>();
-    Stack<RuleInterval> toCheck2 = new Stack<RuleInterval>();
+    List<RuleInterval> toCheck2 = new LinkedList<RuleInterval>();
 
     private Grammarhost gh;
     private String source;
@@ -54,6 +54,7 @@ public class STreeBuilder {
         int level = 1;
         List<Rule> rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
         while (rulesOnCurrentLevel != null) {
+            List<RuleInterval> toRemove = new LinkedList<RuleInterval>();
             boolean wasChange = true;
             while (wasChange) {
                 wasChange = false;
@@ -72,24 +73,30 @@ public class STreeBuilder {
                             String matchString = ri.matchingString();
                             if (!this.ruleIntervalEquality.contains(matchString)) {
                                 ruleIntervalEquality.add(matchString);
-                                toCheck2.insertElementAt(d.getFrom(), 0); // a következő szintnek is!
+                                toCheck2.addFirst(d.getFrom()); // a következő szintnek is!
                                 wasChange = true;
                                 addToMaps(ri);
-                                // System.out.println(current + " " + r);
-                                // System.out.println(this);
                             }
                         }
                     }
                 }
             }
 
-            /// TODO szintnek megfelelő remove a toCheckből
-            toCheck.addAll(toCheck2);
+            Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + level);
+            if (toKill != null) {
+                for (RuleInterval ri : toCheck) {
+                    if (toKill.contains(ri.getRule())) toRemove.add(ri);
+                }
+                toCheck.removeAll(toRemove);
+            }
 
+            for (RuleInterval ri : toCheck2) {
+                toCheck.insertElementAt(ri, 0);
+            }
+            // toCheck.addAll(toCheck2);
             level++;
-
             rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
-            // System.out.println(this);
+
         }
     }
 
@@ -264,7 +271,7 @@ public class STreeBuilder {
                 if (csd.matchesInFrom(source, i)) {
                     RuleInterval ruleInterval = new RuleInterval(r, i, i + csd.getDescribedLength() - 1);
                     addToMaps(ruleInterval);
-                    toCheck.insertElementAt(ruleInterval, 0);
+                    toCheck.push(ruleInterval);
                 }
             }
     }

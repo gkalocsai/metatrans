@@ -25,7 +25,7 @@ public class Grammarhost {
     private String rootGroup;
 
     private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
-    private Map<String, List<Rule>> killOnLevelToRuleList = new HashMap<String, List<Rule>>();
+    private Map<String, Set<Rule>> killOnLevelToRuleList = new HashMap<String, Set<Rule>>();
 
     private List<Rule> csdRuleList = null;
 
@@ -77,7 +77,6 @@ public class Grammarhost {
         IdCreator.InSTANCE.addExistingIds(allIds);
         fillApplicationOrderToRuleList();
         fillKillLevel();
-        System.out.println();
 
     }
 
@@ -93,9 +92,9 @@ public class Grammarhost {
             int max = getMaxLevelOf(rightSides, groupName2Level) + 1;
 
             if (this.killOnLevelToRuleList.get("" + max) == null) {
-                this.killOnLevelToRuleList.put("" + max, new ArrayList<Rule>());
+                this.killOnLevelToRuleList.put("" + max, new HashSet<Rule>());
             }
-            List<Rule> rl2 = this.killOnLevelToRuleList.get("" + max);
+            Set<Rule> rl2 = this.killOnLevelToRuleList.get("" + max);
             rl2.addAll(currentGroup);
         }
     }
@@ -450,7 +449,7 @@ public class Grammarhost {
         return levelInSyntaxTreeToRuleList;
     }
 
-    public Map<String, List<Rule>> getKillOnLevelToRuleList() {
+    public Map<String, Set<Rule>> getKillOnLevelToRuleList() {
         return killOnLevelToRuleList;
     }
 

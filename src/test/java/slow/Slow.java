@@ -1,6 +1,5 @@
 package slow;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import compilation.Transpiler;
@@ -10,7 +9,6 @@ import util.StringLoadUtil;
 
 public class Slow {
 
-    @Ignore
     @Test
     public void kivi() throws GrammarException {
 
@@ -23,11 +21,6 @@ public class Slow {
 
         System.out.println(trp.transpile());
 
-        // SyntaxTreePic pac=new SyntaxTreePic(stb.getTree());
-
-        // System.out.println(pac.getPic());
-
-        // Assert.assertTrue(result);
     }
 
 }

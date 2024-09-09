@@ -8,6 +8,7 @@ import util.StringLoadUtil;
 
 public class NumberTest {
 
+    // @Ignore
     @Test
     public void digits() throws GrammarException {
 

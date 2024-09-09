@@ -31,8 +31,6 @@ public class SyntaxtreeBuilderTest {
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
 
-        System.out.println(grammarhost);
-
         Transpiler trp = new Transpiler(source, grammarhost);
 
         Assert.assertTrue(trp.transpile() != null);
