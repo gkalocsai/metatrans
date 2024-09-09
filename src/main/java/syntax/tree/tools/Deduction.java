@@ -18,4 +18,16 @@ public class Deduction {
         return to;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        if (to.length > 0) sb.append(to[0]);
+        for (int i = 1; i < to.length; i++) {
+            RuleInterval ri = to[i];
+            sb.append(", " + ri);
+        }
+
+        sb.append("]");
+        return from + " -> " + sb.toString();
+    }
+
 }

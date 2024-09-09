@@ -1,6 +1,7 @@
 package syntax.grammar;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -22,39 +23,11 @@ public class Grammarhost {
 
     private boolean strict = true;
     private String rootGroup;
-    private Map<Rule, Integer> matchOrder;
-    private Map<String, LinkedList<Rule>> applicableStorage;
-    private Set<String> repeaterCatchers = new HashSet<String>();
 
-    public List<Rule> getApplicableRuleList(String ref) {
-        if (applicableStorage == null) {
-            applicableStorage = new HashMap<>();
-            for (ArrayList<Rule> alr : grammar.values()) {
-                for (Rule r : alr) {
-                    if (r.isDirectRecursive()) {
-                        String s2 = r.getGroupname();
-                        addToApplicableStorage(r, s2);
-                    }
+    private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
+    private Map<String, List<Rule>> killOnLevelToRuleList = new HashMap<String, List<Rule>>();
 
-                    String s = r.getRightSideRef(r.getRightSideLength() - 1);
-                    addToApplicableStorage(r, s);
-                }
-            }
-        }
-
-        List<Rule> result = applicableStorage.get(ref);
-        if (result == null) {
-            result = new LinkedList<>();
-        }
-        return result;
-    }
-
-    private void addToApplicableStorage(Rule r, String s) {
-        if (applicableStorage.get(s) == null) {
-            applicableStorage.put(s, new LinkedList<Rule>());
-        }
-        applicableStorage.get(s).addFirst(r);
-    }
+    private List<Rule> csdRuleList = null;
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
         this.strict = strict;
@@ -89,7 +62,7 @@ public class Grammarhost {
             eliminateIndirectRecursion();
         }
 
-        removeNonReachableRules();
+        // removeNonReachableRules();
         if (strict) {
             validateReferencesInAllRules();
         }
@@ -98,28 +71,124 @@ public class Grammarhost {
         }
 
         groupRulesByRecursion();
-        createMatchOrderMap();
+
         allIds = getAllIdentifiers();
 
-        for (Rule r : getRefRules()) {
-            if (r.isRepeater()) {
-                repeaterCatchers.add(r.getGroupRefsAsArray()[0]);
-            }
-        }
-
         IdCreator.InSTANCE.addExistingIds(allIds);
+        fillApplicationOrderToRuleList();
+        fillKillLevel();
+        System.out.println();
+
     }
 
-    private void createMatchOrderMap() {
-        matchOrder = new HashMap<>();
-        int order = Integer.MAX_VALUE;
-        for (ArrayList<Rule> alr : grammar.values()) {
-            for (Rule r : alr) {
-                matchOrder.put(r, order);
-                order--;
+    private void fillKillLevel() {
+        Map<String, String> groupName2Level = createGroupName2Level();
+
+        // a szabály key-je milyen más szabályok jobb oldalán szerepel
+        // azok szintjének a max-a +1;
+
+        for (String key : grammar.keySet()) {
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            Set<Rule> rightSides = getRightSideContains(key);
+            int max = getMaxLevelOf(rightSides, groupName2Level) + 1;
+
+            if (this.killOnLevelToRuleList.get("" + max) == null) {
+                this.killOnLevelToRuleList.put("" + max, new ArrayList<Rule>());
+            }
+            List<Rule> rl2 = this.killOnLevelToRuleList.get("" + max);
+            rl2.addAll(currentGroup);
+        }
+    }
+
+    private int getMaxLevelOf(Set<Rule> rightSides, Map<String, String> groupName2Level) {
+        int max = 0;
+        for (Rule r : rightSides) {
+            String level = groupName2Level.get(r.getGroupname());
+            if (level == null) continue;
+            int current = Integer.valueOf(level);
+            if (current > max) max = current;
+        }
+        return max;
+    }
+
+    private Set<Rule> getRightSideContains(String groupName) {
+
+        Set<Rule> result = new HashSet<Rule>();
+
+        for (String key : grammar.keySet()) {
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            for (Rule r : currentGroup) {
+                String ar[] = r.getGroupRefsAsArray();
+                for (String rs : ar) {
+                    if (groupName.equals(rs)) {
+                        result.add(r);
+                        break;
+                    }
+                }
+
             }
         }
+        return result;
+    }
 
+    private void fillApplicationOrderToRuleList() {
+
+        Map<String, String> groupName2Order = createGroupName2Level();
+
+        for (String key : grammar.keySet()) {
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            for (Rule r : currentGroup) {
+                String order = groupName2Order.get(r.getGroupname());
+                List<Rule> ao = levelInSyntaxTreeToRuleList.get(order);
+                if (ao == null) {
+                    levelInSyntaxTreeToRuleList.put(order, new ArrayList<Rule>());
+                }
+                ao = levelInSyntaxTreeToRuleList.get(order);
+                ao.add(r);
+            }
+        }
+    }
+
+    private Map<String, String> createGroupName2Level() {
+        Map<String, String> groupName2Order = new HashMap<String, String>();
+        for (Rule r : getCsdRules()) {
+            groupName2Order.put(r.getGroupname(), "0");
+        }
+
+        boolean wasChange = true;
+        while (wasChange) {
+            wasChange = false;
+            for (String key : grammar.keySet()) {
+                if (groupName2Order.keySet().contains(key)) continue;
+                ArrayList<Rule> currentGroup = grammar.get(key);
+                Set<String> rightSides = getRightSides(currentGroup);
+                rightSides.remove(key);
+                if (groupName2Order.keySet().containsAll(rightSides)) {
+                    int max = getMaxLevel(rightSides, groupName2Order);
+                    groupName2Order.put(key, "" + (max + 1));
+                    wasChange = true;
+                }
+            }
+        }
+        return groupName2Order;
+    }
+
+    private int getMaxLevel(Set<String> rightSides, Map<String, String> groupName2Order) {
+        int max = 0;
+        for (String s : rightSides) {
+            int t = Integer.valueOf(groupName2Order.get(s));
+            if (t > max) max = t;
+        }
+        return max;
+    }
+
+    private Set<String> getRightSides(ArrayList<Rule> currentGroup) {
+        Set<String> result = new HashSet<String>();
+        for (Rule r : currentGroup) {
+            String[] arr = r.getGroupRefsAsArray();
+            Collections.addAll(result, arr);
+        }
+        return result;
     }
 
     private void validateReferencesInAllRules() throws GrammarException {
@@ -305,9 +374,11 @@ public class Grammarhost {
     }
 
     public List<Rule> getCsdRules() {
+        if (csdRuleList != null) return csdRuleList;
         List<Rule> rList = createListFromAllRules();
 
-        List<Rule> csdRuleList = new LinkedList<>();
+        csdRuleList = new LinkedList<>();
+
         for (Rule r : rList) {
             if (r.getFirstV().isDescriptor()) {
                 csdRuleList.add(r);
@@ -375,14 +446,12 @@ public class Grammarhost {
         return nonRecursiveRefRules;
     }
 
-    public int getStrength(Rule rule) {
-        return matchOrder.get(rule);
-
+    public Map<String, List<Rule>> getApplicationOrderToRuleList() {
+        return levelInSyntaxTreeToRuleList;
     }
 
-    public Set<String> getRepeaterCathcers() {
-
-        return this.repeaterCatchers;
+    public Map<String, List<Rule>> getKillOnLevelToRuleList() {
+        return killOnLevelToRuleList;
     }
 
 }

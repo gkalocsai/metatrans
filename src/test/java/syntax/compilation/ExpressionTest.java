@@ -15,7 +15,7 @@ import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.STreeBuilder;
 
-public class TranslatorTest {
+public class ExpressionTest {
 
     @Test
     public void expAddition() throws IOException, GrammarException {
@@ -35,7 +35,8 @@ public class TranslatorTest {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         Grammarhost gh = new Grammarhost(ruleList);
-        System.out.println(gh);
+
+        System.out.println(gh.getApplicationOrderToRuleList());
 
         Transpiler trp = new Transpiler(sourceFileContent, gh);
 
@@ -121,6 +122,32 @@ public class TranslatorTest {
         Transpiler trp = new Transpiler(source, new Grammarhost(rl));
 
         Assert.assertEquals("2311", trp.transpile());
+
+    }
+
+    @Test
+    public void expx() throws IOException, GrammarException {
+
+        String syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
+                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d >> d;ds d>> ds d;}" + "d{d:\"(0-9)\">>d;}";
+
+        String sourceFileContent = "(14*(8))";
+
+        // String sourceFileContent = "((22))";
+        String expected = "14 8 *";
+        RuleReader rr = new RuleReader(syntaxFileContent);
+        List<Rule> ruleList = rr.getAllRules();
+        Grammarhost gh = new Grammarhost(ruleList);
+
+        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
+        String x2 = trp.transpile();
+        if (x2 == null) {
+            STreeBuilder stb = new STreeBuilder(gh, sourceFileContent);
+            stb.build();
+
+        }
+
+        Assert.assertEquals(expected, x2);
 
     }
 

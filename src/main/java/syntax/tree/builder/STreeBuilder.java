@@ -26,13 +26,12 @@ public class STreeBuilder {
     private Set<String> ruleIntervalEquality = new HashSet<String>();
 
     Stack<RuleInterval> toCheck = new Stack<RuleInterval>();
-
-    Set<RuleInterval> catchers = new HashSet<RuleInterval>();
+    Stack<RuleInterval> toCheck2 = new Stack<RuleInterval>();
 
     private Grammarhost gh;
     private String source;
 
-    private boolean printOut;
+    private boolean printOut = true;
 
     private String rootName;
     private List<Deduction> matched = new LinkedList<Deduction>();
@@ -51,45 +50,54 @@ public class STreeBuilder {
     }
 
     private void processForward() {
-        while (!toCheck.isEmpty()) {
-            while (!toCheck.isEmpty()) {
-                RuleInterval current = toCheck.pop();
-                matched.clear();
-                for (Rule r : gh.getRefRules()) {
-                    if (r.isRepeater()) continue;
-                    // System.out.println(r);getRoot
-                    matched.addAll(getMatches(current, r));
-                    if (!matched.isEmpty()) {
-                        break;
-                    }
-                }
-                handleNewIntervals(gh.getRepeaterCathcers());
-                // System.out.println(this);
-                if (isReady()) return;
-            }
-            matched.clear();
-            while (!catchers.isEmpty()) {
-                Set<RuleInterval> toRemove = new HashSet<RuleInterval>();
-                for (RuleInterval ri : catchers) {
-                    for (Rule parentRuleCandidate : gh.getRefRules()) {
-                        if (!parentRuleCandidate.isRepeater()) continue;
-                        RuleInterval newParent = repeaterMatch(ri, parentRuleCandidate, toRemove);
-                        if (newParent != null) {
-                            addToMaps(newParent);
+
+        int level = 1;
+        List<Rule> rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
+        while (rulesOnCurrentLevel != null) {
+            boolean wasChange = true;
+            while (wasChange) {
+                wasChange = false;
+                for (RuleInterval current : toCheck) {
+                    for (Rule r : rulesOnCurrentLevel) {
+                        List<Deduction> matches;
+                        if (r.isRepeater()) {
+                            matches = new LinkedList<Deduction>();
+                            Deduction d = repeaterMatch(current, r);
+                            if (d != null) matches.add(d);
+                        }
+
+                        else matches = getMatches(current, r);
+                        for (Deduction d : matches) {
+                            RuleInterval ri = d.getFrom();
+                            String matchString = ri.matchingString();
+                            if (!this.ruleIntervalEquality.contains(matchString)) {
+                                ruleIntervalEquality.add(matchString);
+                                toCheck2.insertElementAt(d.getFrom(), 0); // a következő szintnek is!
+                                wasChange = true;
+                                addToMaps(ri);
+                                // System.out.println(current + " " + r);
+                                // System.out.println(this);
+                            }
                         }
                     }
-                    toRemove.add(ri);
                 }
-                catchers.removeAll(toRemove);
             }
+
+            /// TODO szintnek megfelelő remove a toCheckből
+            toCheck.addAll(toCheck2);
+
+            level++;
+
+            rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
+            // System.out.println(this);
         }
     }
 
-    private RuleInterval repeaterMatch(RuleInterval first, Rule parentRuleCandidate, Set<RuleInterval> toRemove) {
+    private Deduction repeaterMatch(RuleInterval first, Rule parentRuleCandidate) {
         String[] repeatingRefs = parentRuleCandidate.getGroupRefsAsArray();
+        if (!first.getRule().getGroupname().equals(parentRuleCandidate.getFirstV().getReferencedGroup())) return null;
         List<RuleInterval> matchList = repeaterMatchesFromLeft(first.getBegin(), repeatingRefs);
         if (matchList.isEmpty()) return null;
-        toRemove.addAll(matchList);
 
         RuleInterval[] to = new RuleInterval[matchList.size()];
         int toIndex = 0;
@@ -99,7 +107,7 @@ public class STreeBuilder {
         }
         RuleInterval np = new RuleInterval(parentRuleCandidate, to[0].getBegin(), to[to.length - 1].getLast());
         deduction.put(np, to);
-        return np;
+        return new Deduction(np, to);
     }
 
     private List<RuleInterval> repeaterMatchesFromLeft(int begin, String[] repeatingRefs) {
@@ -131,7 +139,7 @@ public class STreeBuilder {
         return last + 1;
     }
 
-//NOT TESTED
+    // NOT TESTED
     private int goBackOneRound(int last, String[] repeatingRefs) {
         int current = last;
         for (int i = repeatingRefs.length - 1; i >= 0; i--) {
@@ -229,36 +237,21 @@ public class STreeBuilder {
         return getRoot() != null;
     }
 
-    private void handleNewIntervals(Set<String> repeaterCatchers) {
+    private void handleNewIntervals() {
         // a ruleIntervalEquality -re azért van szükség, hogy ne adjuk hozzá ugyanazt a
         // ruleIntervalt,
         // amit esetleg töröltünk az optimalizálás során
+
         for (Deduction d : matched) {
             RuleInterval ri = d.getFrom();
             String matchString = ri.matchingString();
             if (this.ruleIntervalEquality.contains(matchString)) continue;
             else {
                 ruleIntervalEquality.add(matchString);
-                removeFromMaps(d);
+                toCheck.add(d.getFrom());
                 addToMaps(ri);
-                if (repeaterCatchers.contains(ri.getRule().getGroupname())) {
-                    catchers.add(ri);
-                }
-                if (printOut) System.out.println(ri + "  " + source.substring(ri.getBegin(), ri.getLast() + 1));
+
             }
-        }
-    }
-
-    private void removeFromMaps(Deduction d) {
-        RuleInterval fr = d.getFrom();
-        Rule m = fr.getRule();
-        if (!Character.isUpperCase(m.getGroupname().charAt(0))) return;
-        if (m.getRightSideLength() < 2) return;
-        toCheck.push(fr);
-        for (RuleInterval ri : d.getTo()) {
-            forward.remove("" + ri.getBegin());
-            backward.remove("" + ri.getLast());
-
         }
 
     }
@@ -270,10 +263,8 @@ public class STreeBuilder {
                 CharSequenceDescriptor csd = r.getFirstV().getCsd();
                 if (csd.matchesInFrom(source, i)) {
                     RuleInterval ruleInterval = new RuleInterval(r, i, i + csd.getDescribedLength() - 1);
-                    if (gh.getRepeaterCathcers().contains(ruleInterval.getRule().getGroupname())) {
-                        catchers.add(ruleInterval);
-                    }
                     addToMaps(ruleInterval);
+                    toCheck.insertElementAt(ruleInterval, 0);
                 }
             }
     }
@@ -281,7 +272,6 @@ public class STreeBuilder {
     private void addToMaps(RuleInterval ruleInterval) {
         addToMap(forward, "" + ruleInterval.getBegin(), ruleInterval);
         addToMap(backward, "" + ruleInterval.getLast(), ruleInterval);
-        toCheck.insertElementAt(ruleInterval, 0);
     }
 
     private boolean addToMap(Map<String, List<RuleInterval>> map, String key, RuleInterval ri) {

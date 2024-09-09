@@ -100,7 +100,7 @@ public class E2e {
                 + "másra következő részek közt néha alig van \n";
         // sourceFileContent = StringLoadUtil.loadResource("45K.txt");
 
-        // sourceFileContent = sourceFileContent.substring(0, 5);
+        sourceFileContent = sourceFileContent.substring(0, 5);
         long startTime = System.currentTimeMillis();
 //		RuleReader rr = new RuleReader(syntaxFileContent);
 //		List<Rule> ruleList=rr.getAllRules();

@@ -1,13 +1,12 @@
 package syntax;
 
-import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import compilation.Transpiler;
-import read.RuleReader;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.STreeBuilder;
@@ -15,28 +14,27 @@ import syntax.tree.builder.STreeBuilder;
 public class CurrentBug {
 
     @Test
-    public void expx() throws IOException, GrammarException {
+    public void simpleTrans() throws GrammarException {
 
-        String syntaxFileContent = "exp{n:ds>>n; \"\\(\" exp \"\\)\">> *exp; e1:exp op e2:exp >> *e1 \" \" *e2 \" \" op;}"
-                + "op{\"+\">>\"+\";\"*\">>\"*\";}" + "ds{d >> d;ds d>> ds d;}" + "d{d:\"(0-9)\">>d;}";
+        List<Rule> rl = new LinkedList<>();
 
-        String sourceFileContent = "(14*(8))";
+        Rule r1 = RuleCreator.createRule("a->f g f g>>*f \"hello\" *g");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("b->'b"));
+        rl.add(RuleCreator.createRule("b->c b"));
 
-        // String sourceFileContent = "((22))";
-        String expected = "14 8 *";
-        RuleReader rr = new RuleReader(syntaxFileContent);
-        List<Rule> ruleList = rr.getAllRules();
-        Grammarhost gh = new Grammarhost(ruleList);
+        rl.add(RuleCreator.createRule("g->b"));
+        rl.add(RuleCreator.createRule("d->'bb"));
+        rl.add(RuleCreator.createRule("c->'a"));
+        rl.add(RuleCreator.createRule("f->'ab"));
+        String source = "abbabb";
+        Grammarhost grammarhost = new Grammarhost(rl);
 
-        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
-        String x2 = trp.transpile();
-        if (x2 == null) {
-            STreeBuilder stb = new STreeBuilder(gh, sourceFileContent);
-            stb.build();
+        STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        stb.build();
 
-        }
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-        Assert.assertEquals(expected, x2);
-
+        Assert.assertEquals("hello", trp.transpile());
     }
 }
