@@ -10,6 +10,7 @@ import util.StringLoadUtil;
 public class Slow {
 
     @Test
+
     public void kivi() throws GrammarException {
 
         String stt = StringLoadUtil.loadResource("kivi.stt");

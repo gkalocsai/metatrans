@@ -22,6 +22,8 @@ public class Transpiler {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
+        System.out.println(grammarhost);
+
         this.source = source;
 
     }

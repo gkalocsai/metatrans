@@ -62,10 +62,12 @@ public class Grammarhost {
             eliminateIndirectRecursion();
         }
 
+        validateReferencesToExists();
         // removeNonReachableRules();
         if (strict) {
             validateReferencesInAllRules();
         }
+
         if (strict) {
             checkForInvalidRecursions();
         }
@@ -77,6 +79,24 @@ public class Grammarhost {
         IdCreator.InSTANCE.addExistingIds(allIds);
         fillApplicationOrderToRuleList();
         fillKillLevel();
+
+    }
+
+    private void validateReferencesToExists() {
+        Set<String> exists = new HashSet<>();
+        exists.addAll(grammar.keySet());
+        for (String key : grammar.keySet()) {
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            for (Rule r : currentGroup) {
+                String[] grs = r.getGroupRefsAsArray();
+                for (String groupname : grs) {
+                    if (groupname == null)
+                        continue;
+                    if (!exists.contains(groupname))
+                        throw new RuntimeException("Non existing group: " + groupname + " in rule: " + r);
+                }
+            }
+        }
 
     }
 
@@ -103,9 +123,11 @@ public class Grammarhost {
         int max = 0;
         for (Rule r : rightSides) {
             String level = groupName2Level.get(r.getGroupname());
-            if (level == null) continue;
+            if (level == null)
+                continue;
             int current = Integer.valueOf(level);
-            if (current > max) max = current;
+            if (current > max)
+                max = current;
         }
         return max;
     }
@@ -158,7 +180,8 @@ public class Grammarhost {
         while (wasChange) {
             wasChange = false;
             for (String key : grammar.keySet()) {
-                if (groupName2Order.keySet().contains(key)) continue;
+                if (groupName2Order.keySet().contains(key))
+                    continue;
                 ArrayList<Rule> currentGroup = grammar.get(key);
                 Set<String> rightSides = getRightSides(currentGroup);
                 rightSides.remove(key);
@@ -176,7 +199,8 @@ public class Grammarhost {
         int max = 0;
         for (String s : rightSides) {
             int t = Integer.valueOf(groupName2Order.get(s));
-            if (t > max) max = t;
+            if (t > max)
+                max = t;
         }
         return max;
     }
@@ -373,7 +397,8 @@ public class Grammarhost {
     }
 
     public List<Rule> getCsdRules() {
-        if (csdRuleList != null) return csdRuleList;
+        if (csdRuleList != null)
+            return csdRuleList;
         List<Rule> rList = createListFromAllRules();
 
         csdRuleList = new LinkedList<>();
@@ -414,6 +439,9 @@ public class Grammarhost {
             }
 
         }
+        sb.append("Levels: " + this.levelInSyntaxTreeToRuleList);
+        sb.append("\nKill levels: " + killOnLevelToRuleList);
+
         return sb.toString();
     }
 

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import descriptor.CharSequenceDescriptor;
 import syntax.Rule;
@@ -15,6 +14,7 @@ import syntax.grammar.Grammarhost;
 import syntax.tree.tools.Deduction;
 import syntax.tree.tools.RuleInterval;
 import syntax.tree.tools.ToStr;
+import util.StatefulList;
 
 public class STreeBuilder {
 
@@ -25,13 +25,13 @@ public class STreeBuilder {
 
     private Set<String> ruleIntervalEquality = new HashSet<String>();
 
-    Stack<RuleInterval> toCheck = new Stack<RuleInterval>();
-    List<RuleInterval> toCheck2 = new LinkedList<RuleInterval>();
+    StatefulList<RuleInterval> toCheck = new StatefulList<RuleInterval>();
+    LinkedList<RuleInterval> toCheck2 = new LinkedList<RuleInterval>();
 
     private Grammarhost gh;
     private String source;
 
-    private boolean printOut = true;
+    private boolean printOut;
 
     private String rootName;
     private List<Deduction> matched = new LinkedList<Deduction>();
@@ -50,11 +50,11 @@ public class STreeBuilder {
     }
 
     private void processForward() {
-
+        List<RuleInterval> toRemove = new LinkedList<RuleInterval>();
         int level = 1;
         List<Rule> rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
         while (rulesOnCurrentLevel != null) {
-            List<RuleInterval> toRemove = new LinkedList<RuleInterval>();
+            toRemove.clear();
             boolean wasChange = true;
             while (wasChange) {
                 wasChange = false;
@@ -64,11 +64,17 @@ public class STreeBuilder {
                         if (r.isRepeater()) {
                             matches = new LinkedList<Deduction>();
                             Deduction d = repeaterMatch(current, r);
-                            if (d != null) matches.add(d);
+                            if (d != null)
+                                matches.add(d);
                         }
 
-                        else matches = getMatches(current, r);
+                        else
+                            matches = getMatches(current, r);
                         for (Deduction d : matches) {
+                            for (RuleInterval may : d.getTo()) {
+                                removeFromWards(may);
+
+                            }
                             RuleInterval ri = d.getFrom();
                             String matchString = ri.matchingString();
                             if (!this.ruleIntervalEquality.contains(matchString)) {
@@ -81,30 +87,71 @@ public class STreeBuilder {
                     }
                 }
             }
-
-            Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + level);
-            if (toKill != null) {
-                for (RuleInterval ri : toCheck) {
-                    if (toKill.contains(ri.getRule())) toRemove.add(ri);
-                }
-                toCheck.removeAll(toRemove);
+            Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + (level));
+            if (printOut) {
+                System.out.println("Rules on level" + gh.getApplicationOrderToRuleList().get("" + level));
+                System.out.println("Kill on level: " + gh.getKillOnLevelToRuleList().get("" + level));
             }
+
+            if (toKill != null) {
+                toCheck.selectFirstElement();
+                StatefulList<RuleInterval>.Entry<RuleInterval> entry = toCheck.getEntry();
+                if (entry != null) {
+                    while (toKill.contains(entry.getValue().getRule())) {
+                        toCheck.pop();
+                        entry = toCheck.getEntry();
+                        if (entry == null)
+                            break;
+                    }
+                }
+                StatefulList<RuleInterval>.Entry<RuleInterval> prev = toCheck.getEntry();
+
+                while (toCheck.stepNext()) {
+
+                    if (toKill.contains(toCheck.get().getRule())) {
+                        removeFromWards(toCheck.get());
+                        toCheck.setEntry(prev);
+                        toCheck.removeNext();
+                    }
+                    prev = toCheck.getEntry();
+                }
+
+            }
+            if (printOut)
+                System.out.println("Elements after kill: " + toCheck.size());
+
+            // for (RuleInterval ri : toCheck2) {
+            // toCheck.insertElementAt(ri, 0);
+            // }
 
             for (RuleInterval ri : toCheck2) {
-                toCheck.insertElementAt(ri, 0);
+                toCheck.push(ri);
             }
-            // toCheck.addAll(toCheck2);
+            if (printOut)
+                System.out.println("Elements after add: " + toCheck.size());
+
+            toCheck2.clear();
             level++;
+            if (printOut)
+                System.out.println("Level: " + level);
             rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
 
         }
     }
 
+    private void removeFromWards(RuleInterval ri) {
+        forward.get("" + ri.getBegin()).remove(ri);
+        backward.get("" + ri.getLast()).remove(ri);
+    }
+
     private Deduction repeaterMatch(RuleInterval first, Rule parentRuleCandidate) {
         String[] repeatingRefs = parentRuleCandidate.getGroupRefsAsArray();
-        if (!first.getRule().getGroupname().equals(parentRuleCandidate.getFirstV().getReferencedGroup())) return null;
+        if (!first.getRule().getGroupname().equals(parentRuleCandidate.getFirstV().getReferencedGroup()))
+            return null;
         List<RuleInterval> matchList = repeaterMatchesFromLeft(first.getBegin(), repeatingRefs);
-        if (matchList.isEmpty()) return null;
+
+        if (matchList.isEmpty())
+            return null;
 
         RuleInterval[] to = new RuleInterval[matchList.size()];
         int toIndex = 0;
@@ -140,7 +187,8 @@ public class STreeBuilder {
 
         for (;;) {
             int earlier = goBackOneRound(last, repeatingRefs);
-            if (earlier == last) break;
+            if (earlier == last)
+                break;
             last = earlier;
         }
         return last + 1;
@@ -152,7 +200,8 @@ public class STreeBuilder {
         for (int i = repeatingRefs.length - 1; i >= 0; i--) {
             String groupName = repeatingRefs[i];
             List<RuleInterval> cl = backward.get("" + current);
-            if (cl == null) return last;
+            if (cl == null)
+                return last;
             boolean found = false;
             for (RuleInterval ri : cl) {
                 if (ri.getRule().getGroupname().equals(groupName)) {
@@ -161,7 +210,8 @@ public class STreeBuilder {
                     break;
                 }
             }
-            if (!found) return last;
+            if (!found)
+                return last;
         }
         return current;
     }
@@ -172,7 +222,8 @@ public class STreeBuilder {
         for (int i = 0; i < repeatingRefs.length; i++) {
             String groupName = repeatingRefs[i];
             List<RuleInterval> cl = forward.get("" + current);
-            if (cl == null) return null;
+            if (cl == null)
+                return null;
             for (RuleInterval ri : cl) {
                 if (ri.getRule().getGroupname().equals(groupName)) {
                     result[i] = ri;
@@ -180,17 +231,20 @@ public class STreeBuilder {
                     break;
                 }
             }
-            if (result[i] == null) return null;
+            if (result[i] == null)
+                return null;
         }
         return result;
     }
 
     private List<Deduction> getMatches(RuleInterval current, Rule parent) {
         String[] refs = parent.getGroupRefsAsArray();
+
         int refGroupIndex = parent.getIndexOfRefGroup(current.getRule().getGroupname());
 
         List<Deduction> result = new LinkedList<Deduction>();
-        if (refGroupIndex < 0) return result;
+        if (refGroupIndex < 0)
+            return result;
 
         while (refGroupIndex >= 0) {
 
@@ -252,10 +306,12 @@ public class STreeBuilder {
         for (Deduction d : matched) {
             RuleInterval ri = d.getFrom();
             String matchString = ri.matchingString();
-            if (this.ruleIntervalEquality.contains(matchString)) continue;
+            if (this.ruleIntervalEquality.contains(matchString))
+                continue;
             else {
                 ruleIntervalEquality.add(matchString);
-                toCheck.add(d.getFrom());
+                // toCheck.add(d.getFrom());
+                toCheck.addLast(d.getFrom());
                 addToMaps(ri);
 
             }
@@ -271,7 +327,8 @@ public class STreeBuilder {
                 if (csd.matchesInFrom(source, i)) {
                     RuleInterval ruleInterval = new RuleInterval(r, i, i + csd.getDescribedLength() - 1);
                     addToMaps(ruleInterval);
-                    toCheck.push(ruleInterval);
+                    // toCheck.push(ruleInterval);
+                    toCheck.addLast(ruleInterval);
                 }
             }
     }
@@ -282,19 +339,23 @@ public class STreeBuilder {
     }
 
     private boolean addToMap(Map<String, List<RuleInterval>> map, String key, RuleInterval ri) {
-        if (map.get(key) == null) map.put(key, new LinkedList<RuleInterval>());
+        if (map.get(key) == null)
+            map.put(key, new LinkedList<RuleInterval>());
         List<RuleInterval> l = map.get(key);
         for (RuleInterval rio : l)
-            if (ri.equals(rio)) return false;
+            if (ri.equals(rio))
+                return false;
         l.add(ri);
         return true;
     }
 
     public RuleInterval getRoot() {
         List<RuleInterval> candidates = forward.get("0");
-        if (candidates == null) return null;
+        if (candidates == null)
+            return null;
         for (RuleInterval ri : candidates)
-            if (ri.getLast() == source.length() - 1 && ri.getRule().getGroupname().equals(this.rootName)) return ri;
+            if (ri.getLast() == source.length() - 1 && ri.getRule().getGroupname().equals(this.rootName))
+                return ri;
         return null;
 
     }
@@ -305,8 +366,10 @@ public class STreeBuilder {
         StringBuilder sb = new StringBuilder();
         for (char[] ca : x) {
             for (char c : ca)
-                if (c == 0) sb.append(" ");
-                else sb.append(c);
+                if (c == 0)
+                    sb.append(" ");
+                else
+                    sb.append(c);
 
             sb.append("\n");
         }
