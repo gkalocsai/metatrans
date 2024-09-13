@@ -169,7 +169,9 @@ public class ExpressionTest {
         Grammarhost grammarhost = new Grammarhost(rl);
 
         STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        stb.setPrintOut(true);
         stb.build();
+
 
         Transpiler trp = new Transpiler(source, grammarhost);
 

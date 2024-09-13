@@ -1,17 +1,16 @@
 
 package syntax;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import compilation.Transpiler;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.STreeBuilder;
-import syntax.tree.tools.RuleInterval;
 
 public class CurrentTest {
 
@@ -25,46 +24,32 @@ bcefefa
 
 	 */
 
-	@Test
-	public void gen4() throws IOException, GrammarException{
+    @Test
+    public void simpleTrans() throws GrammarException {
+
+        List<Rule> rl = new LinkedList<>();
+
+        Rule r1 = RuleCreator.createRule("a->f g f g>>*f \"hello\" *g");
+        rl.add(r1);
+        rl.add(RuleCreator.createRule("b->'b"));
+        rl.add(RuleCreator.createRule("b->c b"));
+
+        rl.add(RuleCreator.createRule("g->b"));
+        rl.add(RuleCreator.createRule("d->'bb"));
+        rl.add(RuleCreator.createRule("c->'a"));
+        rl.add(RuleCreator.createRule("f->'ab"));
+        String source = "abbabb";
+        Grammarhost grammarhost = new Grammarhost(rl);
+
+        STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        stb.setPrintOut(true);
+        stb.build();
 
 
-		String source ="beea";
+        Transpiler trp = new Transpiler(source, grammarhost);
 
-		List<Rule> ruleList=new LinkedList<>();
-
-
-		ruleList.add(RuleCreator.createRule("A->'e 'a"));
-		ruleList.add(RuleCreator.createRule("A->B A"));
-
-		ruleList.add(RuleCreator.createRule("B->'b"));
-		ruleList.add(RuleCreator.createRule("B->B 'e"));
-
-
-		Grammarhost gh=new Grammarhost(ruleList);
-
-		STreeBuilder stb = new STreeBuilder(gh, source);
-
-
-
-		Map<RuleInterval, RuleInterval[]> x = stb.build();
-
-
-		StringBuilder sb=new StringBuilder();
-		for(RuleInterval k:x.keySet()) {
-			RuleInterval[] elem = x.get(k);
-			sb.append(k.toString() + " -> " );
-			for(RuleInterval ri:elem) {
-				sb.append(ri+" ");
-			}
-			sb.append("\n");
-		}
-
-
-		System.out.println(sb);
-
-
-	}
+        Assert.assertEquals("hello", trp.transpile());
+    }
 
 
 
