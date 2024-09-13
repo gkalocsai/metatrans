@@ -2,7 +2,8 @@
 # S2T - Text/code conversion engine
 
 ## Download: 
-https://github.com/gkalocsai/s2t/blob/main/built/s2t.jar
+**https://github.com/gkalocsai/s2t/blob/main/built/s2t.jar**
+
 This tool helps to convert any source text/code to whatever you need. 
 It has no built-in file formats, but one can easily create **file format definitions** and **conversion rules**.
 The base idea of the translation is that you can classify the parts of the source and give names to those. E.g.:
