@@ -1,7 +1,8 @@
 
 # S2T - Text/code conversion engine
 
-
+## Download: 
+https://github.com/gkalocsai/s2t/blob/main/built/s2t.jar
 This tool helps to convert any source text/code to whatever you need. 
 It has no built-in file formats, but one can easily create **file format definitions** and **conversion rules**.
 The base idea of the translation is that you can classify the parts of the source and give names to those. E.g.:
@@ -171,6 +172,8 @@ The elements of the description are separated with space(s). The result of each 
  -  label or *label: you can give each element a label. E.g.: `name1: name COMMA name2:name >> name2 "," name1;`   <- This changes the sequence of the two names;
  
 
+## More examples:
+https://github.com/gkalocsai/s2t/tree/main/examples
 
 
  
