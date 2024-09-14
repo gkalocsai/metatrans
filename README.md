@@ -176,7 +176,7 @@ The elements of the description are separated with space(s). The result of each 
 ## More examples:
 https://github.com/gkalocsai/s2t/tree/main/examples
 
-#Contact: 
+## Contact: 
 gen.gabor@gmail.com
 
  
