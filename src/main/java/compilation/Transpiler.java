@@ -25,12 +25,13 @@ public class Transpiler {
         this.source = source;
     }
 
-    public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut)
+    public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut, boolean strict)
             throws GrammarException {
 
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
+        grammarhost.setStrict(strict);
         if (rootGroup != null) {
             this.grammarhost.setRootGroup(rootGroup);
         }
@@ -65,6 +66,7 @@ public class Transpiler {
         deduction = stb.build();
         RuleInterval root = stb.getRoot();
         if (root == null) {
+            System.out.println(stb.getLastDeduction());
             return null;
         }
         doTranspile(root);
@@ -91,6 +93,10 @@ public class Transpiler {
                 }
             }
         }
+    }
+
+    public void setStrict(boolean b) {
+        this.grammarhost.setStrict(b);
     }
 
 }

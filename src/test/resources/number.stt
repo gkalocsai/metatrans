@@ -152,21 +152,15 @@ alpha_under_quadrillion {
 
 alpha_under_thousand {
     "hundred"  >> "100";
-	"one hundred"  >> "100";
-  
+    "one hundred"  >> "100";
     a:alpha_under_ten >> *a;
-	a:alpha_under_hundred >> *a;
-    
-	
-	n:alpha_under_ten " " hundred >> *n "00";
-	
-	n:alpha_under_ten " " hundred " and " a:alpha_under_ten >> *n "0" *a;
-	
-	n:alpha_under_ten " " hundred " and " a:alpha_under_hundred >> *n *a;
-	
-	n:alpha_under_ten " " hundred " " a:alpha_under_ten >> *n "0" *a;
-	n:alpha_under_ten " " hundred " " a:alpha_under_hundred >> *n *a;
-	
+    a:alpha_under_hundred >> *a;
+    n:alpha_under_ten " " hundred >> *n "00";
+    n:alpha_under_ten " " hundred " and " a:alpha_under_ten >> *n "0" *a;
+    n:alpha_under_ten " " hundred " and " a:alpha_under_hundred >> *n *a;
+    n:alpha_under_ten " " hundred " " a:alpha_under_ten >> *n "0" *a;
+    z:number1_12 " " hundred " " a:alpha_under_hundred >> *z *a;
+    "hundred " a:alpha_under_hundred >> "1" *a;
 }
 
 alpha_under_ten {

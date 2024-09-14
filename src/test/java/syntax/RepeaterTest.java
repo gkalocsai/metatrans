@@ -1,3 +1,4 @@
+package syntax;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class RepeaterTest {
         STreeBuilder stb = new STreeBuilder(gh, "ssttsstt");
 
         stb.build();
-        Assert.assertTrue(stb.isReadyOuter());
+        Assert.assertTrue(stb.isReady());
 
     }
 

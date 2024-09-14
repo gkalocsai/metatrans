@@ -39,6 +39,7 @@ public class STreeBuilder {
     private String rootName;
 
     private final RuleIntervalMatcher ruleIntervalMatcher = new RuleIntervalMatcher(forward, backward);
+    private boolean showTree;
 
     public STreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
@@ -77,9 +78,10 @@ public class STreeBuilder {
 
                         else matches = getMatches(current, r);
                         for (Deduction d : matches) {
-                            for (RuleInterval may : d.getTo()) {
-                                removeFromWards(may);
-
+                            if (gh.isStrict()) {
+                                for (RuleInterval may : d.getTo()) {
+                                    removeFromWards(may);
+                                }
                             }
                             RuleInterval ri = d.getFrom();
                             String matchString = ri.matchingString();
@@ -94,7 +96,7 @@ public class STreeBuilder {
                     }
                 }
             }
-            if (isReady()) return;
+            if (isReadyInner()) return;
 
             Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + (level));
             if (printOut) {
@@ -127,14 +129,11 @@ public class STreeBuilder {
             }
             if (printOut) System.out.println("Elements after kill: " + toCheck.size());
 
-            // for (RuleInterval ri : toCheck2) {
-            // toCheck.insertElementAt(ri, 0);
-            // }
-
             for (RuleInterval ri : toCheck2) {
                 toCheck.push(ri);
             }
             if (printOut) System.out.println("Elements after add: " + toCheck.size());
+            if (showTree) System.out.println(this);
 
             toCheck2.clear();
             level++;
@@ -291,11 +290,11 @@ public class STreeBuilder {
         return deduction2;
     }
 
-    public boolean isReadyOuter() {
+    public boolean isReady() {
         return getRoot() != null;
     }
 
-    private boolean isReady() {
+    private boolean isReadyInner() {
         if (this.rootName == null) return false;
         return getRoot() != null;
     }
@@ -376,6 +375,10 @@ public class STreeBuilder {
 
     public Deduction getLastDeduction() {
         return lastDeduction;
+    }
+
+    public void setShowTree(boolean showTree) {
+        this.showTree = showTree;
     }
 
 }

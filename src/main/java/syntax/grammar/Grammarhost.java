@@ -447,4 +447,12 @@ public class Grammarhost {
         return Integer.valueOf(this.groupName2Level.get(r.getGroupname()));
     }
 
+    public boolean isStrict() {
+        return strict;
+    }
+
+    public void setStrict(boolean strict) {
+        this.strict = strict;
+    }
+
 }

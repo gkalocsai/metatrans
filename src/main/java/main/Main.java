@@ -22,6 +22,9 @@ public class Main {
             System.out.println("--s:sourcefile         :   source of the compilation");
             System.out.println("--root:rootGroup       :   compile as [rootGroup] ");
             System.out.println("--printOut             :   print the syntax matches");
+            System.out.println("--strict:boolean       :   sets the grammar strict or compliant");
+            System.out.println("--showTree             :   prints the syntax tree");
+
             System.exit(-1);
         }
 
@@ -31,7 +34,8 @@ public class Main {
         String sourceFileContent = null;
         boolean printOut = false;
         String rootGroup = null;
-
+        boolean strict = true;
+        boolean showTree = false;
         for (String p : args) {
             if (!p.startsWith("--")) {
                 if (syntaxFileInArgs) {
@@ -41,7 +45,7 @@ public class Main {
                     syntaxFileInArgs = true;
                 }
             } else {
-                if ("--printOut".contentEquals(p)) {
+                if ("--printOut".equalsIgnoreCase(p)) {
                     printOut = true;
                 }
                 if (p.startsWith("--d:")) {
@@ -57,6 +61,15 @@ public class Main {
                     p = p.substring(7);
                     rootGroup = p;
                 }
+                if (p.startsWith("--strict:")) {
+                    p = p.substring(9);
+                    if ("false".equalsIgnoreCase(p)) {
+                        strict = false;
+                    }
+                }
+                if ("--showTree".equalsIgnoreCase(p)) {
+                    showTree = true;
+                }
             }
         }
 
@@ -69,11 +82,13 @@ public class Main {
         List<Rule> ruleList = rr.getAllRules();
 
         Grammarhost grammarhost = new Grammarhost(ruleList, rootGroup);
+        grammarhost.setStrict(strict);
         STreeBuilder stb = new STreeBuilder(grammarhost, sourceFileContent, printOut);
 
         Transpiler tr = new Transpiler(sourceFileContent, stb);
 
         stb.setPrintOut(printOut);
+        stb.setShowTree(showTree);
 
         String result = tr.transpile();
 

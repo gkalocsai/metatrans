@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import compilation.Transpiler;
 import syntax.grammar.GrammarException;
+import util.StringLoadUtil;
 
 public class E2e {
 
@@ -98,7 +99,7 @@ public class E2e {
                 + "élet természetes elömlésével következnek egy- \n" + "más után, a kezdet már mintegy folytatása és \n"
                 + "nincs külső, hókusz-pókusz befejezés, az egy- \n" + "külső kapocs, mintahogy az életben sorsok "
                 + "másra következő részek közt néha alig van \n";
-        // sourceFileContent = StringLoadUtil.loadResource("45K.txt");
+        sourceFileContent = StringLoadUtil.loadResource("45K.txt");
 
 //        sourceFileContent = sourceFileContent.substring(0, 17);
         long startTime = System.currentTimeMillis();
