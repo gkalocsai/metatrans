@@ -2,7 +2,7 @@
 # S2T - Text/code conversion engine
 
 ## Download: 
-**https://https://github.com/gkalocsai/s2t/releases**
+**https://github.com/gkalocsai/s2t/releases**
 
 This tool helps to convert any source text/code to whatever you need. 
 It has no built-in file formats, but one can easily create **file format definitions** and **conversion rules**.
