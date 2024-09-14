@@ -107,11 +107,11 @@ You can use the minus sign to describe character-intervals:
 
     "(0-9)"
 
-Means a decimal digit. 
+this means a decimal digit. 
 
     "(0-9 a-z)"
 
-Means a decimal digit OR a lowercase letter.
+means a decimal digit OR a lowercase letter.
    
 Inside the parentheses, you can define characters with their decimal UNICODE-16 character code. E.g.:
 
@@ -170,7 +170,7 @@ The elements of the description are separated with space(s). The result of each 
  - group name: translates to the corresponding substring of the source E.g.: name >> name;
  - *T means that group T will decide how to translate this source part.
  - "format string" or 'format string' -> translates to the resolved format string.
- -  label or *label: you can give each element a label. E.g.: `name1: name COMMA name2:name >> name2 "," name1;`   <- This changes the sequence of the two names;
+ -  label or *label: you can give each element a label. E.g.: `name1:name COMMA name2:name >> name2 "," name1;`   <- This changes the sequence of the two names;
 
 
 ## More examples:
