@@ -26,7 +26,7 @@ public class RepeaterTest {
         STreeBuilder stb = new STreeBuilder(gh, "ssttsstt");
 
         stb.build();
-        Assert.assertTrue(stb.isReady());
+        Assert.assertTrue(stb.isReadyOuter());
 
     }
 

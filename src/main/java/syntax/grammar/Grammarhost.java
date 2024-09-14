@@ -28,6 +28,7 @@ public class Grammarhost {
     private Map<String, Set<Rule>> killOnLevelToRuleList = new HashMap<String, Set<Rule>>();
 
     private List<Rule> csdRuleList = null;
+    private Map<String, String> groupName2Level;
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
         this.strict = strict;
@@ -49,11 +50,12 @@ public class Grammarhost {
         if (rules == null || rules.isEmpty()) {
             throw new GrammarException("ERROR: No grammar rules!");
         }
-        if (rootGroup != null) {
-            this.rootGroup = rootGroup;
-        } else {
-            this.rootGroup = rules.get(0).getGroupname();
-        }
+        // if (rootGroup != null) {
+        this.rootGroup = rootGroup;
+        // }
+//        else {
+//            this.rootGroup = rules.get(0).getGroupname();
+//        }
 
         this.grammar = createRuleMap(rules, rootGroup);
         pushDescriptors(rules);
@@ -90,8 +92,7 @@ public class Grammarhost {
             for (Rule r : currentGroup) {
                 String[] grs = r.getGroupRefsAsArray();
                 for (String groupname : grs) {
-                    if (groupname == null)
-                        continue;
+                    if (groupname == null) continue;
                     if (!exists.contains(groupname))
                         throw new RuntimeException("Non existing group: " + groupname + " in rule: " + r);
                 }
@@ -123,11 +124,9 @@ public class Grammarhost {
         int max = 0;
         for (Rule r : rightSides) {
             String level = groupName2Level.get(r.getGroupname());
-            if (level == null)
-                continue;
+            if (level == null) continue;
             int current = Integer.valueOf(level);
-            if (current > max)
-                max = current;
+            if (current > max) max = current;
         }
         return max;
     }
@@ -154,12 +153,12 @@ public class Grammarhost {
 
     private void fillApplicationOrderToRuleList() {
 
-        Map<String, String> groupName2Order = createGroupName2Level();
+        groupName2Level = createGroupName2Level();
 
         for (String key : grammar.keySet()) {
             ArrayList<Rule> currentGroup = grammar.get(key);
             for (Rule r : currentGroup) {
-                String order = groupName2Order.get(r.getGroupname());
+                String order = groupName2Level.get(r.getGroupname());
                 List<Rule> ao = levelInSyntaxTreeToRuleList.get(order);
                 if (ao == null) {
                     levelInSyntaxTreeToRuleList.put(order, new ArrayList<Rule>());
@@ -180,8 +179,7 @@ public class Grammarhost {
         while (wasChange) {
             wasChange = false;
             for (String key : grammar.keySet()) {
-                if (groupName2Order.keySet().contains(key))
-                    continue;
+                if (groupName2Order.keySet().contains(key)) continue;
                 ArrayList<Rule> currentGroup = grammar.get(key);
                 Set<String> rightSides = getRightSides(currentGroup);
                 rightSides.remove(key);
@@ -199,8 +197,7 @@ public class Grammarhost {
         int max = 0;
         for (String s : rightSides) {
             int t = Integer.valueOf(groupName2Order.get(s));
-            if (t > max)
-                max = t;
+            if (t > max) max = t;
         }
         return max;
     }
@@ -291,40 +288,6 @@ public class Grammarhost {
         }
     }
 
-    public void removeNonReachableRules() {
-        HashSet<String> reachableGroupnames = new HashSet<>();
-        reachableGroupnames.add(rootGroup);
-        int oldSize = 0;
-
-        while (oldSize != reachableGroupnames.size()) {
-            oldSize = reachableGroupnames.size();
-            HashSet<String> wave = new HashSet<>();
-            for (String key : grammar.keySet()) {
-                if (reachableGroupnames.contains(key)) {
-                    for (Rule r : grammar.get(key)) {
-                        for (String ref : r.getRightSideAsStrCollection()) {
-                            if (ref != null) {
-                                wave.add(ref);
-                            }
-                        }
-                    }
-                }
-            }
-            reachableGroupnames.addAll(wave);
-
-        }
-        Set<String> toDelete = new HashSet<>();
-        for (String groupName : grammar.keySet()) {
-
-            if (!reachableGroupnames.contains(groupName)) {
-                toDelete.add(groupName);
-            }
-        }
-        for (String key : toDelete) {
-            grammar.remove(key);
-        }
-    }
-
     void eliminateIndirectRecursion() throws GrammarException {
         new IndirectRecursionEliminator().eliminate(grammar, getRootGroup(), true);
 
@@ -397,8 +360,7 @@ public class Grammarhost {
     }
 
     public List<Rule> getCsdRules() {
-        if (csdRuleList != null)
-            return csdRuleList;
+        if (csdRuleList != null) return csdRuleList;
         List<Rule> rList = createListFromAllRules();
 
         csdRuleList = new LinkedList<>();
@@ -479,6 +441,10 @@ public class Grammarhost {
 
     public Map<String, Set<Rule>> getKillOnLevelToRuleList() {
         return killOnLevelToRuleList;
+    }
+
+    public int getLevel(Rule r) {
+        return Integer.valueOf(this.groupName2Level.get(r.getGroupname()));
     }
 
 }

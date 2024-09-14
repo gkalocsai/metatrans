@@ -1,9 +1,14 @@
 package main;
 
 import java.io.IOException;
+import java.util.List;
 
 import compilation.Transpiler;
+import read.RuleReader;
+import syntax.Rule;
 import syntax.grammar.GrammarException;
+import syntax.grammar.Grammarhost;
+import syntax.tree.builder.STreeBuilder;
 import util.StringLoadUtil;
 
 public class Main {
@@ -60,12 +65,21 @@ public class Main {
             System.exit(-1);
         }
 
-        Transpiler tr = new Transpiler(sourceFileContent, syntaxFileContent, rootGroup, printOut);
+        RuleReader rr = new RuleReader(syntaxFileContent);
+        List<Rule> ruleList = rr.getAllRules();
+
+        Grammarhost grammarhost = new Grammarhost(ruleList, rootGroup);
+        STreeBuilder stb = new STreeBuilder(grammarhost, sourceFileContent, printOut);
+
+        Transpiler tr = new Transpiler(sourceFileContent, stb);
+
+        stb.setPrintOut(printOut);
 
         String result = tr.transpile();
 
         if (result == null) {
             System.out.println("ERROR: " + "Could not build the syntax tree");
+            System.out.println("Last deduction: " + stb.getLastDeduction());
         } else {
             System.out.println(result);
         }

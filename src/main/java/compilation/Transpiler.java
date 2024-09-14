@@ -16,16 +16,13 @@ public class Transpiler {
     private Grammarhost grammarhost;
     private StringBuilder sb = new StringBuilder();
     private Map<RuleInterval, RuleInterval[]> deduction;
-    private boolean printOut;
+    private STreeBuilder stb;
 
     public Transpiler(String source, String syntaxFileContent) throws GrammarException {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
-        System.out.println(grammarhost);
-
         this.source = source;
-
     }
 
     public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut)
@@ -34,13 +31,11 @@ public class Transpiler {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
-        this.source = source;
-
         if (rootGroup != null) {
             this.grammarhost.setRootGroup(rootGroup);
         }
-
-        this.printOut = printOut;
+        this.source = source;
+        this.stb = new STreeBuilder(grammarhost, source, printOut);
 
     }
 
@@ -54,13 +49,19 @@ public class Transpiler {
         this.source = source;
     }
 
+    public Transpiler(String source, STreeBuilder stb) {
+        this.source = source;
+        this.stb = stb;
+    }
+
     public String transpile() {
 
         if (sb.length() != 0) {
             return sb.toString();
         }
-        STreeBuilder stb = new STreeBuilder(grammarhost, source);
-        stb.setPrintOut(printOut);
+        if (stb == null) {
+            this.stb = new STreeBuilder(grammarhost, source, false);
+        }
         deduction = stb.build();
         RuleInterval root = stb.getRoot();
         if (root == null) {

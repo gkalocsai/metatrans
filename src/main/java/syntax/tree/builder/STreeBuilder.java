@@ -23,6 +23,9 @@ public class STreeBuilder {
 
     private final Map<RuleInterval, RuleInterval[]> deduction = new HashMap<RuleInterval, RuleInterval[]>();
 
+    // Part of the error message: If the syntax tree cannot be built
+    private Deduction lastDeduction = null;
+
     private Set<String> ruleIntervalEquality = new HashSet<String>();
 
     StatefulList<RuleInterval> toCheck = new StatefulList<RuleInterval>();
@@ -34,13 +37,18 @@ public class STreeBuilder {
     private boolean printOut;
 
     private String rootName;
-    private List<Deduction> matched = new LinkedList<Deduction>();
+
     private final RuleIntervalMatcher ruleIntervalMatcher = new RuleIntervalMatcher(forward, backward);
 
-    public STreeBuilder(Grammarhost gh, String source) {
+    public STreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
         this.source = source;
         this.rootName = gh.getRootGroup();
+        this.printOut = printOut;
+    }
+
+    public STreeBuilder(Grammarhost gh2, String string) {
+        this(gh2, string, false);
     }
 
     public Map<RuleInterval, RuleInterval[]> build() {
@@ -77,6 +85,7 @@ public class STreeBuilder {
                             String matchString = ri.matchingString();
                             if (!this.ruleIntervalEquality.contains(matchString)) {
                                 ruleIntervalEquality.add(matchString);
+                                this.lastDeduction = d;
                                 toCheck2.addFirst(d.getFrom()); // a következő szintnek is!
                                 wasChange = true;
                                 addToMaps(ri);
@@ -282,28 +291,13 @@ public class STreeBuilder {
         return deduction2;
     }
 
-    public boolean isReady() {
+    public boolean isReadyOuter() {
         return getRoot() != null;
     }
 
-    private void handleNewIntervals() {
-        // a ruleIntervalEquality -re azért van szükség, hogy ne adjuk hozzá ugyanazt a
-        // ruleIntervalt,
-        // amit esetleg töröltünk az optimalizálás során
-
-        for (Deduction d : matched) {
-            RuleInterval ri = d.getFrom();
-            String matchString = ri.matchingString();
-            if (this.ruleIntervalEquality.contains(matchString)) continue;
-            else {
-                ruleIntervalEquality.add(matchString);
-                // toCheck.add(d.getFrom());
-                toCheck.addLast(d.getFrom());
-                addToMaps(ri);
-
-            }
-        }
-
+    private boolean isReady() {
+        if (this.rootName == null) return false;
+        return getRoot() != null;
     }
 
     private void addInitialRules() {
@@ -337,6 +331,21 @@ public class STreeBuilder {
     public RuleInterval getRoot() {
         List<RuleInterval> candidates = forward.get("0");
         if (candidates == null) return null;
+        RuleInterval riMax = null;
+        int maxLevel = -1;
+        if (this.rootName == null) {
+            for (RuleInterval ri : candidates) {
+                if (ri.getLast() != source.length() - 1) continue;
+                Rule current = ri.getRule();
+                int currentLevel = gh.getLevel(current);
+                if (gh.getLevel(current) > maxLevel) {
+                    maxLevel = currentLevel;
+                    riMax = ri;
+                }
+            }
+            return riMax;
+        }
+
         for (RuleInterval ri : candidates)
             if (ri.getLast() == source.length() - 1 && ri.getRule().getGroupname().equals(this.rootName)) return ri;
         return null;
@@ -364,4 +373,9 @@ public class STreeBuilder {
     public void setPrintOut(boolean printOut) {
         this.printOut = printOut;
     }
+
+    public Deduction getLastDeduction() {
+        return lastDeduction;
+    }
+
 }

@@ -17,19 +17,34 @@ public class IndirectRecursionFinder {
         Map<Rule, Integer> dotIndices = new HashMap<>();
         Map<String, Integer> groupIndices = new HashMap<>();
         ArrayList<Rule> st = new ArrayList<>();
-        if (grammar.get(rootGroup) == null) {
-            throw new GrammarException("Invalid root unit: " + rootGroup);
+
+        if (rootGroup != null) {
+            Rule rootRule = grammar.get(rootGroup).get(0);
+            if (indirectRecCheckWithRoot(result, grammar, dotIndices, groupIndices, st, rootRule)) return result;
+        } else {
+            for (ArrayList<Rule> dd : map.values()) {
+                for (Rule r : dd) {
+                    if (indirectRecCheckWithRoot(result, grammar, dotIndices, groupIndices, st, r)) return result;
+                    dotIndices = new HashMap<>();
+                    groupIndices = new HashMap<>();
+                    st = new ArrayList<>();
+                }
+            }
+
         }
 
-        Rule rootRule = grammar.get(rootGroup).get(0);
+        return null;
+    }
+
+    private static boolean indirectRecCheckWithRoot(List<Stack<Rule>> result, Map<String, ArrayList<Rule>> grammar,
+            Map<Rule, Integer> dotIndices, Map<String, Integer> groupIndices, ArrayList<Rule> st, Rule rootRule) {
         st.add(rootRule);
         while (!st.isEmpty()) {
             Rule top = st.get(st.size() - 1);
             int di = getDotIndex(top, dotIndices);
             if (di >= top.getRightSideLength()) {
                 st.remove(st.size() - 1);
-                if (!result.isEmpty())
-                    return result;
+                if (!result.isEmpty()) return true;
                 continue;
             }
             String groupName = top.getRightSideRef(di);
@@ -49,13 +64,12 @@ public class IndirectRecursionFinder {
                 result.add(topOfBranchStack(st));
             }
         }
-        return null;
+        return !result.isEmpty();
     }
 
     private static boolean lastTwoElementDiffers(ArrayList<Rule> st) {
 
-        if (st == null || st.size() < 2)
-            return false;
+        if (st == null || st.size() < 2) return false;
         int stSize = st.size();
         return st.get(stSize - 1) != st.get(stSize - 2);
     }
@@ -75,23 +89,19 @@ public class IndirectRecursionFinder {
     private static Rule getNextRule(String groupName, Map<String, Integer> groupIndices,
             Map<String, ArrayList<Rule>> grammar) {
 
-        if (groupName == null)
-            return null;
+        if (groupName == null) return null;
         Integer index = groupIndices.get(groupName);
         if (index == null) {
             groupIndices.put(groupName, 0);
 
-            if (grammar.get(groupName) == null)
-                return null; // TODO CHECKME
+            if (grammar.get(groupName) == null) return null; // TODO CHECKME
             return grammar.get(groupName).get(0);
         } else {
-            if (grammar.get(groupName) == null)
-                return null;
+            if (grammar.get(groupName) == null) return null;
             if (grammar.get(groupName).size() > index + 1) {
                 groupIndices.put(groupName, index + 1);
                 return grammar.get(groupName).get(index + 1);
-            } else
-                return null;
+            } else return null;
         }
 
     }
