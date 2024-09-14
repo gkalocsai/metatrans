@@ -171,7 +171,8 @@ The elements of the description are separated with space(s). The result of each 
  - *T means that group T will decide how to translate this source part.
  - "format string" or 'format string' -> translates to the resolved format string.
  -  label or *label: you can give each element a label. E.g.: `name1: name COMMA name2:name >> name2 "," name1;`   <- This changes the sequence of the two names;
- 
+
+ Contact: gen.gabor@gmail.com
 
 ## More examples:
 https://github.com/gkalocsai/s2t/tree/main/examples
