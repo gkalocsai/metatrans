@@ -23,20 +23,34 @@ public class Transpiler {
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
         this.source = source;
+        this.stb = new STreeBuilder(grammarhost, source, false);
+        this.stb.setSinglePass(true);
+
     }
 
-    public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut, boolean strict)
+    public Transpiler(String source, String syntaxFileContent, boolean multipass) throws GrammarException {
+        RuleReader rr = new RuleReader(syntaxFileContent);
+        List<Rule> ruleList = rr.getAllRules();
+        this.grammarhost = new Grammarhost(ruleList);
+        this.source = source;
+        this.stb = new STreeBuilder(grammarhost, source, false);
+        this.stb.setSinglePass(multipass);
+
+    }
+
+    public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut, boolean singlePass)
             throws GrammarException {
 
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
-        grammarhost.setStrict(strict);
+
         if (rootGroup != null) {
             this.grammarhost.setRootGroup(rootGroup);
         }
         this.source = source;
         this.stb = new STreeBuilder(grammarhost, source, printOut);
+        this.stb.setSinglePass(singlePass);
 
     }
 
@@ -93,10 +107,6 @@ public class Transpiler {
                 }
             }
         }
-    }
-
-    public void setStrict(boolean b) {
-        this.grammarhost.setStrict(b);
     }
 
 }
