@@ -1,5 +1,5 @@
 
-# S2T - Text/code conversion engine
+# S2T - Transpiler engine
 
 ## Download: 
 **https://github.com/gkalocsai/s2t/releases**
