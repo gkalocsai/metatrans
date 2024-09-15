@@ -34,7 +34,7 @@ public class Main {
         String sourceFileContent = null;
         boolean printOut = false;
         String rootGroup = null;
-        boolean strict = true;
+        boolean multipass = false;
         boolean showTree = false;
         for (String p : args) {
             if (!p.startsWith("--")) {
@@ -61,11 +61,10 @@ public class Main {
                     p = p.substring(7);
                     rootGroup = p;
                 }
-                if (p.startsWith("--strict:")) {
-                    p = p.substring(9);
-                    if ("false".equalsIgnoreCase(p)) {
-                        strict = false;
-                    }
+                if (p.startsWith("--multipass")) {
+
+                    multipass = true;
+
                 }
                 if ("--showTree".equalsIgnoreCase(p)) {
                     showTree = true;
@@ -73,7 +72,9 @@ public class Main {
             }
         }
 
-        if (syntaxFileContent == null || sourceFileContent == null) {
+        if (syntaxFileContent == null || sourceFileContent == null)
+
+        {
             System.out.println("Missing syntax descriptor file and/ or source");
             System.exit(-1);
         }
@@ -82,9 +83,10 @@ public class Main {
         List<Rule> ruleList = rr.getAllRules();
 
         Grammarhost grammarhost = new Grammarhost(ruleList, rootGroup);
-        grammarhost.setStrict(strict);
+
         STreeBuilder stb = new STreeBuilder(grammarhost, sourceFileContent, printOut);
 
+        stb.setSinglePass(!multipass);
         Transpiler tr = new Transpiler(sourceFileContent, stb);
 
         stb.setPrintOut(printOut);

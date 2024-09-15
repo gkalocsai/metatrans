@@ -40,6 +40,7 @@ public class STreeBuilder {
 
     private final RuleIntervalMatcher ruleIntervalMatcher = new RuleIntervalMatcher(forward, backward);
     private boolean showTree;
+    private boolean singlePass = true;
 
     public STreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
@@ -78,7 +79,7 @@ public class STreeBuilder {
 
                         else matches = getMatches(current, r);
                         for (Deduction d : matches) {
-                            if (gh.isStrict()) {
+                            if (this.singlePass) {
                                 for (RuleInterval may : d.getTo()) {
                                     removeFromWards(may);
                                 }
@@ -379,6 +380,14 @@ public class STreeBuilder {
 
     public void setShowTree(boolean showTree) {
         this.showTree = showTree;
+    }
+
+    public boolean isSinglePass() {
+        return singlePass;
+    }
+
+    public void setSinglePass(boolean singlePass) {
+        this.singlePass = singlePass;
     }
 
 }
