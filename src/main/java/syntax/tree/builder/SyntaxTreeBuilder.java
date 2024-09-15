@@ -13,10 +13,10 @@ import syntax.Rule;
 import syntax.grammar.Grammarhost;
 import syntax.tree.tools.Deduction;
 import syntax.tree.tools.RuleInterval;
-import syntax.tree.tools.ToStr;
+import syntax.tree.tools.SyntaxTreeBuilderToStr;
 import util.StatefulList;
 
-public class STreeBuilder {
+public class SyntaxTreeBuilder {
 
     private final Map<String, List<RuleInterval>> forward = new HashMap<String, List<RuleInterval>>();
     private final Map<String, List<RuleInterval>> backward = new HashMap<String, List<RuleInterval>>();
@@ -42,14 +42,14 @@ public class STreeBuilder {
     private boolean showTree;
     private boolean singlePass = true;
 
-    public STreeBuilder(Grammarhost gh, String source, boolean printOut) {
+    public SyntaxTreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
         this.source = source;
         this.rootName = gh.getRootGroup();
         this.printOut = printOut;
     }
 
-    public STreeBuilder(Grammarhost gh2, String string) {
+    public SyntaxTreeBuilder(Grammarhost gh2, String string) {
         this(gh2, string, false);
     }
 
@@ -89,7 +89,7 @@ public class STreeBuilder {
                             if (!this.ruleIntervalEquality.contains(matchString)) {
                                 ruleIntervalEquality.add(matchString);
                                 this.lastDeduction = d;
-                                toCheck2.addFirst(d.getFrom()); // a következő szintnek is!
+                                toCheck2.addFirst(d.getFrom());
                                 wasChange = true;
                                 addToMaps(ri);
                             }
@@ -354,7 +354,7 @@ public class STreeBuilder {
 
     @Override
     public String toString() {
-        List<char[]> x = ToStr.toCharArrayList(forward, source);
+        List<char[]> x = SyntaxTreeBuilderToStr.toCharArrayList(forward, source);
         StringBuilder sb = new StringBuilder();
         for (char[] ca : x) {
             for (char c : ca)

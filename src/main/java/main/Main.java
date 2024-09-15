@@ -8,7 +8,7 @@ import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 import util.StringLoadUtil;
 
 public class Main {
@@ -85,7 +85,7 @@ public class Main {
 
         Grammarhost grammarhost = new Grammarhost(ruleList, rootGroup);
 
-        STreeBuilder stb = new STreeBuilder(grammarhost, sourceFileContent, printOut);
+        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 
         stb.setSinglePass(!multipass);
         Transpiler tr = new Transpiler(sourceFileContent, stb);

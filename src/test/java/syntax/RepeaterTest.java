@@ -8,7 +8,7 @@ import org.junit.Test;
 import syntax.Rule;
 import syntax.RuleCreator;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class RepeaterTest {
 
@@ -24,7 +24,7 @@ public class RepeaterTest {
 
         Assert.assertTrue(gh.getRefRules().get(0).isRepeater());
 
-        STreeBuilder stb = new STreeBuilder(gh, "ssttsstt");
+        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, "ssttsstt");
 
         stb.build();
         Assert.assertTrue(stb.isReady());

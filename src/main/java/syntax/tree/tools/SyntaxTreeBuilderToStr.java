@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ToStr {
+public class SyntaxTreeBuilderToStr {
 
     private static final int RULE_STRING_SIZE = 20;
 

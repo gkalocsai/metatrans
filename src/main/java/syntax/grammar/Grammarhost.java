@@ -50,12 +50,7 @@ public class Grammarhost {
         if (rules == null || rules.isEmpty()) {
             throw new GrammarException("ERROR: No grammar rules!");
         }
-        // if (rootGroup != null) {
         this.rootGroup = rootGroup;
-        // }
-//        else {
-//            this.rootGroup = rules.get(0).getGroupname();
-//        }
 
         this.grammar = createRuleMap(rules, rootGroup);
         pushDescriptors(rules);
@@ -65,7 +60,7 @@ public class Grammarhost {
         }
 
         validateReferencesToExists();
-        // removeNonReachableRules();
+
         if (strict) {
             validateReferencesInAllRules();
         }
@@ -103,9 +98,6 @@ public class Grammarhost {
 
     private void fillKillLevel() {
         Map<String, String> groupName2Level = createGroupName2Level();
-
-        // a szabály key-je milyen más szabályok jobb oldalán szerepel
-        // azok szintjének a max-a +1;
 
         for (String key : grammar.keySet()) {
             ArrayList<Rule> currentGroup = grammar.get(key);

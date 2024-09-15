@@ -9,7 +9,7 @@ import org.junit.Test;
 import compilation.Transpiler;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class CurrentBug {
 
@@ -30,7 +30,7 @@ public class CurrentBug {
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
 
-        STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, source);
         stb.build();
 
         Transpiler trp = new Transpiler(source, grammarhost);

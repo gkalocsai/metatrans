@@ -13,7 +13,7 @@ import syntax.Rule;
 import syntax.RuleCreator;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class ExpressionTest {
 
@@ -142,7 +142,7 @@ public class ExpressionTest {
         Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
         String x2 = trp.transpile();
         if (x2 == null) {
-            STreeBuilder stb = new STreeBuilder(gh, sourceFileContent);
+            SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, sourceFileContent);
             stb.build();
 
         }
@@ -168,7 +168,7 @@ public class ExpressionTest {
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
 
-        STreeBuilder stb = new STreeBuilder(grammarhost, source);
+        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, source);
         stb.setPrintOut(true);
         stb.build();
 

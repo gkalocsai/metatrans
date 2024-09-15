@@ -7,7 +7,7 @@ import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 import syntax.tree.tools.RuleInterval;
 
 public class Transpiler {
@@ -16,14 +16,14 @@ public class Transpiler {
     private Grammarhost grammarhost;
     private StringBuilder sb = new StringBuilder();
     private Map<RuleInterval, RuleInterval[]> deduction;
-    private STreeBuilder stb;
+    private SyntaxTreeBuilder stb;
 
     public Transpiler(String source, String syntaxFileContent) throws GrammarException {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
         this.source = source;
-        this.stb = new STreeBuilder(grammarhost, source, false);
+        this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
         this.stb.setSinglePass(true);
 
     }
@@ -33,7 +33,7 @@ public class Transpiler {
         List<Rule> ruleList = rr.getAllRules();
         this.grammarhost = new Grammarhost(ruleList);
         this.source = source;
-        this.stb = new STreeBuilder(grammarhost, source, false);
+        this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
         this.stb.setSinglePass(multipass);
 
     }
@@ -49,7 +49,7 @@ public class Transpiler {
             this.grammarhost.setRootGroup(rootGroup);
         }
         this.source = source;
-        this.stb = new STreeBuilder(grammarhost, source, printOut);
+        this.stb = new SyntaxTreeBuilder(grammarhost, source, printOut);
         this.stb.setSinglePass(singlePass);
 
     }
@@ -64,7 +64,7 @@ public class Transpiler {
         this.source = source;
     }
 
-    public Transpiler(String source, STreeBuilder stb) {
+    public Transpiler(String source, SyntaxTreeBuilder stb) {
         this.source = source;
         this.stb = stb;
     }
@@ -75,7 +75,7 @@ public class Transpiler {
             return sb.toString();
         }
         if (stb == null) {
-            this.stb = new STreeBuilder(grammarhost, source, false);
+            this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
         }
         deduction = stb.build();
         RuleInterval root = stb.getRoot();

@@ -9,13 +9,6 @@ import util.CharSeqUtil;
 
 public class RuleReader {
 
-    /*
-     * GROUP { a:A_B_"ddd" >> "dddd"_*B_a ; } Needed space: _
-     * 
-     * 
-     * 
-     */
-
     private String preprocessed;
 
     public RuleReader(String init) {
@@ -28,8 +21,7 @@ public class RuleReader {
         List<String> groups = new LinkedList<>();
         for (int i = 0; i < preprocessed.length(); i++) {
             char c = preprocessed.charAt(i);
-            if (Character.isWhitespace(c))
-                continue;
+            if (Character.isWhitespace(c)) continue;
             int end = getEndIndexOfTheGroup(i);
             groups.add(preprocessed.substring(i, end + 1));
             i = end;
@@ -41,8 +33,7 @@ public class RuleReader {
 
         for (; i < preprocessed.length(); i++) {
             char c = preprocessed.charAt(i);
-            if (c == '{')
-                return CharSeqUtil.getClosingIndexInEscaped(preprocessed, i);
+            if (c == '{') return CharSeqUtil.getClosingIndexInEscaped(preprocessed, i);
         }
 
         return -1;
@@ -76,13 +67,11 @@ public class RuleReader {
             int end = CharSeqUtil.getNonQuotedIndex(inner, ";", begin);
             if (end < 0) {
                 String mayLast = inner.substring(begin).trim();
-                if (!mayLast.isEmpty())
-                    result.add(mayLast);
+                if (!mayLast.isEmpty()) result.add(mayLast);
                 return result;
             } else {
                 String r = inner.substring(begin, end).trim();
-                if (!r.isEmpty())
-                    result.add(r);
+                if (!r.isEmpty()) result.add(r);
             }
             i = end;
         }
@@ -102,8 +91,7 @@ public class RuleReader {
             sb.append(' ');
             while (Character.isWhitespace(c)) {
                 i++;
-                if (i >= preprocessed.length())
-                    break;
+                if (i >= preprocessed.length()) break;
                 c = preprocessed.charAt(i);
             }
         }

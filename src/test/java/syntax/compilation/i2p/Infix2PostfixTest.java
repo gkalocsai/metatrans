@@ -11,7 +11,7 @@ import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class Infix2PostfixTest {
 
@@ -62,7 +62,7 @@ public class Infix2PostfixTest {
         Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
         String x2 = trp.transpile();
         if (x2 == null) {
-            STreeBuilder stb = new STreeBuilder(gh, sourceFileContent);
+            SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, sourceFileContent);
             stb.build();
 
         }

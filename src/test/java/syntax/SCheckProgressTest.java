@@ -11,7 +11,7 @@ import compilation.Transpiler;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.grammar.IndirectRecursionEliminator;
-import syntax.tree.builder.STreeBuilder;
+import syntax.tree.builder.SyntaxTreeBuilder;
 
 public class SCheckProgressTest {
 
@@ -62,7 +62,7 @@ public class SCheckProgressTest {
         System.out.println("B->'q 'n");
         System.out.println("B->B 'b 'b");
 
-        STreeBuilder stb = new STreeBuilder(gh, source);
+        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, source);
 
         stb.build();
 
@@ -82,7 +82,7 @@ public class SCheckProgressTest {
         ruleList.add(createRule("F->D"));
 
         String src = "bbbbbbb";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
         r = sc.build() != null;
         Assert.assertTrue(r);
     }
@@ -102,7 +102,7 @@ public class SCheckProgressTest {
         ruleList.add(createRule("F->'ab"));
 
         String src = "abbabb";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
         sc.setShowTree(true);
         r = sc.build() != null;
         Assert.assertTrue(r);
@@ -118,7 +118,7 @@ public class SCheckProgressTest {
 
         String src = "bbbbb";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList, false), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
         r = sc.build() != null;
         Assert.assertTrue(r);
     }
@@ -134,7 +134,7 @@ public class SCheckProgressTest {
         List<Rule> ruleList = new LinkedList<>();
         ruleList.add(createRule("S->'b 'b 'b"));
         String src = "bbb";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(rules), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(rules), src);
         r = sc.build() != null;
         Assert.assertTrue(r);
     }
@@ -151,7 +151,7 @@ public class SCheckProgressTest {
         ruleList.add(createRule("E->B"));
 
         String src = "babab";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList, false), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
         r = sc.build() != null;
         Assert.assertTrue(r);
     }
@@ -167,7 +167,7 @@ public class SCheckProgressTest {
         ruleList.add(createRule("M->'54"));
 
         String src = "554";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList, false), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
 
         r = sc.build() != null;
         Assert.assertTrue(r);
@@ -188,7 +188,7 @@ public class SCheckProgressTest {
 
         String src = "aabc";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(rl), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(rl), src);
         sc.setShowTree(true);
         sc.build();
         boolean r = sc.isReady();
@@ -209,7 +209,7 @@ public class SCheckProgressTest {
 
         String src = "aabc";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -231,7 +231,7 @@ public class SCheckProgressTest {
 
         String src = "aabc";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -249,7 +249,7 @@ public class SCheckProgressTest {
 
         String src = "55";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -267,7 +267,7 @@ public class SCheckProgressTest {
 
         String src = "555";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -287,7 +287,7 @@ public class SCheckProgressTest {
 
         String src = "555";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -305,7 +305,7 @@ public class SCheckProgressTest {
 
         String src = "55";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
 
         sc.build();
         boolean r = sc.isReady();
@@ -324,7 +324,7 @@ public class SCheckProgressTest {
 
         String src = "555555555";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
         sc.setShowTree(true);
         r = sc.build() != null;
         Assert.assertTrue(r);
@@ -349,7 +349,7 @@ public class SCheckProgressTest {
         boolean r = false;
         String src = "5555555555555555555555555555555555555555555555555";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
         r = sc.build() != null;
 
         Assert.assertTrue(r);
@@ -374,7 +374,7 @@ public class SCheckProgressTest {
 
         Grammarhost gh = new Grammarhost(rl, "Exp");
 
-        STreeBuilder sc = new STreeBuilder(gh, src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(gh, src);
         sc.setShowTree(true);
         ;
         sc.build();
@@ -413,7 +413,7 @@ public class SCheckProgressTest {
         rl.add(createRule("ds->d ds"));
         rl.add(createRule("d->'5"));
         String src = "q5w";
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(rl), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(rl), src);
         sc.build();
         boolean r = sc.isReady();
         Assert.assertTrue(r);
@@ -428,7 +428,7 @@ public class SCheckProgressTest {
         boolean r = false;
         String src = "(5)";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList), src);
         r = sc.build() != null;
 
         Assert.assertTrue(r);
@@ -444,7 +444,7 @@ public class SCheckProgressTest {
         boolean r = false;
         String src = "5A(5)";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList, false), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
         sc.build();
         r = sc.isReady();
         Assert.assertFalse(r);
@@ -468,7 +468,7 @@ public class SCheckProgressTest {
         boolean r = false;
         String src = "55A5";
 
-        STreeBuilder sc = new STreeBuilder(new Grammarhost(ruleList, false), src);
+        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
         sc.build();
         r = sc.isReady();
 
