@@ -22,7 +22,8 @@ public class Main {
             System.out.println("--s:sourcefile         :   source of the compilation");
             System.out.println("--root:rootGroup       :   compile as [rootGroup] ");
             System.out.println("--printOut             :   print the syntax matches");
-            System.out.println("--strict:boolean       :   sets the grammar strict or compliant");
+            System.out.println("--multipass            :   "
+                    + "tries to match multiple parents on different levels in the syntax tree");
             System.out.println("--showTree             :   prints the syntax tree");
 
             System.exit(-1);
@@ -61,7 +62,7 @@ public class Main {
                     p = p.substring(7);
                     rootGroup = p;
                 }
-                if (p.startsWith("--multipass")) {
+                if ("--multipass".equalsIgnoreCase(p)) {
 
                     multipass = true;
 
