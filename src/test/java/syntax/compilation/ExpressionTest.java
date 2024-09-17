@@ -169,7 +169,7 @@ public class ExpressionTest {
         Grammarhost grammarhost = new Grammarhost(rl);
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, source);
-        stb.setPrintOut(true);
+        // stb.setPrintOut(true);
         stb.build();
 
 
@@ -259,8 +259,5 @@ public class ExpressionTest {
         Assert.assertEquals("54X78Xh", trp.transpile());
     }
 
-    private Rule createRule(String string) {
-        return RuleCreator.createRule(string);
-    }
 
 }

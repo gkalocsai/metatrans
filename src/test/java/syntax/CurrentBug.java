@@ -1,40 +1,35 @@
 package syntax;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.junit.Assert;
 import org.junit.Test;
 
 import compilation.Transpiler;
+import read.RuleReader;
 import syntax.grammar.GrammarException;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.SyntaxTreeBuilder;
+import util.StringLoadUtil;
 
 public class CurrentBug {
 
     @Test
-    public void simpleTrans() throws GrammarException {
+    public void currentBug() throws GrammarException {
 
-        List<Rule> rl = new LinkedList<>();
+        String stt = StringLoadUtil.loadResource("ora2postgres.s2t");
+        System.out.println(stt);
+        RuleReader rr = new RuleReader(stt);
+        stt = rr.getPreprocessed();
+        String src = "D";
+        Grammarhost gh=new Grammarhost(rr.getAllRules());
+        System.out.println(gh);
+        SyntaxTreeBuilder sb = new SyntaxTreeBuilder(gh, src, true);
+        sb.setShowTree(true);
 
-        Rule r1 = RuleCreator.createRule("a->f g f g>>*f \"hello\" *g");
-        rl.add(r1);
-        rl.add(RuleCreator.createRule("b->'b"));
-        rl.add(RuleCreator.createRule("b->c b"));
+        sb.build();
 
-        rl.add(RuleCreator.createRule("g->b"));
-        rl.add(RuleCreator.createRule("d->'bb"));
-        rl.add(RuleCreator.createRule("c->'a"));
-        rl.add(RuleCreator.createRule("f->'ab"));
-        String source = "abbabb";
-        Grammarhost grammarhost = new Grammarhost(rl);
 
-        SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, source);
-        stb.build();
+        Transpiler trp = new Transpiler(src, gh);
 
-        Transpiler trp = new Transpiler(source, grammarhost);
+        System.out.println(trp.transpile());
 
-        Assert.assertEquals("hello", trp.transpile());
     }
 }
