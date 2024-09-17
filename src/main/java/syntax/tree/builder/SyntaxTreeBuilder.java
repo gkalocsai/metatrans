@@ -40,7 +40,6 @@ public class SyntaxTreeBuilder {
 
     private final RuleIntervalMatcher ruleIntervalMatcher = new RuleIntervalMatcher(forward, backward);
     private boolean showTree;
-    private boolean singlePass = true;
 
     public SyntaxTreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
@@ -79,11 +78,11 @@ public class SyntaxTreeBuilder {
 
                         else matches = getMatches(current, r);
                         for (Deduction d : matches) {
-                            if (this.singlePass) {
+                            if (!gh.getUnsafeToDel().contains(d.getFrom().getRule().getGroupname()))
                                 for (RuleInterval may : d.getTo()) {
-                                    removeFromWards(may);
+                                    if (!gh.getUnsafeToDel().contains(may.getRule().getGroupname()))
+                                        removeFromWards(may);
                                 }
-                            }
                             RuleInterval ri = d.getFrom();
                             String matchString = ri.matchingString();
                             if (!this.ruleIntervalEquality.contains(matchString)) {
@@ -380,14 +379,6 @@ public class SyntaxTreeBuilder {
 
     public void setShowTree(boolean showTree) {
         this.showTree = showTree;
-    }
-
-    public boolean isSinglePass() {
-        return singlePass;
-    }
-
-    public void setSinglePass(boolean singlePass) {
-        this.singlePass = singlePass;
     }
 
 }

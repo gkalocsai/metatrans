@@ -22,8 +22,6 @@ public class Main {
             System.out.println("--s:sourcefile         :   source of the compilation");
             System.out.println("--root:rootGroup       :   compile as [rootGroup] ");
             System.out.println("--printOut             :   print the syntax matches");
-            System.out.println("--multipass            :   "
-                    + "tries to match multiple parents on different levels in the syntax tree");
             System.out.println("--showTree             :   prints the syntax tree");
 
             System.exit(-1);
@@ -35,7 +33,7 @@ public class Main {
         String sourceFileContent = null;
         boolean printOut = false;
         String rootGroup = null;
-        boolean multipass = false;
+
         boolean showTree = false;
         for (String p : args) {
             if (!p.startsWith("--")) {
@@ -62,11 +60,6 @@ public class Main {
                     p = p.substring(7);
                     rootGroup = p;
                 }
-                if ("--multipass".equalsIgnoreCase(p)) {
-
-                    multipass = true;
-
-                }
                 if ("--showTree".equalsIgnoreCase(p)) {
                     showTree = true;
                 }
@@ -87,7 +80,6 @@ public class Main {
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 
-        stb.setSinglePass(!multipass);
         Transpiler tr = new Transpiler(sourceFileContent, stb);
 
         stb.setPrintOut(printOut);

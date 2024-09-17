@@ -30,6 +30,8 @@ public class Grammarhost {
     private List<Rule> csdRuleList = null;
     private Map<String, String> groupName2Level;
 
+    public Set<String> groupsInMultipleRighsidesOfMultipleGroups = new HashSet<String>();
+
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
         this.strict = strict;
         init(rl, null);
@@ -77,6 +79,37 @@ public class Grammarhost {
         fillApplicationOrderToRuleList();
         fillKillLevel();
 
+        fillUnsureDeductionGroups();
+        System.out.println(getUnsafeToDel().size());
+        for (String uns : getUnsafeToDel()) {
+            System.out.println(uns);
+        }
+    }
+
+    private void fillUnsureDeductionGroups() {
+        Map<String, HashSet<String>> groupToRefs = new HashMap<String, HashSet<String>>();
+        for (String key : grammar.keySet()) {
+            HashSet<String> currentGroupSet = new HashSet<String>();
+            groupToRefs.put(key, currentGroupSet);
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            for (Rule r : currentGroup) {
+                String[] grs = r.getGroupRefsAsArray();
+                Collections.addAll(currentGroupSet, grs);
+            }
+        }
+
+        for (String key : groupToRefs.keySet()) {
+            int count = 0;
+            for (Set<String> s : groupToRefs.values()) {
+                if (s.contains(key)) {
+                    count++;
+                    if (count == 2) {
+                        groupsInMultipleRighsidesOfMultipleGroups.add(key);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void validateReferencesToExists() {
@@ -445,6 +478,10 @@ public class Grammarhost {
 
     public void setStrict(boolean strict) {
         this.strict = strict;
+    }
+
+    public Set<String> getUnsafeToDel() {
+        return groupsInMultipleRighsidesOfMultipleGroups;
     }
 
 }

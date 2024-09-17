@@ -24,18 +24,6 @@ public class Transpiler {
         this.grammarhost = new Grammarhost(ruleList);
         this.source = source;
         this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
-        this.stb.setSinglePass(true);
-
-    }
-
-    public Transpiler(String source, String syntaxFileContent, boolean multipass) throws GrammarException {
-        RuleReader rr = new RuleReader(syntaxFileContent);
-        List<Rule> ruleList = rr.getAllRules();
-        this.grammarhost = new Grammarhost(ruleList);
-        this.source = source;
-        this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
-        this.stb.setSinglePass(multipass);
-
     }
 
     public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut, boolean singlePass)
@@ -50,7 +38,6 @@ public class Transpiler {
         }
         this.source = source;
         this.stb = new SyntaxTreeBuilder(grammarhost, source, printOut);
-        this.stb.setSinglePass(singlePass);
 
     }
 

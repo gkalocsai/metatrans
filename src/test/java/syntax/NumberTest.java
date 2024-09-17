@@ -14,7 +14,7 @@ public class NumberTest {
 
         String sourceFileContent = StringLoadUtil.loadResource("bignumber.txt");
         String syntaxFileContent = StringLoadUtil.loadResource("number.stt");
-        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent, false);
+        Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
 
         Assert.assertEquals("2443532455252", trp.transpile());
         System.out.println(trp.transpile());

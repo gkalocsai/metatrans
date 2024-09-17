@@ -1,12 +1,11 @@
 package syntax;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import syntax.Rule;
-import syntax.RuleCreator;
 import syntax.grammar.Grammarhost;
 import syntax.tree.builder.SyntaxTreeBuilder;
 
