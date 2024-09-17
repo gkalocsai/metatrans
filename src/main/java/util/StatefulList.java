@@ -51,8 +51,7 @@ public class StatefulList<T> implements Iterable<T> {
     }
 
     public T get() {
-        if (choosenElement == null)
-            return null;
+        if (choosenElement == null) return null;
         return choosenElement.value;
     }
 
@@ -61,15 +60,13 @@ public class StatefulList<T> implements Iterable<T> {
     }
 
     public boolean setValue(T value) {
-        if (choosenElement == null)
-            return false;
+        if (choosenElement == null) return false;
         choosenElement.value = value;
         return true;
     }
 
     public boolean setEntry(Entry<T> select) {
-        if (select == null)
-            return false;
+        if (select == null) return false;
         choosenElement = select;
 
         return true;
@@ -121,33 +118,30 @@ public class StatefulList<T> implements Iterable<T> {
     }
 
     public T removeNext() {
-        if (choosenElement == null || choosenElement.next == null)
-            return null;
+        if (choosenElement == null || choosenElement.next == null) return null;
         this.size--;
         StatefulList<T>.Entry<T> originalEntry = choosenElement.next;
         choosenElement.next = choosenElement.next.next;
-        if (choosenElement.next == null)
-            last = choosenElement;
+        if (choosenElement.next == null) last = choosenElement;
         return originalEntry.value;
     }
 
     public T pop() {
 
-        if (head == null)
-            return null;
+        if (head == null) return null;
         this.size--;
         StatefulList<T>.Entry<T> originalEntry = head;
         head = head.next;
         if (head == null) {
-            choosenElement = null;
             last = null;
         }
+        choosenElement = head;
         return originalEntry.value;
     }
 
     public T top() {
-        if (head == null)
-            return null;
+        if (head == null) return null;
+        choosenElement = head;
         return head.value;
     }
 
@@ -204,16 +198,14 @@ public class StatefulList<T> implements Iterable<T> {
         if (it.hasNext()) {
             T v = choosenElement.value;
             T n = it.next();
-            if (v == n)
-                sb.append(BLACKSUN);
+            if (v == n) sb.append(BLACKSUN);
             sb.append(String.valueOf(n));
         }
         while (it.hasNext()) {
             sb.append(", ");
             T v = choosenElement.value;
             T n = it.next();
-            if (v == n)
-                sb.append(BLACKSUN);
+            if (v == n) sb.append(BLACKSUN);
             sb.append(String.valueOf(n));
         }
         sb.append("]");
@@ -222,10 +214,8 @@ public class StatefulList<T> implements Iterable<T> {
 
     public boolean containsValue(T value) {
         for (T t : this) {
-            if (t == null && value == null)
-                return true;
-            if (t.equals(value))
-                return true;
+            if (t == null && value == null) return true;
+            if (t.equals(value)) return true;
         }
 
         return false;
@@ -233,8 +223,7 @@ public class StatefulList<T> implements Iterable<T> {
 
     public boolean contains(T value) {
         for (T t : this) {
-            if (t == value)
-                return true;
+            if (t == value) return true;
         }
         return false;
     }

@@ -19,14 +19,15 @@ public class CurrentBug {
         RuleReader rr = new RuleReader(stt);
         stt = rr.getPreprocessed();
         String src = "D";
-        Grammarhost gh=new Grammarhost(rr.getAllRules());
+        Grammarhost gh = new Grammarhost(rr.getAllRules());
+
         System.out.println(gh);
         SyntaxTreeBuilder sb = new SyntaxTreeBuilder(gh, src, true);
         sb.setShowTree(true);
 
         sb.build();
 
-
+        System.out.println(sb.toString());
         Transpiler trp = new Transpiler(src, gh);
 
         System.out.println(trp.transpile());

@@ -109,9 +109,9 @@ public class SyntaxTreeBuilder {
                 StatefulList<RuleInterval>.Entry<RuleInterval> entry = toCheck.getEntry();
                 if (entry != null) {
                     while (toKill.contains(entry.getValue().getRule())) {
+                        if (entry == null || !toKill.contains(entry.getValue().getRule())) break;
                         toCheck.pop();
                         entry = toCheck.getEntry();
-                        if (entry == null) break;
                     }
                 }
                 StatefulList<RuleInterval>.Entry<RuleInterval> prev = toCheck.getEntry();
@@ -128,7 +128,6 @@ public class SyntaxTreeBuilder {
 
             }
             if (printOut) System.out.println("Elements after kill: " + toCheck.size());
-
             for (RuleInterval ri : toCheck2) {
                 toCheck.push(ri);
             }
