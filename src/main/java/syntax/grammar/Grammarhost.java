@@ -80,10 +80,7 @@ public class Grammarhost {
         fillKillLevel();
 
         fillUnsureDeductionGroups();
-        System.out.println(getUnsafeToDel().size());
-        for (String uns : getUnsafeToDel()) {
-            System.out.println(uns);
-        }
+
     }
 
     private void fillUnsureDeductionGroups() {
