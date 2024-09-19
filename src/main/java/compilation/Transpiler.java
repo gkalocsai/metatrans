@@ -26,26 +26,6 @@ public class Transpiler {
         this.stb = new SyntaxTreeBuilder(grammarhost, source, false);
     }
 
-    public Transpiler(String source, String syntaxFileContent, String rootGroup, boolean printOut, boolean singlePass)
-            throws GrammarException {
-
-        RuleReader rr = new RuleReader(syntaxFileContent);
-        List<Rule> ruleList = rr.getAllRules();
-        this.grammarhost = new Grammarhost(ruleList);
-
-        if (rootGroup != null) {
-            this.grammarhost.setRootGroup(rootGroup);
-        }
-        this.source = source;
-        this.stb = new SyntaxTreeBuilder(grammarhost, source, printOut);
-
-    }
-
-    public Transpiler(String source, Grammarhost gh, String root) throws GrammarException {
-        this(source, gh);
-        this.grammarhost.setRootGroup(root);
-    }
-
     public Transpiler(String source, Grammarhost gh) throws GrammarException {
         this.grammarhost = gh;
         this.source = source;

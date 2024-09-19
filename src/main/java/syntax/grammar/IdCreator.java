@@ -2,8 +2,6 @@ package syntax.grammar;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,19 +12,6 @@ public enum IdCreator {
 
     void addExistingIds(Collection<String> ids) {
         theIds.addAll(ids);
-    }
-
-    public List<String> createNewNames(int nameCount, String prefixOfGenerated, Set<String> alreadyExistingIds) {
-        List<String> newNames = new LinkedList<>();
-        Set<String> checker = new HashSet<>();
-        for (int i = 0; i < nameCount; i++) {
-            String candidate = generateYetUnusedId(prefixOfGenerated);
-            while (checker.contains(candidate))
-                candidate = generateYetUnusedId(prefixOfGenerated);
-            newNames.add(candidate);
-            checker.add(candidate);
-        }
-        return newNames;
     }
 
     public String generateYetUnusedId(String prefixOfGenerated) {

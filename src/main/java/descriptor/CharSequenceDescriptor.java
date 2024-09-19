@@ -24,7 +24,8 @@ public class CharSequenceDescriptor implements SyntaxElement {
         ocd = new OneCharDesc[oneCharDescriptorsAsString.size()];
         int i = 0;
         for (String s : oneCharDescriptorsAsString) {
-            ocd[i++] = new OneCharDesc(s);
+            ocd[i] = new OneCharDesc(s);
+            i++;
         }
     }
 
@@ -32,25 +33,22 @@ public class CharSequenceDescriptor implements SyntaxElement {
         this.ocd = ocd;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof CharSequenceDescriptor))
-            return false;
-        CharSequenceDescriptor o2 = (CharSequenceDescriptor) other;
-        OneCharDesc[] a = this.ocd;
-        OneCharDesc[] b = o2.ocd;
-
-        if (a.length != b.length)
-            return false;
-
-        for (int i = 0; i < a.length; i++) {
-            if (!(a[i].equals(b[i])))
-                return false;
-        }
-
-        return true;
-
-    }
+//    @Override
+//    public boolean equals(Object other) {
+//        if (!(other instanceof CharSequenceDescriptor)) return false;
+//        CharSequenceDescriptor o2 = (CharSequenceDescriptor) other;
+//        OneCharDesc[] a = this.ocd;
+//        OneCharDesc[] b = o2.ocd;
+//
+//        if (a.length != b.length) return false;
+//
+//        for (int i = 0; i < a.length; i++) {
+//            if (!(a[i].equals(b[i]))) return false;
+//        }
+//
+//        return true;
+//
+//    }
 
     static List<String> sliceDescriptor(String dsc) {
         List<String> result = new LinkedList<>();
@@ -78,19 +76,16 @@ public class CharSequenceDescriptor implements SyntaxElement {
     }
 
     public boolean matches(CharSequence source) {
-        if (source.length() != ocd.length)
-            return false;
+        if (source.length() != ocd.length) return false;
         for (int i = 0; i < source.length(); i++) {
-            if (!ocd[i].matches(source.charAt(i)))
-                return false;
+            if (!ocd[i].matches(source.charAt(i))) return false;
 
         }
         return true;
     }
 
     public boolean matchesInFrom(CharSequence cs, int firstIndex) {
-        if (firstIndex > cs.length() - ocd.length)
-            return false;
+        if (firstIndex > cs.length() - ocd.length) return false;
         return matches(new CharSequenceInterval(cs, firstIndex, firstIndex + ocd.length - 1));
     }
 
@@ -106,26 +101,6 @@ public class CharSequenceDescriptor implements SyntaxElement {
 
     public OneCharDesc[] getOcdArray() {
         return ocd;
-    }
-
-    public CharSequenceDescriptor[] split() {
-        CharSequenceDescriptor[] result = new CharSequenceDescriptor[ocd.length];
-        int i = 0;
-        for (OneCharDesc o : ocd) {
-            OneCharDesc[] curr = new OneCharDesc[1];
-            curr[0] = o;
-            result[i++] = new CharSequenceDescriptor(curr);
-        }
-        return result;
-    }
-
-    public String getRandomExample() {
-        StringBuilder sb = new StringBuilder();
-        for (OneCharDesc ocde : ocd) {
-            sb.append(ocde.getRandomExample());
-        }
-
-        return sb.toString();
     }
 
     @Override

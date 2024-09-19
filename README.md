@@ -44,10 +44,11 @@ The conversion rules are built from two parts. On the left side of the >> rule, 
 The aim is to match the groups to some parts of the source. 
  The elements of the syntax description are separated by **space**(s).
 
-**The elements are:**
+**The elements can be:**
  - Group name ref  (e.g.: welcome_message) 
  - Repeater
  - Character sequence descriptor 
+ - Optional element
 
 **Group name ref**
 Just the name of the group
@@ -136,6 +137,9 @@ Inside the parentheses, you can define characters with their decimal UNICODE-16 
     COMMA{
       "([44])";
     }
+
+**Optional elements**
+  Optional elements start with '?' Eg. ?e1:exp  ?"re" "try" 
 
 **Recursive (self) references**
 

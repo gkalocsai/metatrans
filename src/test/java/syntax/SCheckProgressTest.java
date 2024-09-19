@@ -450,29 +450,4 @@ public class SCheckProgressTest {
         Assert.assertFalse(r);
     }
 
-    @Test
-    public void holeInMatch2() throws GrammarException {
-
-        List<Rule> ruleList = new LinkedList<>();
-        ruleList.add(createRule("expression->expression operatorwithexpression"));
-
-        ruleList.add(createRule("expression->digits"));
-        ruleList.add(createRule("expression->'\\( expression '\\)"));
-        ruleList.add(createRule("operatorwithexpression->operator expression"));
-
-        ruleList.add(createRule("operator->'+"));
-        ruleList.add(createRule("operator->'-"));
-        ruleList.add(createRule("digits->digit"));
-        ruleList.add(createRule("digits->digit digits"));
-        ruleList.add(createRule("digit->'(0-9)"));
-        boolean r = false;
-        String src = "55A5";
-
-        SyntaxTreeBuilder sc = new SyntaxTreeBuilder(new Grammarhost(ruleList, false), src);
-        sc.build();
-        r = sc.isReady();
-
-        Assert.assertFalse(r);
-    }
-
 }

@@ -18,10 +18,6 @@ import syntax.SyntaxElement;
 public class Grammarhost {
 
     private Map<String, ArrayList<Rule>> grammar;
-    private Rule[] recursiveRefRules;
-    private Rule[] nonRecursiveRefRules;
-
-    private boolean strict = true;
     private String rootGroup;
 
     private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
@@ -33,7 +29,6 @@ public class Grammarhost {
     public Set<String> groupsInMultipleRighsidesOfMultipleGroups = new HashSet<String>();
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
-        this.strict = strict;
         init(rl, null);
 
     }
@@ -57,21 +52,14 @@ public class Grammarhost {
         this.grammar = createRuleMap(rules, rootGroup);
         pushDescriptors(rules);
         removeOneLongRecursiveRules();
-        if (strict) {
-            eliminateIndirectRecursion();
-        }
+
+        eliminateIndirectRecursion();
 
         validateReferencesToExists();
 
-        if (strict) {
-            validateReferencesInAllRules();
-        }
+        validateReferencesInAllRules();
 
-        if (strict) {
-            checkForInvalidRecursions();
-        }
-
-        groupRulesByRecursion();
+        checkForInvalidRecursions();
 
         allIds = getAllIdentifiers();
 
@@ -260,32 +248,6 @@ public class Grammarhost {
         return finisherGroupnames;
     }
 
-    private void groupRulesByRecursion() {
-        List<Rule> all = getRefRules();
-        ArrayList<Rule> recRefRules = new ArrayList<>();
-        ArrayList<Rule> nonRecRefRules = new ArrayList<>();
-
-        for (Rule r : all) {
-            if (r.isDirectRecursive()) {
-                recRefRules.add(r);
-            } else {
-                nonRecRefRules.add(r);
-            }
-        }
-        this.recursiveRefRules = new Rule[recRefRules.size()];
-
-        for (int i = 0; i < recursiveRefRules.length; i++) {
-            recursiveRefRules[i] = recRefRules.get(i);
-        }
-
-        this.nonRecursiveRefRules = new Rule[nonRecRefRules.size()];
-
-        for (int i = 0; i < nonRecursiveRefRules.length; i++) {
-            nonRecursiveRefRules[i] = nonRecRefRules.get(i);
-        }
-
-    }
-
     private void removeOneLongRecursiveRules() throws GrammarException {
         for (Rule r : getRefRules()) {
             if (r.getRightSideLength() == 1 && r.isDirectRecursive()) {
@@ -437,24 +399,8 @@ public class Grammarhost {
         return all;
     }
 
-    public void setRootGroup(String newRoot) {
-        this.rootGroup = newRoot;
-        if (grammar.get(newRoot) == null) {
-            throw new IllegalArgumentException("Group [" + newRoot + "] is not defined in the grammar");
-        }
-
-    }
-
     public String getRootGroup() {
         return this.rootGroup;
-    }
-
-    public Rule[] getRecursiveRefRules() {
-        return recursiveRefRules;
-    }
-
-    public Rule[] getNonRecursiveRefRules() {
-        return nonRecursiveRefRules;
     }
 
     public Map<String, List<Rule>> getApplicationOrderToRuleList() {
@@ -467,14 +413,6 @@ public class Grammarhost {
 
     public int getLevel(Rule r) {
         return Integer.valueOf(this.groupName2Level.get(r.getGroupname()));
-    }
-
-    public boolean isStrict() {
-        return strict;
-    }
-
-    public void setStrict(boolean strict) {
-        this.strict = strict;
     }
 
     public Set<String> getUnsafeToDel() {
