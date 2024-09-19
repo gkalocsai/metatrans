@@ -1,4 +1,5 @@
 
+
 # S2T - Transpiler engine
 
 ## Download: 
@@ -51,6 +52,7 @@ The aim is to match the groups to some parts of the source.
  - Optional element
 
 **Group name ref**
+
 Just the name of the group
 
 **Recursive group name references**
@@ -139,7 +141,9 @@ Inside the parentheses, you can define characters with their decimal UNICODE-16 
     }
 
 **Optional elements**
-  Optional elements start with '?' Eg. ?e1:exp  ?"re" "try" 
+  Optional elements start with '?' Eg.:
+  
+        ?"re" "try" >> "try"; 
 
 **Recursive (self) references**
 
