@@ -419,4 +419,8 @@ public class Grammarhost {
         return groupsInMultipleRighsidesOfMultipleGroups;
     }
 
+	public void setRoot(String root) {
+		this.rootGroup = root;		
+	}
+
 }

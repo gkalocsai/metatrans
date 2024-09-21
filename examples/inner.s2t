@@ -1,0 +1,25 @@
+/*soure: 12345678*/
+
+
+main{
+   A B C >> A *B "addTo" inner(A+*B+"addTo") "hello";
+}
+
+
+A{
+   "123";
+}
+
+B{
+   "456" >> "HelloB";
+}
+
+C{
+  "78";
+}
+
+INNER {
+   "123HelloBaddTo" >> "hipaSupaCool";
+
+}
+

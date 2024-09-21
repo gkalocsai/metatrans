@@ -29,46 +29,52 @@ public class CompilationElement {
     }
     // parameter: if it beginsWith " then it is handled as literal
 
-    public CompilationElement(String seq) {
-        if (seq.isEmpty()) {
-            this.type = '\"';
-            base = "";
-            return;
-        }
-        char ch = seq.charAt(0);
-
-        if (ch == '\"' || ch == '\'') {
-            this.type = '\"';
-            base = CharSeqUtil.resolveFormattedSeq(seq.substring(1, seq.length() - 1));
-        } else if (ch == '*') {
-            this.type = '*';
-            base = seq.substring(1);
-        } else {
-            int openBracketIndex = seq.indexOf("(");
-            if (openBracketIndex < 0) {
-                this.type = ' ';
-                base = seq;
-            } else {
-                this.type = '(';
-                base = seq.substring(0, openBracketIndex);
-                params = createParams(seq, openBracketIndex);
-            }
-        }
-
-        if (params == null) {
-            params = new CompilationElement[0];
-        }
-
+    public CompilationElement(String seq, boolean callAllowed) {
+    	
+    	if (seq.isEmpty()) {
+    		this.type = '\"';
+    		base = "";
+    		return;
+    	}
+    	char ch = seq.charAt(0);
+    	
+    	if (ch == '\"' || ch == '\'') {
+    		this.type = '\"';
+    		base = CharSeqUtil.resolveFormattedSeq(seq.substring(1, seq.length() - 1));
+    	} else if (ch == '*') {
+    		this.type = '*';
+    		base = seq.substring(1);
+    	} else {
+    		int openBracketIndex = seq.indexOf("(");
+    		if (openBracketIndex < 0) {
+    			this.type = ' ';
+    			base = seq;
+    		} else {
+    		    if(!callAllowed)  throw new RuntimeException("Nested calls are not allowed!");
+    			this.type = '(';
+    			base = seq.substring(0, openBracketIndex);
+    			params = createParams(seq, openBracketIndex);
+    		}
+    	}
+    	
+    	if (params == null) {
+    		params = new CompilationElement[0];
+    	}
     }
 
-    private CompilationElement[] createParams(String seq, int openBracketIndex) {
+    public CompilationElement(String seq) {
+        this(seq,true);
+    }
+
+
+	private CompilationElement[] createParams(String seq, int openBracketIndex) {
         int closingBracketIndex = seq.indexOf(")", openBracketIndex);
         String params = seq.substring(openBracketIndex + 1, closingBracketIndex);
         String[] splittedParams = params.split("\\+");
         CompilationElement[] result = new CompilationElement[splittedParams.length];
 
         for (int i = 0; i < splittedParams.length; i++) {
-            result[i] = new CompilationElement(splittedParams[i].trim());
+            result[i] = new CompilationElement(splittedParams[i].trim() ,false);
         }
         return result;
     }
@@ -151,7 +157,5 @@ public class CompilationElement {
     public void setParams(CompilationElement[] params) {
         this.params = params;
     }
-
-    // -E>
 
 }

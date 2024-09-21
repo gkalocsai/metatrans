@@ -179,6 +179,8 @@ The elements of the description are separated with space(s). The result of each 
  - *T means that group T will decide how to translate this source part.
  - "format string" or 'format string' -> translates to the resolved format string.
  -  label or *label: you can give each element a label. E.g.: `name1:name COMMA name2:name >> name2 "," name1;`   <- This changes the sequence of the two names;
+ -  a call: you can use the previously mentioned elements to create a new compilation during the main compilation. E.g.:  `a(*b+"hello"+c)` means that the group 'a' has to compile the source which is built-up from the result elements inside the parentheses. The result elements from that  build the inner source (the parameter of the call)  are separated with '+'. No nested calls are allowed. See inner.s2t and inner.txt in the examples directory.  
+
 
 
 ## More examples:
