@@ -5,14 +5,13 @@ import java.util.Collection;
 
 public class Util {
 
-    public static boolean[] convertBinaryNumber(int number, int digits) {
+    public static boolean[] convertBinaryNumber(int i2, int digits) {
         boolean[] result = new boolean[digits];
         for (int i = digits - 1; i >= 0; i--) {
-            if (number % 2 == 1)
+            if (i2 % 2 == 1)
                 result[i] = true;
-            number = number >> 1;
+            i2 = i2 >> 1;
         }
-
         return result;
     }
 

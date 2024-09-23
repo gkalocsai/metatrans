@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public enum IdCreator {
-    InSTANCE;
+    INSTANCE;
 
     private Set<String> theIds = new HashSet<String>();
 

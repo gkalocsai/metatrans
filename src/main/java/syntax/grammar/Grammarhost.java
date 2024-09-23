@@ -12,6 +12,8 @@ import java.util.Set;
 
 import descriptor.CharSequenceDescriptor;
 import descriptor.GroupName;
+import read.ComplexRuleCreator;
+import read.RuleReader;
 import syntax.Rule;
 import syntax.SyntaxElement;
 
@@ -63,12 +65,42 @@ public class Grammarhost {
 
         allIds = getAllIdentifiers();
 
-        IdCreator.InSTANCE.addExistingIds(allIds);
+        IdCreator.INSTANCE.addExistingIds(allIds);
+        moveRepeatersToOwnGroups();
+
         fillApplicationOrderToRuleList();
         fillKillLevel();
 
         fillUnsureDeductionGroups();
+    }
 
+    private void moveRepeatersToOwnGroups() {
+        Map<String, HashSet<String>> groupToRefs = new HashMap<String, HashSet<String>>();
+        Map<String, Rule> repeaterGroups = new HashMap<>();
+        for (String key : grammar.keySet()) {
+            HashSet<String> currentGroupSet = new HashSet<String>();
+            groupToRefs.put(key, currentGroupSet);
+            ArrayList<Rule> currentGroup = grammar.get(key);
+            ArrayList<Rule> modifiedGroup = new ArrayList<>();
+            for (Rule r : currentGroup) {
+                if (r.isRepeater()) {
+                    String repGroupName = IdCreator.INSTANCE.generateYetUnusedId("rep_");
+                    List<Rule> l = ComplexRuleCreator.createRules(repGroupName,
+                            repGroupName + " >> *" + repGroupName + ";");
+                    modifiedGroup.add(l.get(0));
+                    repeaterGroups.put(repGroupName, r);
+                } else {
+                    modifiedGroup.add(r);
+                }
+            }
+            currentGroup.clear();
+            currentGroup.addAll(modifiedGroup);
+        }
+        for (String groupName : repeaterGroups.keySet()) {
+            ArrayList<Rule> oneRepeater = new ArrayList<>();
+            oneRepeater.add(repeaterGroups.get(groupName));
+            grammar.put(groupName, oneRepeater);
+        }
     }
 
     private void fillUnsureDeductionGroups() {
@@ -314,9 +346,9 @@ public class Grammarhost {
 
     private String generateUnusedGroupName(Map<String, CharSequenceDescriptor> freshGroupnames) {
         // allIds = getAllIdentifiers();
-        String candidate = IdCreator.InSTANCE.generateYetUnusedId("_");
+        String candidate = IdCreator.INSTANCE.generateYetUnusedId("_");
         while (freshGroupnames.keySet().contains(candidate)) {
-            candidate = IdCreator.InSTANCE.generateYetUnusedId("_");
+            candidate = IdCreator.INSTANCE.generateYetUnusedId("_");
         }
         return candidate;
     }

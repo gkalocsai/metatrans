@@ -1,0 +1,59 @@
+CHAR{
+
+  "(a-z A-Z 0-9 _ $)";
+
+}
+ 
+VARIABLE_CHAR{
+
+	m:CHAR >> "korte";
+
+	...CHAR >> "alma";
+
+}
+
+ 
+ws{
+
+  ..."([0]-[32])";
+
+}
+ 
+CHAR{
+
+	n:"(a-z A-Z 0-9 _ $)" >> n;
+
+}
+ 
+CHAR_SEQ{
+
+	...CHAR >> CHAR;
+
+}
+ 
+OBJECT{
+
+	schema:"SCHEMA" >> schema;
+
+	table:"TABLE" >> table;
+
+	type:"TYPE" >> type;
+
+	function:"FUNCTION" >> function;
+
+}
+ 
+WRITE_STATEMENT{
+
+	i:"INSERT INTO" >> i;
+
+	d:"DELETE" >> d;
+
+}
+
+CREATE_OBJECT{
+
+    create:"CREATE" ws object:OBJECT ws ?if:"IF NOT EXISTS" >> create ws object ws if;
+	
+}
+ 

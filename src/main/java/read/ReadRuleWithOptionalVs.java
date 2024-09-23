@@ -21,7 +21,7 @@ public class ReadRuleWithOptionalVs {
         this.compilation = compilation;
     }
 
-    private static final int MAX_ALLOWED_OPTIONAL_ELEMENTS = 3;
+    public static final int MAX_ALLOWED_OPTIONAL_ELEMENTS = 10;
 
     public boolean[] getOptional() {
         return optional;

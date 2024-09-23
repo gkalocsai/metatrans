@@ -9,10 +9,10 @@ import syntax.grammar.Grammarhost;
 import syntax.tree.builder.SyntaxTreeBuilder;
 import util.StringLoadUtil;
 
-public class CurrentBug {
+public class DeepConcurrency {
 
     @Test
-    public void currentBug() throws GrammarException {
+    public void concurentRightsides() throws GrammarException {
 
         String stt = StringLoadUtil.loadResource("ora2postgres.s2t");
         System.out.println(stt);

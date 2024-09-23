@@ -1,0 +1,18 @@
+CHAR{
+  "(a-z A-Z 0-9 _ $)";
+}
+ 
+
+root{
+  m:CHAR >> "korte";     
+  ...CHAR >> "alma";
+   /*REPEATER_CHAR >> *REPEATER_CHAR;*/
+}
+/*
+REPEATER_CHAR{
+	...CHAR >> "alma";
+}
+root2{
+   m:CHAR >> "korte";
+   
+}*/

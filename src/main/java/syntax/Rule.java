@@ -122,6 +122,8 @@ public class Rule {
         // return toStringWoCompilation();
         StringBuilder sb = new StringBuilder();
         sb.append(this.groupname + "->");
+        if (isRepeater())
+            sb.append("...");
         addRightsideString(sb);
         return sb.toString();
     }

@@ -1,0 +1,57 @@
+oracle_type{
+   "VARCHAR2" OPEN_PAREN d1:digits w "BYTE" CLOSING_PAREN >> "VARCHAR(" d1 ")";
+   "D" >> "TIMESTAMP";
+}
+
+
+VARIABLE{
+   "(a-z A-Z _ $)";
+   VARIABLE "(a-z A-Z 0-9 _ $)";
+}
+
+/*whitespaces*/
+w{
+  " ";
+}
+
+/*alphanumeric*/
+anc{
+ "(a-z A-Z 0-9 _-_)";
+}
+
+an{
+  "(a-z A-Z 0-9 _-_)";
+  an "(a-z A-Z 0-9 _-_)";
+}
+
+digits{
+  DIGIT >> DIGIT;
+  digits DIGIT >> digits DIGIT;
+}
+
+DIGIT{
+   d:"(0-9)" >> d;
+}
+
+
+
+/*double quote*/
+DQ {
+    "([34])";
+}
+
+/*quote*/
+Q {
+   "([39])";
+}
+
+OPEN_PAREN{
+   "([40])";
+}
+CLOSING_PAREN {
+   "([41])";
+}
+COMMA{
+  "([44])";
+}
+

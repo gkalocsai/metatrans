@@ -130,7 +130,7 @@ public class RuleIntoRulePuller {
         Set<String> currentLabels = getLabels(into, r);
         for (String s : r.getLabels()) {
             if (into.hasLabel(s) || s.isEmpty()) {
-                String label2 = IdCreator.InSTANCE.generateYetUnusedId("_");
+                String label2 = IdCreator.INSTANCE.generateYetUnusedId("_");
                 currentLabels.add(label2);
                 r.renameLabel(s, label2);
             }

@@ -21,7 +21,13 @@ public class RepeaterTest {
         list.add(r1);
         Grammarhost gh = new Grammarhost(list, true);
 
-        Assert.assertTrue(gh.getRefRules().get(0).isRepeater());
+        boolean hasRepeater = false;
+
+        for (Rule r : gh.getRefRules()) {
+            if (r.isRepeater())
+                hasRepeater = true;
+        }
+        Assert.assertTrue(hasRepeater);
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(gh, "ssttsstt");
 
