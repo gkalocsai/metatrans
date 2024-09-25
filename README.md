@@ -1,6 +1,6 @@
 
 
-# S2T - Transpiler engine
+# MetaTrans - A transpiler engine
 
 ## Download: 
 **https://github.com/gkalocsai/s2t/releases**
@@ -14,11 +14,11 @@ The base idea of the translation is that you can classify the parts of the sourc
     }
 means that the source file can be divided into two parts: package_declaration followed by package_body and it has to be translated to "Ready." as the result text.
 
-More rules can be in a group and S2T tries to apply them by their syntax description from top to bottom.
+More rules can be in a group and MetaTrans tries to apply them by their syntax description from top to bottom.
 
 ## Usage:
 
-    java -jar s2t.jar conversionDescriptionFile sourceFile [options] 
+    java -jar metatrans.jar conversionDescriptionFile sourceFile [options] 
 
 The conversion rules are in one file.
 Source file content (**hi.txt**):
@@ -36,7 +36,7 @@ It has one conversion rule. ("Hi!" >> "Hello!" ;)  If the source file contains o
 
 Save these files and try to run the following command:
 
-     java -jar s2t.jar welcome.s2t hi.txt
+     java -jar metatrans.jar welcome.s2t hi.txt
 
 The conversion rules are built from two parts. On the left side of the >> rule, there is the syntax description. 
 
@@ -57,7 +57,7 @@ Just the name of the group
 
 **Recursive group name references**
 
-You can use only direct references to the group in each rule. If you use indirect recursion, then s2t tries to convert those rules to direct recursive. 
+You can use only direct references to the group in each rule. If you use indirect recursion, then MetaTrans tries to convert those rules to direct recursive. 
 If you use only one in the rule it is always valid.
 You can use two recursive references if those are at the beginning and at the end of the rule.
 You cannot use three or more recursive references in a rule.
@@ -94,13 +94,13 @@ This element tells that all the syntax elements in the rule have to be matched t
       "Lucy";
     }  
 The three dots note that this whole rule must be applied to the repeating elements. 
-So if s2t founds `"Hi Peter!Hi Lucy!"` in the source then the result will be `"HelloHello"`.
+So if MetaTrans founds `"Hi Peter!Hi Lucy!"` in the source then the result will be `"HelloHello"`.
 
 
 **Character sequence descriptor:** 
 
 In most of the cases, a character sequence descriptor is a simple string. 
-In the string instead of any character you can define a non-empty character set, which means s2t applies that rule on multiple strings. 
+In the string instead of any character you can define a non-empty character set, which means MetaTrans applies that rule on multiple strings. 
 Character set definitions:
 
      "(c h a r a c t e r s S e p a r a t e d b y S p a c e s)ello" 
@@ -147,7 +147,7 @@ Inside the parentheses, you can define characters with their decimal UNICODE-16 
 
 **Recursive (self) references**
 
-You can use only direct references to the group in each rule. If you use indirect recursion, then s2t tries to convert those rules to direct recursive. 
+You can use only direct references to the group in each rule. If you use indirect recursion, then MetaTrans tries to convert those rules to direct recursive. 
 If you use only one in the rule it is always valid.
 You can use two recursive references only if they are at the beginning and the end of the rule.
 You cannot use three or more recursive references in a rule.
