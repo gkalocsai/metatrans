@@ -7,17 +7,17 @@ import util.CharSeqUtil;
 public class CompilationElement {
 
     private String base;
-    private char type;
     private CompilationElement[] params;
+    private CompilationElementType type;
 
-    public CompilationElement(String base, char type) {
+    public CompilationElement(String base, CompilationElementType type) {
         this.base = base;
         this.type = type;
         this.params = new CompilationElement[0];
     }
 
     public CompilationElement(String groupName, CompilationElement[] params) {
-        this.type = '(';
+        this.type = CompilationElementType.INNER_CALL;
         this.base = groupName;
         this.params = params;
     }
@@ -32,26 +32,26 @@ public class CompilationElement {
     public CompilationElement(String seq, boolean callAllowed) {
     	
     	if (seq.isEmpty()) {
-    		this.type = '\"';
+    		this.type = CompilationElementType.ESCAPED_STRING;
     		base = "";
     		return;
     	}
     	char ch = seq.charAt(0);
     	
     	if (ch == '\"' || ch == '\'') {
-    		this.type = '\"';
+    		this.type = CompilationElementType.ESCAPED_STRING;
     		base = CharSeqUtil.resolveFormattedSeq(seq.substring(1, seq.length() - 1));
     	} else if (ch == '*') {
-    		this.type = '*';
+    		this.type = CompilationElementType.GROUP_REFERENCE;
     		base = seq.substring(1);
     	} else {
     		int openBracketIndex = seq.indexOf("(");
     		if (openBracketIndex < 0) {
-    			this.type = ' ';
+    			this.type = CompilationElementType.SOURCE_REFERENCE;
     			base = seq;
     		} else {
     		    if(!callAllowed)  throw new RuntimeException("Nested calls are not allowed!");
-    			this.type = '(';
+    			this.type = CompilationElementType.INNER_CALL;
     			base = seq.substring(0, openBracketIndex);
     			params = createParams(seq, openBracketIndex);
     		}
@@ -98,7 +98,7 @@ public class CompilationElement {
         return base;
     }
 
-    public char getType() {
+    public CompilationElementType getType() {
         return type;
     }
 
@@ -109,16 +109,16 @@ public class CompilationElement {
     @Override
     public String toString() {
 
-        if (type == '\"') {
+        if (type == CompilationElementType.ESCAPED_STRING) {
             return "\"" + base + "\"";
         }
-        if (type == '*') {
+        if (type == CompilationElementType.GROUP_REFERENCE) {
             return "*" + base;
         }
-        if (type == ' ') {
+        if (type == CompilationElementType.SOURCE_REFERENCE) {
             return base;
         }
-        if (type == '(') {
+        if (type == CompilationElementType.INNER_CALL) {
             return base + "(" + createParamString() + ")";
         }
         throw new RuntimeException("Invalid parameter type: " + "\'" + type + "\'");
@@ -149,7 +149,8 @@ public class CompilationElement {
         ceCopy.params = new CompilationElement[params.length];
 
         for (int i = 0; i < params.length; i++) {
-            ceCopy.params[i] = params[i].copy();
+        	if(params[i].getType() == CompilationElementType.INNER_CALL) continue;
+            ceCopy.params[i] = params[i];
         }
         return ceCopy;
     }

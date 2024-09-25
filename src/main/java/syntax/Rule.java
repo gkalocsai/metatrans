@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import compilation.CompilationElement;
+import compilation.CompilationElementType;
 
 public class Rule {
 
@@ -36,7 +37,7 @@ public class Rule {
         }
         if (compilation == null || compilation.length == 0) {
             this.compilation = new CompilationElement[1];
-            this.compilation[0] = new CompilationElement("", '\"');
+            this.compilation[0] = new CompilationElement("", CompilationElementType.ESCAPED_STRING);
         } else {
             this.compilation = compilation;
         }
@@ -213,12 +214,12 @@ public class Rule {
         labels[k] = n;
 
         for (CompilationElement aCompilation : compilation) {
-            char outerType = aCompilation.getType();
-            if (outerType == ' ' || outerType == '*') {
+            CompilationElementType outerType = aCompilation.getType();
+            if (outerType == CompilationElementType.SOURCE_REFERENCE || outerType == CompilationElementType.GROUP_REFERENCE) {
                 aCompilation.setBase(n);
             }
             for (CompilationElement p : aCompilation.getParams()) {
-                if (p.getType() == ' ' || p.getType() == '*') {
+                if (p.getType() == CompilationElementType.SOURCE_REFERENCE || p.getType() == CompilationElementType.GROUP_REFERENCE) {
                     p.setBase(n);
                 }
             }

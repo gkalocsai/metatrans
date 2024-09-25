@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import compilation.CompilationElement;
+import compilation.CompilationElementType;
 import syntax.Rule;
 import syntax.SyntaxElement;
 import util.Util;
@@ -64,9 +65,27 @@ public class OptionalVConverter {
         CompilationElement[] comp = rr.getCompilation();
         ArrayList<CompilationElement> validElements = new ArrayList<>();
         for (CompilationElement ce : comp) {
-            if (!unneededLabelsInComp.contains(ce.getBase())) {
-                validElements.add(ce);
-            }
+
+        	if(ce.getType()!=CompilationElementType.INNER_CALL) {
+        	   if (!unneededLabelsInComp.contains(ce.getBase())) {
+                   validElements.add(ce);
+               }
+        	}else {
+        		CompilationElement ceCopy = ce.copy();
+        		validElements.add(ceCopy);
+        		ArrayList<CompilationElement> validParams = new ArrayList<>();
+        		for (CompilationElement ce2 : ce.getParams()) {
+        			 if (!unneededLabelsInComp.contains(ce2.getBase())) {
+                         validParams.add(ce2);
+                     }
+        			 CompilationElement[] nParams=new CompilationElement[validParams.size()];
+        			 int i=0;
+        			 for(CompilationElement cce: validParams) {
+        				 nParams[i++] = cce;
+        			 }
+        			 ce2.setParams(nParams);
+        		}
+        	}
         }
         CompilationElement[] x=new CompilationElement[validElements.size()];
         int i=0;

@@ -62,25 +62,25 @@ public class Transpiler {
 		for (int i = 0; i < ra.length; i += r.getRightSideLength()) {
 
 			for (CompilationElement ce : compArray) {
-				char type = ce.getType();
-				if (type == '\"') {
+				CompilationElementType type = ce.getType();
+				if (type == CompilationElementType.ESCAPED_STRING) {
 					sb.append(ce.getBase());
-				} else if (type == ' ') {
+				} else if (type == CompilationElementType.SOURCE_REFERENCE) {
 					int x = r.getIndexOfLabel(ce.getBase());
 					sb.append(source.substring(ra[x + i].getBegin(), ra[x + i].getLast() + 1));
-				} else if (type == '*') {
+				} else if (type == CompilationElementType.GROUP_REFERENCE) {
 					int x = r.getIndexOfLabel(ce.getBase());
 					doTranspile(ra[x + i]);
-				}else if(type =='('){
+				}else if(type ==CompilationElementType.INNER_CALL){
 					StringBuilder innerSource=new StringBuilder();                	
 					for( CompilationElement p: ce.getParams()) {
-						char type2=p.getType();  
-						if (type2 == '\"') {
+						CompilationElementType type2=p.getType();  
+						if (type2 == CompilationElementType.ESCAPED_STRING) {
 							innerSource.append(p.getBase());
-						} else if (type2 == ' ') {
+						} else if (type2 == CompilationElementType.SOURCE_REFERENCE) {
 							int x = r.getIndexOfLabel(p.getBase());
 							innerSource.append(source.substring(ra[x + i].getBegin(), ra[x + i].getLast() + 1));
-						}else if (type2 == '*') {
+						}else if (type2 == CompilationElementType.GROUP_REFERENCE) {
 							int x = r.getIndexOfLabel(p.getBase());
 							innerSource.append(doTranspileInner(ra[x + i]));
 						}
@@ -105,13 +105,13 @@ public class Transpiler {
 		for (int i = 0; i < ra.length; i += r.getRightSideLength()) {
 
 			for (CompilationElement ce : compArray) {
-				char type = ce.getType();
-				if (type == '\"') {
+				CompilationElementType type = ce.getType();
+				if (type == CompilationElementType.ESCAPED_STRING) {
 					sb.append(ce.getBase());
-				} else if (type == ' ') {
+				} else if (type == CompilationElementType.SOURCE_REFERENCE) {
 					int x = r.getIndexOfLabel(ce.getBase());
 					sb.append(source.substring(ra[x + i].getBegin(), ra[x + i].getLast() + 1));
-				} else if (type == '*') {
+				} else if (type == CompilationElementType.GROUP_REFERENCE) {
 					int x = r.getIndexOfLabel(ce.getBase());
 					sb.append (doTranspileInner(ra[x + i]));
 				}	

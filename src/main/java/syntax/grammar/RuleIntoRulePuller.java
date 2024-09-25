@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import compilation.CompilationElement;
+import compilation.CompilationElementType;
 import descriptor.GroupName;
 import syntax.Rule;
 import syntax.SyntaxElement;
@@ -39,11 +40,11 @@ public class RuleIntoRulePuller {
             String compilationElementToReplace) {
         int compilationElementNumber = 0;
         for (CompilationElement ce : into) {
-            if (ce.getType() == '(' || ce.getType() == '\"' || !ce.getBase().equals(compilationElementToReplace)) {
+            if (ce.getType() == CompilationElementType.INNER_CALL || ce.getType() == CompilationElementType.ESCAPED_STRING || !ce.getBase().equals(compilationElementToReplace)) {
                 compilationElementNumber++;
-            } else if (ce.getType() == ' ') {
+            } else if (ce.getType() == CompilationElementType.SOURCE_REFERENCE) {
                 compilationElementNumber += r.getRightSideLength();
-            } else if (ce.getType() == '*') {
+            } else if (ce.getType() == CompilationElementType.GROUP_REFERENCE) {
                 compilationElementNumber += r.getCompilation().length;
             } else {
                 throw new RuntimeException("Unexpected compilation element type");
@@ -56,17 +57,17 @@ public class RuleIntoRulePuller {
             Rule r, Stack<CompilationElementPair> cepStack) {
         int resultIndex = 0;
         for (CompilationElement ce : into) {
-            if (ce.getType() == '\"' || !ce.getBase().equals(baseToReSpacing)) {
+            if (ce.getType() == CompilationElementType.ESCAPED_STRING || !ce.getBase().equals(baseToReSpacing)) {
                 result[resultIndex++] = ce;
-            } else if (ce.getType() == ' ') {
+            } else if (ce.getType() == CompilationElementType.SOURCE_REFERENCE) {
                 for (String l : r.getLabels()) {
                     result[resultIndex++] = new CompilationElement(l);
                 }
-            } else if (ce.getType() == '*') {
+            } else if (ce.getType() == CompilationElementType.GROUP_REFERENCE) {
                 for (CompilationElement cex : r.getCompilation()) {
                     result[resultIndex++] = cex;
                 }
-            } else if (ce.getType() == '(') {
+            } else if (ce.getType() == CompilationElementType.INNER_CALL) {
                 CompilationElement cex = new CompilationElement(ce.getBase(), ce.getType());
                 result[resultIndex++] = cex;
                 cepStack.push(new CompilationElementPair(cex, ce.getParams()));
