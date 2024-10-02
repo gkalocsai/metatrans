@@ -36,7 +36,7 @@ public class SyntaxTreeBuilder {
 
     private boolean printOut;
 
-    private String rootName;
+
 
     private final RuleIntervalMatcher ruleIntervalMatcher = new RuleIntervalMatcher(forward, backward);
     private boolean showTree;
@@ -44,7 +44,7 @@ public class SyntaxTreeBuilder {
     public SyntaxTreeBuilder(Grammarhost gh, String source, boolean printOut) {
         this.gh = gh;
         this.source = source;
-        this.rootName = gh.getRootGroup();
+
         this.printOut = printOut;
     }
 
@@ -294,7 +294,8 @@ public class SyntaxTreeBuilder {
     }
 
     private boolean isReadyInner() {
-        if (this.rootName == null) return false;
+        if (gh.getRootGroups() == null || gh.getRootGroups().isEmpty())
+            return false;
         return getRoot() != null;
     }
 
@@ -331,7 +332,7 @@ public class SyntaxTreeBuilder {
         if (candidates == null) return null;
         RuleInterval riMax = null;
         int maxLevel = -1;
-        if (this.rootName == null) {
+        if (gh.getRootGroups() == null || gh.getRootGroups().isEmpty()) {
             for (RuleInterval ri : candidates) {
                 if (ri.getLast() != source.length() - 1) continue;
                 Rule current = ri.getRule();
@@ -345,7 +346,10 @@ public class SyntaxTreeBuilder {
         }
 
         for (RuleInterval ri : candidates)
-            if (ri.getLast() == source.length() - 1 && ri.getRule().getGroupname().equals(this.rootName)) return ri;
+            if (ri.getLast() == source.length() - 1) {
+                if (gh.getRootGroups().contains(ri.getRule().getGroupname()))
+                    return ri;
+            }
         return null;
 
     }

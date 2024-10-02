@@ -20,7 +20,7 @@ import syntax.SyntaxElement;
 public class Grammarhost {
 
     private Map<String, ArrayList<Rule>> grammar;
-    private String rootGroup;
+    private Set<String> rootGroups;
 
     private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
     private Map<String, Set<Rule>> killOnLevelToRuleList = new HashMap<String, Set<Rule>>();
@@ -44,12 +44,21 @@ public class Grammarhost {
         init(rules, rootGroup);
     }
 
+    public Grammarhost(List<Rule> ruleList, Set<String> roots) {
+        init(ruleList, null);
+        setRootGroups(roots);;
+    }
+
     private void init(List<Rule> rules, String rootGroup) throws GrammarException {
         Set<String> allIds = null;
         if (rules == null || rules.isEmpty()) {
             throw new GrammarException("ERROR: No grammar rules!");
         }
-        this.rootGroup = rootGroup;
+        Set<String> rgrs = new HashSet<>();
+        if (rootGroup != null)
+        rgrs.add(rootGroup);
+
+        this.rootGroups = rgrs;
 
         this.grammar = createRuleMap(rules, rootGroup);
         pushDescriptors(rules);
@@ -305,7 +314,7 @@ public class Grammarhost {
     }
 
     void eliminateIndirectRecursion() throws GrammarException {
-        new IndirectRecursionEliminator().eliminate(grammar, getRootGroup(), true);
+        new IndirectRecursionEliminator().eliminate(grammar, null, true);
 
     }
 
@@ -431,9 +440,6 @@ public class Grammarhost {
         return all;
     }
 
-    public String getRootGroup() {
-        return this.rootGroup;
-    }
 
     public Map<String, List<Rule>> getApplicationOrderToRuleList() {
         return levelInSyntaxTreeToRuleList;
@@ -451,8 +457,17 @@ public class Grammarhost {
         return groupsInMultipleRighsidesOfMultipleGroups;
     }
 
-	public void setRoot(String root) {
-		this.rootGroup = root;		
-	}
+    public Set<String> getRootGroups() {
+        return rootGroups;
+    }
+
+    public void setRootGroups(Set<String> rootGroups) {
+        this.rootGroups = rootGroups;
+    }
+
+    public void setRoot(String string) {
+        rootGroups = new HashSet<>();
+        rootGroups.add(string);
+    }
 
 }

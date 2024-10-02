@@ -1,7 +1,9 @@
 package main;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import compilation.Transpiler;
 import read.RuleReader;
@@ -20,10 +22,9 @@ public class Main {
             System.out.println("Options: ");
             System.out.println("--d:descriptorFile     :   syntax descriptor file");
             System.out.println("--s:sourcefile         :   source of the compilation");
-            System.out.println("--root:rootGroup       :   compile as [rootGroup] ");
+            System.out.println("--root:root1,root2...  :   compile as the first matched root");
             System.out.println("--printOut             :   print the syntax matches");
             System.out.println("--showTree             :   prints the syntax tree");
-
             System.exit(-1);
         }
 
@@ -32,7 +33,8 @@ public class Main {
         String syntaxFileContent = null;
         String sourceFileContent = null;
         boolean printOut = false;
-        String rootGroup = null;
+
+        Set<String> roots = new HashSet<>();
 
         boolean showTree = false;
         for (String p : args) {
@@ -58,7 +60,12 @@ public class Main {
                 }
                 if (p.startsWith("--root:")) {
                     p = p.substring(7);
-                    rootGroup = p;
+
+                    String[] grs = p.split(",");
+                    for (String s : grs) {
+                        roots.add(s);
+                    }
+
                 }
                 if ("--showTree".equalsIgnoreCase(p)) {
                     showTree = true;
@@ -76,7 +83,7 @@ public class Main {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
 
-        Grammarhost grammarhost = new Grammarhost(ruleList, rootGroup);
+        Grammarhost grammarhost = new Grammarhost(ruleList, roots);
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 

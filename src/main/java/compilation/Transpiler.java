@@ -1,7 +1,9 @@
 package compilation;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import read.RuleReader;
 import syntax.Rule;
@@ -85,12 +87,14 @@ public class Transpiler {
 							innerSource.append(doTranspileInner(ra[x + i]));
 						}
 					}
-					String originalRoot = grammarhost.getRootGroup();
-				//	grammarhost.setRoot(ce.getBase());
+                    Set<String> originalRoot = grammarhost.getRootGroups();
+                    Set<String> oneRoot = new HashSet<>();
+                    oneRoot.add(ce.getBase());
+                    grammarhost.setRootGroups(oneRoot);
 					String innnerSrc = innerSource.toString();
 					Transpiler trp=new Transpiler(innnerSrc, grammarhost);
 					sb.append(trp.transpile());
-					grammarhost.setRoot(originalRoot);
+                    grammarhost.setRootGroups(originalRoot);
 				}
 			}
 		}

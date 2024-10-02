@@ -12,6 +12,7 @@ import syntax.SyntaxElement;
 
 public class IndirectRecursionEliminator {
 
+
     public void eliminate(Map<String, ArrayList<Rule>> grammar, String rootGroupname, boolean strict)
             throws GrammarException {
         List<Stack<Rule>> branches = IndirectRecursionFinder.find(grammar, rootGroupname);
