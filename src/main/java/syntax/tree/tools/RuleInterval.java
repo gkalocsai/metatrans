@@ -42,6 +42,14 @@ public class RuleInterval {
         return rule.getGroupname() + ": " + "[" + begin + "," + last + "]";
     }
 
+
+    public String toSyntaxAndInterval() {
+        return rule.toSyntax() + ": " + "[" + begin + "," + last + "]";
+    }
+
+    public String toGroupnameAndInterval() {
+        return rule.getGroupname() + ": " + "[" + begin + "," + last + "]";
+    }
     public Rule getRule() {
         return rule;
     }

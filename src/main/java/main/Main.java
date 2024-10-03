@@ -96,7 +96,7 @@ public class Main {
 
         if (result == null) {
             System.out.println("ERROR: " + "Could not build the syntax tree");
-            System.out.println("Last deduction: " + stb.getLastDeduction());
+            System.out.println("Syntax tree state: \n" + stb.getState());
         } else {
             System.out.println(result);
         }

@@ -44,7 +44,32 @@ public class CompilationElement {
     	} else if (ch == '*') {
     		this.type = CompilationElementType.GROUP_REFERENCE;
     		base = seq.substring(1);
-    	} else {
+        } else if (ch == '<') {
+            if (seq.startsWith("<\"") && seq.endsWith("\">")) {
+                this.type = CompilationElementType.GET;
+                base = seq.substring(2, seq.length() - 2);
+                if (base.isEmpty())
+                    throw new RuntimeException("Empty GET!" + seq);
+            } else {
+                throw new RuntimeException("Invalid GET: " + seq);
+            }
+        } else if (ch == '[') {
+            if (seq.endsWith("]")) {
+                this.type = CompilationElementType.PUT;
+                seq = seq.substring(1, seq.length() - 1);
+                int firstCommaIndex = CharSeqUtil.getNonQuotedIndex(seq, ",", 0);
+                String key = seq.substring(0, firstCommaIndex);
+                key = key.trim();
+                if ((key.startsWith("\"") && key.endsWith("\"")) || (key.startsWith("\'") && key.endsWith("\'"))) {
+                    base = key.substring(1, key.length() - 1);
+                } else
+                    throw new RuntimeException("Invalid PUT: [" + seq + "]");
+                params = createValues(seq.substring(firstCommaIndex + 1));
+            } else {
+                throw new RuntimeException("Invalid PUT: " + seq);
+            }
+        }
+        else {
     		int openBracketIndex = seq.indexOf("(");
     		if (openBracketIndex < 0) {
     			this.type = CompilationElementType.SOURCE_REFERENCE;
@@ -56,10 +81,14 @@ public class CompilationElement {
     			params = createParams(seq, openBracketIndex);
     		}
     	}
-    	
     	if (params == null) {
     		params = new CompilationElement[0];
     	}
+    }
+
+    private CompilationElement[] createValues(String putValue) {
+        params = createParamsFromBareString(putValue);
+        return params;
     }
 
     public CompilationElement(String seq) {
@@ -70,6 +99,11 @@ public class CompilationElement {
 	private CompilationElement[] createParams(String seq, int openBracketIndex) {
         int closingBracketIndex = seq.indexOf(")", openBracketIndex);
         String params = seq.substring(openBracketIndex + 1, closingBracketIndex);
+        CompilationElement[] result = createParamsFromBareString(params);
+        return result;
+    }
+
+    public CompilationElement[] createParamsFromBareString(String params) {
         String[] splittedParams = params.split("\\+");
         CompilationElement[] result = new CompilationElement[splittedParams.length];
 
@@ -121,6 +155,13 @@ public class CompilationElement {
         if (type == CompilationElementType.INNER_CALL) {
             return base + "(" + createParamString() + ")";
         }
+        if (type == CompilationElementType.GET) {
+            return "<" + base + ">";
+        }
+        if (type == CompilationElementType.PUT) {
+            return "[" + base + "," + createParamString() + "]";
+        }
+
         throw new RuntimeException("Invalid parameter type: " + "\'" + type + "\'");
     }
 

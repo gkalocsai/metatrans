@@ -23,8 +23,7 @@ public class SyntaxTreeBuilder {
 
     private final Map<RuleInterval, RuleInterval[]> deduction = new HashMap<RuleInterval, RuleInterval[]>();
 
-    // Part of the error message: If the syntax tree cannot be built
-    private Deduction lastDeduction = null;
+
 
     private Set<String> ruleIntervalEquality = new HashSet<String>();
 
@@ -87,7 +86,6 @@ public class SyntaxTreeBuilder {
                             String matchString = ri.matchingString();
                             if (!this.ruleIntervalEquality.contains(matchString)) {
                                 ruleIntervalEquality.add(matchString);
-                                this.lastDeduction = d;
                                 toCheck2.addFirst(d.getFrom());
                                 wasChange = true;
                                 addToMaps(ri);
@@ -307,7 +305,6 @@ public class SyntaxTreeBuilder {
                 if (csd.matchesInFrom(source, i)) {
                     RuleInterval ruleInterval = new RuleInterval(r, i, i + csd.getDescribedLength() - 1);
                     addToMaps(ruleInterval);
-                    // toCheck.push(ruleInterval);
                     toCheck.addLast(ruleInterval);
                 }
             }
@@ -376,12 +373,72 @@ public class SyntaxTreeBuilder {
         this.printOut = printOut;
     }
 
-    public Deduction getLastDeduction() {
-        return lastDeduction;
-    }
+
 
     public void setShowTree(boolean showTree) {
         this.showTree = showTree;
+    }
+
+    public String getState() {
+        StringBuilder sb = new StringBuilder();
+        boolean recognized = true;
+        int unrecBegin = 0;
+        for (int i = 0; i < source.length(); i++) {
+            List<RuleInterval> current = forward.get(""+i);
+            if (current == null || current.isEmpty()) {
+                if (recognized) {
+                    recognized = false;
+                    unrecBegin = i;
+                }
+            } else {
+                if (!recognized) {
+                    sb.append("!!!!??????????????????????!!!!!!!!:\n");
+                    sourcePartShowString(sb, unrecBegin, i);
+                    recognized = true;
+                }
+                sb.append(
+                        "-------------------------------------------------------------------------------------------------------\n");
+            }
+            List<RuleInterval> recognizedList = getLongestRuleIntervals(current);
+            if(!recognizedList.isEmpty()){
+                for (RuleInterval ri : recognizedList) {
+                    sb.append(ri.toGroupnameAndInterval() + "  ");
+                }
+                sb.append("\n");
+                RuleInterval ri = recognizedList.get(0);
+                int recEnd = ri.getLast();
+                sourcePartShowString(sb, ri.getBegin(), recEnd + 1);
+                i = recEnd;
+            }
+        }
+        return sb.toString();
+    }
+
+    private List<RuleInterval> getLongestRuleIntervals(List<RuleInterval> current) {
+        List<RuleInterval> result = new LinkedList<>();
+        if (current == null)
+            return result;
+        int maxEnd = -1;
+        for (RuleInterval ri : current) {
+            if (ri.getLast() > maxEnd)
+                maxEnd = ri.getLast();
+        }
+        for (RuleInterval ri : current) {
+            if (ri.getLast() == maxEnd)
+                result.add(ri);
+        }
+        return result;
+    }
+
+    public void sourcePartShowString(StringBuilder sb, int unrecBegin, int i) {
+        if (i - unrecBegin < 80)
+            sb.append(source.substring(unrecBegin, i));
+        else {
+            sb.append(source.substring(unrecBegin, unrecBegin + 40));
+            sb.append("\n    ...     \n");
+            sb.append(source.substring(i - 40, i));
+        }
+        sb.append("\n");
     }
 
 }

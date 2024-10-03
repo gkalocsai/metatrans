@@ -46,8 +46,9 @@ public class IndirectRecursionEliminatorTest {
 
 		Grammarhost gh = new Grammarhost(rl);
 
-
-		new IndirectRecursionEliminator().eliminate(gh.getGrammar(), gh.getRootGroup(),true);
+        for (String s : gh.getRootGroups()) {
+            new IndirectRecursionEliminator().eliminate(gh.getGrammar(), s, true);
+        }
 		System.out.println( gh.getGrammarString());
 	}
 
@@ -69,7 +70,9 @@ public class IndirectRecursionEliminatorTest {
 		System.out.println(gh.getGrammarString());
 
 
-		new IndirectRecursionEliminator().eliminate(gh.getGrammar(), gh.getRootGroup(),false);
+        for (String s : gh.getRootGroups()) {
+            new IndirectRecursionEliminator().eliminate(gh.getGrammar(), s, false);
+        }
 		System.out.println( gh.getGrammar().values());
 
 

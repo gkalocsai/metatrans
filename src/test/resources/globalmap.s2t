@@ -1,0 +1,19 @@
+ROOT {
+	SD AFD RAE >> *SD <"slot1">
+
+}
+
+
+SD{
+   "sd" >> ["slot1","hello from map"]; 
+}
+
+AFD{
+   "afd" >> "hello2";
+}
+
+RAE{
+"rae" >> "ddd"
+}
+
+

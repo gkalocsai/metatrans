@@ -46,7 +46,7 @@ public class Grammarhost {
 
     public Grammarhost(List<Rule> ruleList, Set<String> roots) {
         init(ruleList, null);
-        setRootGroups(roots);;
+        setRootGroups(roots);
     }
 
     private void init(List<Rule> rules, String rootGroup) throws GrammarException {
