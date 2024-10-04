@@ -84,6 +84,9 @@ public class Transpiler {
 	private void doTranspile(RuleInterval e) {
 		Rule r = e.getRule();
 		RuleInterval[] ra = deduction.get(e);
+        if (ra == null) {
+            return;
+        }
 		CompilationElement[] compArray = r.getCompilation();
 
 		for (int i = 0; i < ra.length; i += r.getRightSideLength()) {
