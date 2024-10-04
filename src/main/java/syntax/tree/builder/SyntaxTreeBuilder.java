@@ -1,5 +1,6 @@
 package syntax.tree.builder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -380,6 +381,8 @@ public class SyntaxTreeBuilder {
 
     public String getState() {
         StringBuilder sb = new StringBuilder();
+        StringBuilder sbError = new StringBuilder();
+
         boolean recognized = true;
         int unrecBegin = 0;
         for (int i = 0; i < source.length(); i++) {
@@ -391,12 +394,18 @@ public class SyntaxTreeBuilder {
                 }
             } else {
                 if (!recognized) {
-                    sb.append("!!!!??????????????????????!!!!!!!!:\n");
+                    sbError.append("ERROR:\n");
+                    sb.append("ERROR: \n");
+                    sourcePartShowString(sbError, unrecBegin, i);
                     sourcePartShowString(sb, unrecBegin, i);
+
                     recognized = true;
                 }
-                sb.append(
-                        "-------------------------------------------------------------------------------------------------------\n");
+                /*
+                 * sb.append(
+                 * "-------------------------------------------------------------------------------------------------------\n"
+                 * );
+                 */
             }
             List<RuleInterval> recognizedList = getLongestRuleIntervals(current);
             if(!recognizedList.isEmpty()){
@@ -410,7 +419,9 @@ public class SyntaxTreeBuilder {
                 i = recEnd;
             }
         }
-        return sb.toString();
+        return sbError.toString()
+                + "--------------------------------------------------------------------------------------------------\n"
+                + sb.toString();
     }
 
     private List<RuleInterval> getLongestRuleIntervals(List<RuleInterval> current) {
@@ -434,10 +445,37 @@ public class SyntaxTreeBuilder {
             sb.append(source.substring(unrecBegin, i));
         else {
             sb.append(source.substring(unrecBegin, unrecBegin + 40));
-            sb.append("\n    ...     \n");
+            sb.append("    ...   ");
             sb.append(source.substring(i - 40, i));
         }
         sb.append("\n");
+    }
+
+    public ArrayList<RuleInterval> getRecognizedRules() {
+        ArrayList<RuleInterval> result = new ArrayList<>();
+        for (int i = 0; i < source.length(); i++) {
+            List<RuleInterval> current = forward.get("" + i);
+            if (current != null && !current.isEmpty()) {
+                RuleInterval maxLevelRi = getLongestMaxLevelRi(current);
+                result.add(maxLevelRi);
+                i = maxLevelRi.getLast();
+            }
+        }
+        return result;
+    }
+
+    private RuleInterval getLongestMaxLevelRi(List<RuleInterval> current) {
+        List<RuleInterval> recognizedList = getLongestRuleIntervals(current);
+        int level = -1;
+        RuleInterval choosen = null;
+        for (RuleInterval ri : recognizedList) {
+            int riLevel = gh.getLevel(ri.getRule());
+            if (riLevel > level) {
+                level = riLevel;
+                choosen = ri;
+            }
+        }
+        return choosen;
     }
 
 }

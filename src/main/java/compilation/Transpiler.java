@@ -1,7 +1,9 @@
 package compilation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +24,7 @@ public class Transpiler {
     private Map<String, String> global = new HashMap<>();
 
 	private SyntaxTreeBuilder stb;
+    private boolean subResults;
 
 	public Transpiler(String source, String syntaxFileContent) throws GrammarException {
 		RuleReader rr = new RuleReader(syntaxFileContent);
@@ -36,11 +39,15 @@ public class Transpiler {
 		this.source = source;
 	}
 
-	public Transpiler(String source, SyntaxTreeBuilder stb) {
-		this.source = source;
-		this.stb = stb;
+    public Transpiler(String source, SyntaxTreeBuilder stb, boolean subResults) {
+        this(source, stb);
+        this.subResults = subResults;
 	}
 
+    public Transpiler(String source, SyntaxTreeBuilder stb) {
+        this.source = source;
+        this.stb = stb;
+    }
 	public String transpile() {
 
 		if (sb.length() != 0) {
@@ -51,11 +58,26 @@ public class Transpiler {
 		}
 		deduction = stb.build();
 		RuleInterval root = stb.getRoot();
-		if (root == null) {
+        if (root == null && !subResults) {
             System.out.println(stb.getState());
-			return null;
-		}
-		doTranspile(root);
+            return null;
+        }
+        int last = 0;
+        if (root == null && subResults) {
+            ArrayList<RuleInterval> recognized = stb.getRecognizedRules();
+            for (int i = 0; i < recognized.size(); i++) {
+                RuleInterval current = recognized.get(i);
+                if (current.getBegin() > last + 1) {
+                    sb.append("\nUNRESOLVED:\n");
+                    sb.append(source.substring(last + 1, current.getBegin()));
+                    sb.append("\n");
+                }
+                doTranspile(current);
+                last = current.getLast();
+            }
+            return sb.toString();
+        }
+        doTranspile(root);
 		return sb.toString();
 	}
 

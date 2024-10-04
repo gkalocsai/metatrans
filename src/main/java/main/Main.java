@@ -25,6 +25,8 @@ public class Main {
             System.out.println("--root:root1,root2...  :   compile as the first matched root");
             System.out.println("--printOut             :   print the syntax matches");
             System.out.println("--showTree             :   prints the syntax tree");
+            System.out.println("--subResults           :   generates output even if the source is not fully parsed");
+
             System.exit(-1);
         }
 
@@ -37,6 +39,8 @@ public class Main {
         Set<String> roots = new HashSet<>();
 
         boolean showTree = false;
+        boolean subResults = false;
+
         for (String p : args) {
             if (!p.startsWith("--")) {
                 if (syntaxFileInArgs) {
@@ -70,6 +74,10 @@ public class Main {
                 if ("--showTree".equalsIgnoreCase(p)) {
                     showTree = true;
                 }
+
+                if ("--subResults".equalsIgnoreCase(p)) {
+                    subResults = true;
+                }
             }
         }
 
@@ -87,7 +95,7 @@ public class Main {
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 
-        Transpiler tr = new Transpiler(sourceFileContent, stb);
+        Transpiler tr = new Transpiler(sourceFileContent, stb, subResults);
 
         stb.setPrintOut(printOut);
         stb.setShowTree(showTree);
