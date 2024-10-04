@@ -66,8 +66,8 @@ public class SyntaxTreeBuilder {
             boolean wasChange = true;
             while (wasChange) {
                 wasChange = false;
+                for (Rule r : rulesOnCurrentLevel) {
                 for (RuleInterval current : toCheck) {
-                    for (Rule r : rulesOnCurrentLevel) {
                         List<Deduction> matches;
                         if (r.isRepeater()) {
                             matches = new LinkedList<Deduction>();
@@ -101,7 +101,6 @@ public class SyntaxTreeBuilder {
                 System.out.println("Rules on level" + gh.getApplicationOrderToRuleList().get("" + level));
                 System.out.println("Kill on level: " + gh.getKillOnLevelToRuleList().get("" + level));
             }
-
             if (toKill != null) {
                 toCheck.selectFirstElement();
                 StatefulList<RuleInterval>.Entry<RuleInterval> entry = toCheck.getEntry();
