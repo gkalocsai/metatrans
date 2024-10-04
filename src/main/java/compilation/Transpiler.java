@@ -70,7 +70,7 @@ public class Transpiler {
                 if (current.getBegin() > last + 1) {
                     sb.append("\nUNRESOLVED:\n");
                     sb.append(source.substring(last + 1, current.getBegin()));
-                    sb.append("\n");
+                    sb.append("\nUNRESOLVED_END\n");
                 }
                 doTranspile(current);
                 last = current.getLast();
