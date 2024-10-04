@@ -115,8 +115,7 @@ public class SyntaxTreeBuilder {
                 StatefulList<RuleInterval>.Entry<RuleInterval> prev = toCheck.getEntry();
 
                 while (toCheck.stepNext()) {
-
-                    if (toKill.contains(toCheck.get().getRule())) {
+                    if (toKill.contains(toCheck.get().getRule()) && !gh.isInSubResults(toCheck.get().getRule())) {
                         removeFromWards(toCheck.get());
                         toCheck.setEntry(prev);
                         toCheck.removeNext();
@@ -457,6 +456,8 @@ public class SyntaxTreeBuilder {
             List<RuleInterval> current = forward.get("" + i);
             if (current != null && !current.isEmpty()) {
                 RuleInterval maxLevelRi = getLongestMaxLevelRi(current);
+                if (maxLevelRi == null)
+                    continue;
                 result.add(maxLevelRi);
                 i = maxLevelRi.getLast();
             }
@@ -465,7 +466,13 @@ public class SyntaxTreeBuilder {
     }
 
     private RuleInterval getLongestMaxLevelRi(List<RuleInterval> current) {
-        List<RuleInterval> recognizedList = getLongestRuleIntervals(current);
+
+        List<RuleInterval> subs = new ArrayList<>();
+        for (RuleInterval ri : current) {
+            if (gh.isInSubResults(ri.getRule()))
+                subs.add(ri);
+        }
+        List<RuleInterval> recognizedList = getLongestRuleIntervals(subs);
         int level = -1;
         RuleInterval choosen = null;
         for (RuleInterval ri : recognizedList) {

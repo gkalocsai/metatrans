@@ -20,12 +20,12 @@ public class Main {
         if (args.length < 2) {
             System.out.println("Missing syntax descriptor file and/ or source");
             System.out.println("Options: ");
-            System.out.println("--d:descriptorFile     :   syntax descriptor file");
-            System.out.println("--s:sourcefile         :   source of the compilation");
-            System.out.println("--root:root1,root2...  :   compile as the first matched root");
-            System.out.println("--printOut             :   print the syntax matches");
-            System.out.println("--showTree             :   prints the syntax tree");
-            System.out.println("--subResults           :   generates output even if the source is not fully parsed");
+            System.out.println("--d:descriptorFile                    :   syntax descriptor file");
+            System.out.println("--s:sourcefile                        :   source of the compilation");
+            System.out.println("--root:root1,root2...                 :   compile as the first matched root");
+            System.out.println("--printOut                            :   print the syntax matches");
+            System.out.println("--showTree                            :   prints the syntax tree");
+            System.out.println("--subResults:root1,root2...           :   allow these groups as partial results");
 
             System.exit(-1);
         }
@@ -39,7 +39,8 @@ public class Main {
         Set<String> roots = new HashSet<>();
 
         boolean showTree = false;
-        boolean subResults = false;
+
+        Set<String> subResults = new HashSet<>();
 
         for (String p : args) {
             if (!p.startsWith("--")) {
@@ -75,11 +76,17 @@ public class Main {
                     showTree = true;
                 }
 
-                if ("--subResults".equalsIgnoreCase(p)) {
-                    subResults = true;
+                if (p.startsWith("--subResults:")) {
+
+                    p = p.substring(13);
+                    String[] grs = p.split(",");
+                    for (String s : grs) {
+                        subResults.add(s);
+                    }
                 }
             }
         }
+
 
         if (syntaxFileContent == null || sourceFileContent == null)
 
@@ -91,11 +98,11 @@ public class Main {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
 
-        Grammarhost grammarhost = new Grammarhost(ruleList, roots);
+        Grammarhost grammarhost = new Grammarhost(ruleList, roots, subResults);
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 
-        Transpiler tr = new Transpiler(sourceFileContent, stb, subResults);
+        Transpiler tr = new Transpiler(sourceFileContent, stb, subResults.size() > 0);
 
         stb.setPrintOut(printOut);
         stb.setShowTree(showTree);

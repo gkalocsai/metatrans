@@ -29,6 +29,7 @@ public class Grammarhost {
     private Map<String, String> groupName2Level;
 
     public Set<String> groupsInMultipleRighsidesOfMultipleGroups = new HashSet<String>();
+    private Set<String> subResults = new HashSet<>();
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
         init(rl, null);
@@ -47,6 +48,13 @@ public class Grammarhost {
     public Grammarhost(List<Rule> ruleList, Set<String> roots) {
         init(ruleList, null);
         setRootGroups(roots);
+    }
+
+    public Grammarhost(List<Rule> ruleList, Set<String> roots, Set<String> subResults) {
+        init(ruleList, null);
+        setRootGroups(roots);
+        this.subResults = subResults;
+        this.getUnsafeToDel().addAll(subResults);
     }
 
     private void init(List<Rule> rules, String rootGroup) throws GrammarException {
@@ -465,9 +473,20 @@ public class Grammarhost {
         this.rootGroups = rootGroups;
     }
 
+    public Set<String> getSubResults() {
+        return subResults;
+    }
+
     public void setRoot(String string) {
         rootGroups = new HashSet<>();
         rootGroups.add(string);
+    }
+
+    public boolean isInSubResults(Rule r) {
+        return isInSubResults(r.getGroupname());
+    }
+    private boolean isInSubResults(String groupname) {
+        return subResults.contains(groupname);
     }
 
 

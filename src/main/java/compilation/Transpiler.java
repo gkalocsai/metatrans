@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omg.CORBA.Current;
+
 import read.RuleReader;
 import syntax.Rule;
 import syntax.grammar.GrammarException;
@@ -22,8 +24,7 @@ public class Transpiler {
 	private StringBuilder sb = new StringBuilder();
 	private Map<RuleInterval, RuleInterval[]> deduction;
     private Map<String, String> global = new HashMap<>();
-
-	private SyntaxTreeBuilder stb;
+    private SyntaxTreeBuilder stb;
     private boolean subResults;
 
 	public Transpiler(String source, String syntaxFileContent) throws GrammarException {
@@ -42,7 +43,7 @@ public class Transpiler {
     public Transpiler(String source, SyntaxTreeBuilder stb, boolean subResults) {
         this(source, stb);
         this.subResults = subResults;
-	}
+    }
 
     public Transpiler(String source, SyntaxTreeBuilder stb) {
         this.source = source;
@@ -62,18 +63,22 @@ public class Transpiler {
             System.out.println(stb.getState());
             return null;
         }
-        int last = 0;
+        int last = -1;
         if (root == null && subResults) {
             ArrayList<RuleInterval> recognized = stb.getRecognizedRules();
             for (int i = 0; i < recognized.size(); i++) {
                 RuleInterval current = recognized.get(i);
                 if (current.getBegin() > last + 1) {
-                    sb.append("\nUNRESOLVED:\n");
+                    sb.append("\n--UNRESOLVED:\n");
                     sb.append(source.substring(last + 1, current.getBegin()));
-                    sb.append("\nUNRESOLVED_END\n");
                 }
+                sb.append("\n--FOUND: " + current.toGroupnameAndInterval() + "\n");
                 doTranspile(current);
                 last = current.getLast();
+            }
+            if (last < source.length()) {
+                sb.append("\n--UNRESOLVED:\n");
+                sb.append(source.substring(last + 1));
             }
             return sb.toString();
         }
@@ -166,36 +171,4 @@ public class Transpiler {
 		}
 		return sb.toString();
 	}
-
-
-
-	/*	}else if(type =='('){
-				String source=buildInnerSource(ce.getParams(),r ,parentsNext);
-				CompilationTree inner=new CompilationTree(source,originalSpacings,rootgroup,grammar);
-				Node inn=inner.build();
-				String result = inner.buildResult(inn);
-				children.add(new Node(result));
-			}
-			else throw new RuntimeException("Internal error: Invalid compilation type.");
-		}
-	}
-	private String buildInnerSource(CompilationElement[] params, Rule r, int reSpacingment) {
-		StringBuilder sb=new StringBuilder();	
-		if(params == null || params.length ==0) {
-			throw new RuntimeException("Internal error: No source parameter in rule: "+r);
-		}
-		for(CompilationElement p:params){
-			if(p.getType() == '\"') {
-				sb.append(p.getBase());
-			}else if(p.getType() == ' '){
-				int rsIndex=r.getIndexOfLabel(p.getBase());
-				if(rsIndex<0) continue;
-				sb.append(createSourceSubStr(rsIndex, reSpacingment));
-			}else{
-				throw new RuntimeException("Bad source parameter in rule: "+r);
-			}
-		}
-		return sb.toString();
-	}
-	 */
 }
