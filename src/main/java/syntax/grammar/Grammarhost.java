@@ -13,7 +13,7 @@ import java.util.Set;
 import descriptor.CharSequenceDescriptor;
 import descriptor.GroupName;
 import read.ComplexRuleCreator;
-import read.RuleReader;
+
 import syntax.Rule;
 import syntax.SyntaxElement;
 
