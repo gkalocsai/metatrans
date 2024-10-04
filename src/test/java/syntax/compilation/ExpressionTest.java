@@ -106,7 +106,7 @@ public class ExpressionTest {
         // sourceFileContent="9*5*2";
 
         Transpiler trp = new Transpiler(sourceFileContent, syntaxFileContent);
-        Assert.assertEquals("9 5 2 * *", trp.transpile());
+        Assert.assertEquals("9 5 * 2 *", trp.transpile());
     }
 
     @Test
