@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import compilation.CompilationElement;
+import compilation.CompilationElementType;
 import descriptor.CharSequenceDescriptor;
 import descriptor.GroupName;
 import read.ComplexRuleCreator;
@@ -28,7 +30,7 @@ public class Grammarhost {
     private List<Rule> csdRuleList = null;
     private Map<String, String> groupName2Level;
 
-    public Set<String> groupsInMultipleRighsidesOfMultipleGroups = new HashSet<String>();
+    public Set<String> groupRefsMoreThanOnce = new HashSet<String>();
     private Set<String> subResults = new HashSet<>();
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
@@ -41,20 +43,15 @@ public class Grammarhost {
     }
 
     public Grammarhost(List<Rule> rules, String rootGroup) throws GrammarException {
-
         init(rules, rootGroup);
     }
 
-    public Grammarhost(List<Rule> ruleList, Set<String> roots) {
-        init(ruleList, null);
-        setRootGroups(roots);
-    }
 
-    public Grammarhost(List<Rule> ruleList, Set<String> roots, Set<String> subResults) {
-        init(ruleList, null);
-        setRootGroups(roots);
+
+    public Grammarhost(List<Rule> ruleList,  Set<String> subResults) {
+    	 init(ruleList, null);
         this.subResults = subResults;
-        this.getUnsafeToDel().addAll(subResults);
+
     }
 
     private void init(List<Rule> rules, String rootGroup) throws GrammarException {
@@ -83,12 +80,14 @@ public class Grammarhost {
         allIds = getAllIdentifiers();
 
         IdCreator.INSTANCE.addExistingIds(allIds);
+
         moveRepeatersToOwnGroups();
+        
+        createUnsafeGroupNames();
 
         fillApplicationOrderToRuleList();
         fillKillLevel();
 
-        fillUnsureDeductionGroups();
     }
 
     private void moveRepeatersToOwnGroups() {
@@ -120,33 +119,28 @@ public class Grammarhost {
         }
     }
 
-    private void fillUnsureDeductionGroups() {
-        Map<String, HashSet<String>> groupToRefs = new HashMap<String, HashSet<String>>();
-        for (String key : grammar.keySet()) {
-            HashSet<String> currentGroupSet = new HashSet<String>();
-            groupToRefs.put(key, currentGroupSet);
+    private void createUnsafeGroupNames() {
+        
+        Set<String> referencedGroups = new HashSet<String>();
+        
+    	for (String key : grammar.keySet()) {
             ArrayList<Rule> currentGroup = grammar.get(key);
             for (Rule r : currentGroup) {
-                String[] grs = r.getGroupRefsAsArray();
-                Collections.addAll(currentGroupSet, grs);
-            }
-        }
-
-        for (String key : groupToRefs.keySet()) {
-            int count = 0;
-            for (Set<String> s : groupToRefs.values()) {
-                if (s.contains(key)) {
-                    count++;
-                    if (count == 2) {
-                        groupsInMultipleRighsidesOfMultipleGroups.add(key);
-                        break;
-                    }
+            	if(r.getRightside().length<2) continue;
+                for(SyntaxElement se:r.getRightside()) {
+            		if(se.getReferencedGroup()==null) continue;
+                	if(referencedGroups.contains(se.getReferencedGroup())) {
+                		groupRefsMoreThanOnce.add(r.getGroupname());
+                	}
+                	else referencedGroups.add(se.getReferencedGroup());
                 }
             }
-        }
+        }    
     }
 
-    private void validateReferencesToExists() {
+      
+
+	private void validateReferencesToExists() {
         Set<String> exists = new HashSet<>();
         exists.addAll(grammar.keySet());
         for (String key : grammar.keySet()) {
@@ -339,19 +333,14 @@ public class Grammarhost {
     }
 
     private void extractAndAddDescriptorRules(Rule r) {
-        Map<String, CharSequenceDescriptor> freshGroupnames = new LinkedHashMap<>();
-
-        SyntaxElement[] vs = r.getRightside();
+       SyntaxElement[] vs = r.getRightside();
 
         for (int i = 0; i < vs.length; i++) {
             SyntaxElement v = vs[i];
             if (v.isDescriptor()) {
                 CharSequenceDescriptor csd = v.getCsd();
-                String groupName = null;
-
-                groupName = generateUnusedGroupName(freshGroupnames);
-
-                freshGroupnames.put(groupName, csd);
+                String groupName = IdCreator.INSTANCE.generateYetUnusedId("_");
+                
                 ArrayList<Rule> rlist = new ArrayList<>();
                 rlist.add(createCsdRule(groupName, csd));
                 grammar.put(groupName, rlist);
@@ -361,14 +350,7 @@ public class Grammarhost {
         }
     }
 
-    private String generateUnusedGroupName(Map<String, CharSequenceDescriptor> freshGroupnames) {
-        // allIds = getAllIdentifiers();
-        String candidate = IdCreator.INSTANCE.generateYetUnusedId("_");
-        while (freshGroupnames.keySet().contains(candidate)) {
-            candidate = IdCreator.INSTANCE.generateYetUnusedId("_");
-        }
-        return candidate;
-    }
+
 
     private Rule createCsdRule(String groupName, CharSequenceDescriptor csd) {
         return new Rule(groupName, createVArray(csd), null, null, false);
@@ -461,9 +443,7 @@ public class Grammarhost {
         return Integer.valueOf(this.groupName2Level.get(r.getGroupname()));
     }
 
-    public Set<String> getUnsafeToDel() {
-        return groupsInMultipleRighsidesOfMultipleGroups;
-    }
+   
 
     public Set<String> getRootGroups() {
         return rootGroups;
@@ -488,6 +468,11 @@ public class Grammarhost {
     private boolean isInSubResults(String groupname) {
         return subResults.contains(groupname);
     }
+
+	public Set<String> getUnsafeToDel() {
+		
+		return this.groupRefsMoreThanOnce;
+	}
 
 
 }

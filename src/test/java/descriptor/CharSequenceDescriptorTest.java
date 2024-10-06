@@ -58,7 +58,7 @@ public class CharSequenceDescriptorTest {
 	@Test
 	public void toStringTest (){
 		CharSequenceDescriptor csd = new CharSequenceDescriptor("tok");
-		Assert.assertEquals("tok", csd.toString());
+		Assert.assertEquals("'tok", csd.toString());
 	}
 	
 	@Test

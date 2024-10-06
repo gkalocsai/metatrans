@@ -98,7 +98,7 @@ public class Main {
         RuleReader rr = new RuleReader(syntaxFileContent);
         List<Rule> ruleList = rr.getAllRules();
 
-        Grammarhost grammarhost = new Grammarhost(ruleList, roots, subResults);
+        Grammarhost grammarhost = new Grammarhost(ruleList, subResults);
 
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, sourceFileContent, printOut);
 

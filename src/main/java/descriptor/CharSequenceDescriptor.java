@@ -95,7 +95,7 @@ public class CharSequenceDescriptor implements SyntaxElement {
 
     @Override
     public String toString() {
-        return this.dsc;
+        return "\'"+this.dsc;
 
     }
 

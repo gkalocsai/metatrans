@@ -23,6 +23,9 @@ bcefefa
 
 
 	 */
+	
+	 
+
 
     @Test
     public void simpleTrans() throws GrammarException {
@@ -35,14 +38,19 @@ bcefefa
         rl.add(RuleCreator.createRule("b->c b"));
 
         rl.add(RuleCreator.createRule("g->b"));
+        
+        
         rl.add(RuleCreator.createRule("d->'bb"));
         rl.add(RuleCreator.createRule("c->'a"));
         rl.add(RuleCreator.createRule("f->'ab"));
         String source = "abbabb";
         Grammarhost grammarhost = new Grammarhost(rl);
 
+        System.out.println(grammarhost);
+        
         SyntaxTreeBuilder stb = new SyntaxTreeBuilder(grammarhost, source);
         stb.setPrintOut(true);
+        stb.setShowTree(true);
         stb.build();
 
 
@@ -50,6 +58,7 @@ bcefefa
 
         Assert.assertEquals("hello", trp.transpile());
     }
+
 
 
 

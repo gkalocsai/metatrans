@@ -54,6 +54,9 @@ public class SyntaxTreeBuilder {
 
     public Map<RuleInterval, RuleInterval[]> build() {
         addInitialRules();
+   
+   //     gh.groupsInMultipleRighsidesOfMultipleGroups.clear();
+        
         processForward();
         return deduction;
     }
@@ -78,10 +81,9 @@ public class SyntaxTreeBuilder {
 
                         else matches = getMatches(current, r);
                         for (Deduction d : matches) {
-                            if (!gh.getUnsafeToDel().contains(d.getFrom().getRule().getGroupname()))
+                           if (!gh.getUnsafeToDel().contains(d.getFrom().getRule().getGroupname()))
                                 for (RuleInterval may : d.getTo()) {
-                                    if (!gh.getUnsafeToDel().contains(may.getRule().getGroupname()))
-                                        removeFromWards(may);
+                                       removeFromWards(may);
                                 }
                             RuleInterval ri = d.getFrom();
                             String matchString = ri.matchingString();
@@ -102,6 +104,7 @@ public class SyntaxTreeBuilder {
                 System.out.println("Rules on level" + gh.getApplicationOrderToRuleList().get("" + level));
                 System.out.println("Kill on level: " + gh.getKillOnLevelToRuleList().get("" + level));
             }
+            
             if (toKill != null) {
                 toCheck.selectFirstElement();
                 StatefulList<RuleInterval>.Entry<RuleInterval> entry = toCheck.getEntry();
