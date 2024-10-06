@@ -30,7 +30,7 @@ public class Grammarhost {
     private List<Rule> csdRuleList = null;
     private Map<String, String> groupName2Level;
 
-    public Set<String> groupRefsMoreThanOnce = new HashSet<String>();
+    public Set<String> unsafeToDel = new HashSet<String>();
     private Set<String> subResults = new HashSet<>();
 
     public Grammarhost(List<Rule> rl, boolean strict) throws GrammarException {
@@ -84,7 +84,11 @@ public class Grammarhost {
         moveRepeatersToOwnGroups();
         
         createUnsafeGroupNames();
-
+        
+        //FIXME: Error messages should be based on the deduction
+        //WON'T FIX - too much effort, we just don't delete subResults from the forward map
+        unsafeToDel.addAll(subResults);
+   
         fillApplicationOrderToRuleList();
         fillKillLevel();
 
@@ -130,7 +134,7 @@ public class Grammarhost {
                 for(SyntaxElement se:r.getRightside()) {
             		if(se.getReferencedGroup()==null) continue;
                 	if(referencedGroups.contains(se.getReferencedGroup())) {
-                		groupRefsMoreThanOnce.add(r.getGroupname());
+                		unsafeToDel.add(r.getGroupname());
                 	}
                 	else referencedGroups.add(se.getReferencedGroup());
                 }
@@ -471,7 +475,7 @@ public class Grammarhost {
 
 	public Set<String> getUnsafeToDel() {
 		
-		return this.groupRefsMoreThanOnce;
+		return this.unsafeToDel;
 	}
 
 
