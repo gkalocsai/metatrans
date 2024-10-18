@@ -1,17 +1,16 @@
 package syntax.grammar;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import compilation.CompilationElement;
-import compilation.CompilationElementType;
 import descriptor.CharSequenceDescriptor;
 import descriptor.GroupName;
 import read.ComplexRuleCreator;
@@ -21,14 +20,15 @@ import syntax.SyntaxElement;
 
 public class Grammarhost {
 
-    private Map<String, ArrayList<Rule>> grammar;
+    private static final int MAX_LEVEL_OF_RULE_APPLICAION = 100;
+	private Map<String, ArrayList<Rule>> grammar;
     private Set<String> rootGroups;
 
     private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
     private Map<String, Set<Rule>> killOnLevelToRuleList = new HashMap<String, Set<Rule>>();
 
     private List<Rule> csdRuleList = null;
-    private Map<String, String> groupName2Level;
+  //  private Map<String, String> groupName2Level;
 
     public Set<String> unsafeToDel = new HashSet<String>();
     private Set<String> subResults = new HashSet<>();
@@ -162,6 +162,7 @@ public class Grammarhost {
     }
 
     private void fillKillLevel() {
+    	
         Map<String, String> groupName2Level = createGroupName2Level();
 
         for (String key : grammar.keySet()) {
@@ -210,28 +211,51 @@ public class Grammarhost {
 
     private void fillApplicationOrderToRuleList() {
 
-        groupName2Level = createGroupName2Level();
+        Set<String> foundGroups=new HashSet<String>();
+        List<Rule> currentRules=new LinkedList<Rule>();
+        for (Rule r : getCsdRules()) {
+            foundGroups.add(r.getGroupname());
+            currentRules.add(r);
+        }
+        levelInSyntaxTreeToRuleList.put("0",currentRules);
 
-        for (String key : grammar.keySet()) {
-            ArrayList<Rule> currentGroup = grammar.get(key);
-            for (Rule r : currentGroup) {
-                String order = groupName2Level.get(r.getGroupname());
-                List<Rule> ao = levelInSyntaxTreeToRuleList.get(order);
-                if (ao == null) {
-                    levelInSyntaxTreeToRuleList.put(order, new ArrayList<Rule>());
-                }
-                ao = levelInSyntaxTreeToRuleList.get(order);
-                ao.add(r);
-            }
+		List<Rule> refs=getRefRules();
+        for(int i=1;i<=MAX_LEVEL_OF_RULE_APPLICAION;i++) {
+        	List<Rule> nextRules= new LinkedList<Rule>();
+        	for(Rule r:refs) {
+        		if(r == null) continue;
+        		  if(canBeNext(r, currentRules, foundGroups)){
+        			  nextRules.add(r);
+        		  }
+        	}
+        	if(nextRules.isEmpty()) break;
+        	levelInSyntaxTreeToRuleList.put(""+i,nextRules);
+        	for(Rule n:nextRules) {
+        		foundGroups.add(n.getGroupname());
+        	}
+        	currentRules = nextRules;
         }
     }
 
-    private Map<String, String> createGroupName2Level() {
+    private boolean canBeNext(Rule r, List<Rule> currentRules, Set<String> foundGroups) {
+    	if(r.isDirectRecursive() && currentRules.contains(r)) return false;
+    	Set<String> currentGroups=new HashSet<String>();
+		for(Rule cr:currentRules) {
+			currentGroups.add(cr.getGroupname());
+		}
+		if(foundGroups.containsAll(r.getRightSideAsStrList())) {
+			for(String s:r.getRightSideAsStrList()) {
+				if(currentGroups.contains(s))  return true;
+			}
+		}
+		return false;
+	}
+
+	private Map<String, String> createGroupName2Level() {
         Map<String, String> groupName2Order = new HashMap<String, String>();
         for (Rule r : getCsdRules()) {
             groupName2Order.put(r.getGroupname(), "0");
         }
-
         boolean wasChange = true;
         while (wasChange) {
             wasChange = false;
@@ -286,11 +310,10 @@ public class Grammarhost {
         while (oldSize != finisherGroupnames.size()) {
             oldSize = finisherGroupnames.size();
             for (Rule r : getRefRules()) {
-                if (finisherGroupnames.containsAll(r.getRightSideAsStrCollection())) {
+                if (finisherGroupnames.containsAll(r.getRightSideAsStrList())) {
                     finisherGroupnames.add(r.getGroupname());
                 }
             }
-
         }
         return finisherGroupnames;
     }
@@ -418,7 +441,6 @@ public class Grammarhost {
                 sb.append(r.toStringWoCompilation());
                 sb.append("\n");
             }
-
         }
         sb.append("Levels: " + this.levelInSyntaxTreeToRuleList);
         sb.append("\nKill levels: " + killOnLevelToRuleList);
@@ -443,11 +465,6 @@ public class Grammarhost {
         return killOnLevelToRuleList;
     }
 
-    public int getLevel(Rule r) {
-        return Integer.valueOf(this.groupName2Level.get(r.getGroupname()));
-    }
-
-   
 
     public Set<String> getRootGroups() {
         return rootGroups;
@@ -478,5 +495,16 @@ public class Grammarhost {
 		return this.unsafeToDel;
 	}
 
-
+	public int getLevel(Rule current) {
+		int level = -1;
+		for(int i=0;i<=MAX_LEVEL_OF_RULE_APPLICAION;i++) {
+			List<Rule> cl=this.levelInSyntaxTreeToRuleList.get(""+i);
+			if(cl == null || cl.isEmpty()) break;
+			if(cl.contains(current)) {
+				level = i;
+			}
+			
+		}
+		return level;
+	}
 }

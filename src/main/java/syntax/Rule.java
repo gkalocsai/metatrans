@@ -371,7 +371,7 @@ public class Rule {
         return directRecursive;
     }
 
-    public Collection<String> getRightSideAsStrCollection() {
+    public List<String> getRightSideAsStrList() {
         return Arrays.asList(getGroupRefsAsArray());
     }
 

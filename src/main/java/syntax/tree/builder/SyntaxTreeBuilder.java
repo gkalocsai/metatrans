@@ -81,9 +81,12 @@ public class SyntaxTreeBuilder {
 
                         else matches = getMatches(current, r);
                         for (Deduction d : matches) {
-                           if (!gh.getUnsafeToDel().contains(d.getFrom().getRule().getGroupname()))
-                                for (RuleInterval may : d.getTo()) {
-                                       removeFromWards(may);
+                        	if (!gh.getUnsafeToDel().contains(d.getFrom().getRule().getGroupname()))
+                               for (RuleInterval may : d.getTo()) { 
+
+                            	 //  if(toKill.contains(d.getFrom().getRule()))     
+                            	   removeFromWards(may);
+                                   
                                 }
                             RuleInterval ri = d.getFrom();
                             String matchString = ri.matchingString();
@@ -97,9 +100,9 @@ public class SyntaxTreeBuilder {
                     }
                 }
             }
+            Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + (level));
             if (isReadyInner()) return;
 
-            Set<Rule> toKill = gh.getKillOnLevelToRuleList().get("" + (level));
             if (printOut) {
                 System.out.println("Rules on level" + gh.getApplicationOrderToRuleList().get("" + level));
                 System.out.println("Kill on level: " + gh.getKillOnLevelToRuleList().get("" + level));
@@ -108,12 +111,9 @@ public class SyntaxTreeBuilder {
             if (toKill != null) {
                 toCheck.selectFirstElement();
                 StatefulList<RuleInterval>.Entry<RuleInterval> entry = toCheck.getEntry();
-                if (entry != null) {
-                    while (toKill.contains(entry.getValue().getRule())) {
-                        if (entry == null || !toKill.contains(entry.getValue().getRule())) break;
+                    while (entry!=null && toKill.contains(entry.getValue().getRule())) {
                         toCheck.pop();
                         entry = toCheck.getEntry();
-                    }
                 }
                 StatefulList<RuleInterval>.Entry<RuleInterval> prev = toCheck.getEntry();
 
