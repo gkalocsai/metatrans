@@ -27,6 +27,8 @@ public class Grammarhost {
     private Map<String, List<Rule>> levelInSyntaxTreeToRuleList = new HashMap<String, List<Rule>>();
     private Map<String, Set<Rule>> killOnLevelToRuleList = new HashMap<String, Set<Rule>>();
 
+    private Map<String, Set<String>> level2RemoveFromUnsafe= new HashMap<String, Set<String>>();
+    
     private List<Rule> csdRuleList = null;
   //  private Map<String, String> groupName2Level;
 
@@ -87,14 +89,71 @@ public class Grammarhost {
         
         //FIXME: Error messages should be based on the deduction
         //WON'T FIX - too much effort, we just don't delete subResults from the forward map
-        unsafeToDel.addAll(subResults);
+      //  unsafeToDel.addAll(subResults);
    
         fillApplicationOrderToRuleList();
         fillKillLevel();
-
+        fillUnsafeRemoval();
     }
 
-    private void moveRepeatersToOwnGroups() {
+    private void fillUnsafeRemoval() {
+    	
+    	List<String> referencedGroupNames=new LinkedList<String>();
+    	referencedGroupNames.addAll(grammar.keySet());
+    	for(String groupName: referencedGroupNames) {
+    	    List<Rule> haveOnRightSide=new LinkedList<Rule>();
+    	    List<Rule> refRules=getRefRules();
+    	    for(Rule r: refRules) {
+    	        if(r.getRightSideAsStrList().contains(groupName)) {
+    	        	haveOnRightSide.add(r);
+    	        }
+    	    }
+    	    int x=getUnsafeRemovalLevel(groupName,haveOnRightSide);
+    	   
+    	    
+    	    Set<String> cset = level2RemoveFromUnsafe.get(""+x);
+    	    if(cset ==null) cset = new HashSet<String>();
+    	    cset.add(groupName);
+    	    level2RemoveFromUnsafe.put(""+x, cset);
+    	}
+	}
+
+	private int getUnsafeRemovalLevel(String groupName, List<Rule> haveOnRightSide) {
+	
+		if(subResults.contains(groupName))  return Integer.MAX_VALUE;
+		for(Rule r:haveOnRightSide) {
+			if(r.isLeftRecursive() && r.isRightRecursive()) return Integer.MAX_VALUE;
+		}
+		if(haveOnRightSide.size() == 1)  
+			return  getMaxLevel(haveOnRightSide);
+		Rule maxLevelRule = getRuleOnMaxLevel(haveOnRightSide);
+		
+		haveOnRightSide.remove(maxLevelRule);
+		return getMaxLevel(haveOnRightSide);
+	}
+
+	private Rule getRuleOnMaxLevel(List<Rule> haveOnRightSide) {
+	    int maxLevel=getMaxLevel(haveOnRightSide);
+	    for(Rule r:haveOnRightSide) {
+	    	int l = getLevel(r);
+	    	if(l==maxLevel) {
+	    		return r;
+	    	}	
+	    }
+		return null;
+	}
+
+	private int getMaxLevel(List<Rule> rules) {
+	    int maxLevel=0;
+	    for(Rule r:rules) {
+	    	int l = getLevel(r);
+	    	if(l>maxLevel) {
+	    		maxLevel = l;
+	    	}	
+	    }
+		return maxLevel;
+	}
+	private void moveRepeatersToOwnGroups() {
         Map<String, HashSet<String>> groupToRefs = new HashMap<String, HashSet<String>>();
         Map<String, Rule> repeaterGroups = new HashMap<>();
         for (String key : grammar.keySet()) {
@@ -124,13 +183,15 @@ public class Grammarhost {
     }
 
     private void createUnsafeGroupNames() {
+        //!!!FIXME
+    //   unsafeToDel.addAll(grammar.keySet());
         
         Set<String> referencedGroups = new HashSet<String>();
         
     	for (String key : grammar.keySet()) {
             ArrayList<Rule> currentGroup = grammar.get(key);
             for (Rule r : currentGroup) {
-            	if(r.getRightside().length<2) continue;
+            	//if(r.getRightside().length<2) continue;
                 for(SyntaxElement se:r.getRightside()) {
             		if(se.getReferencedGroup()==null) continue;
                 	if(referencedGroups.contains(se.getReferencedGroup())) {
@@ -223,7 +284,6 @@ public class Grammarhost {
         for(int i=1;i<=MAX_LEVEL_OF_RULE_APPLICAION;i++) {
         	List<Rule> nextRules= new LinkedList<Rule>();
         	for(Rule r:refs) {
-        		if(r == null) continue;
         		  if(canBeNext(r, currentRules, foundGroups)){
         			  nextRules.add(r);
         		  }
@@ -507,4 +567,9 @@ public class Grammarhost {
 		}
 		return level;
 	}
+
+	public Map<String, Set<String>> getLevel2RemoveFromUnsafe() {
+		return level2RemoveFromUnsafe;
+	}
+	
 }

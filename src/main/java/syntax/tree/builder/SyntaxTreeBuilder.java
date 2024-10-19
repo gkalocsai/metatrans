@@ -66,6 +66,8 @@ public class SyntaxTreeBuilder {
         int level = 1;
         List<Rule> rulesOnCurrentLevel = gh.getApplicationOrderToRuleList().get("" + level);
         while (rulesOnCurrentLevel != null) {
+        	Set<String> set = gh.getLevel2RemoveFromUnsafe().get(""+level);
+        	if(set !=null) gh.unsafeToDel.removeAll(set);
             toRemove.clear();
             boolean wasChange = true;
             while (wasChange) {
