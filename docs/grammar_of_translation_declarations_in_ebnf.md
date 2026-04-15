@@ -1,4 +1,4 @@
- MetaTrans description format — EBNF grammar (parser-generator ready)
+# MetaTrans description format — EBNF grammar (parser-generator ready)
 
 Below is a compact EBNF grammar suitable for feeding a parser generator (Lexer + Parser). It includes token regular expressions for identifiers, digits and whitespace and a descriptor subgrammar. Some checks are semantic (not easily enforceable in pure grammar) — these are listed after the grammar.
 
